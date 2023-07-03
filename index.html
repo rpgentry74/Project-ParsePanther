@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Student Prerequisite Analyzer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="container">
+        <h1>Student Prerequisite Analyzer</h1>
+        <p>Welcome to the Student Prerequisite Analyzer!</p>
+        <p>My name is Richard Gentry, and I am a professor in the Mechanical-Electrical Technology Department at Sacramento City College. I created this app to simplify my own tasks as a faculty member, and I hope it can make your work easier too. The Student Prerequisite Analyzer automates the process of checking student prerequisites, providing you with clear and organized data. If you have any questions or suggestions, feel free to reach out to me at <a href="mailto:gentryr@scc.losrios.edu">gentryr@scc.losrios.edu</a>. Enjoy using the app!</p>
+        <p>This tool is designed to make your life as an instructor easier by simplifying the process of checking course prerequisites. If you've ever struggled with organizing and tracking which students have completed specific courses, this app is here to help. Just follow the steps below to fetch your roster data, paste it into the text box, and hit submit. The Student Prerequisite Analyzer will analyze and present the data in a clear, easy-to-read format. You'll be able to quickly identify which students are ready to proceed and which ones still need to complete prerequisites. Let's get started!</p>
+        <h2>Directions</h2>
+        <ol>
+            <li>Begin by logging into the <a href="https://inside.losrios.edu/~intranet" target="_blank" rel="noopener noreferrer">Los Rios Intranet</a> (opens in a new tab).</li>
+            <li>Once you're in, locate and click on <strong>"Online Grade Reporting and Class Rosters"</strong> from the available options.</li>
+            <li>Next, tap on the <strong>"Go to Service"</strong> button to proceed.</li>
+            <li>From the list of rosters available, select the one you're interested in and hit <strong>"Get Roster"</strong>.</li>
+            <li>You'll find yourself on a new page. Look for the link titled <strong>"Prereq Checker"</strong> and click it.</li>
+            <li>Click anywhere on the page to activate it. Now, for Windows PC users, press <strong>"Ctrl + A"</strong> to highlight the entire page, followed by <strong>"Ctrl + C"</strong> to copy the contents.</li>
+            <li>Before you bring in the new data, let's ensure a clean slate. If there's any existing data in our tool, the Student Prerequisite Analyzer, just hit <strong>"Reset"</strong> to clear it out and make room for the new data.</li>
+            <li>Now, it's time to paste the copied data into the textbox. Click anywhere inside the textbox and press <strong>"Ctrl + V"</strong>.</li>
+            <li>After you've pasted the new data, press <strong>"Submit"</strong>. Your student data will be neatly organized and displayed below.</li>
+        </ol>
+        <form>
+            <label for="inputText"><h3>Paste the class data here:</h3></label><br>  
+            <textarea id="inputText" rows="20" cols="60%" placeholder="Paste class data here"></textarea>
+        </form>
+        <button id="submit" type="button">Submit</button>
+        <button id="reset" type="button">Reset</button>
+    </header>
+
+    <main class="container">
+        <div id="output">
+            <!-- Parsed data will appear here -->
+        </div>
+    </main>
+
+    <script type="module" src="main.js" defer></script>
+</body>
+</html>
