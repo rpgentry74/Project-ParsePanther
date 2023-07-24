@@ -1,75 +1,335 @@
+/* Body and container styles */
 body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
+  font-family: Arial, sans-serif;
+  line-height: 1.25;
+  color: #333;
+  margin: 0;
+  padding: 0;
+  background-color: #808080;
 }
 
 .container {
-    width: 80%;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 15px;
+  background-color: white;
 }
 
+/* Header styles */
 header {
-    background: #354458;
-    color: #ffffff;
-    padding: 20px;
-}
-
-h1, h2, h3 {
-    margin-bottom: 20px;
-}
-
-ol {
-    margin-bottom: 20px;
-}
-
-textarea {
-    width: 100%;
-    margin-bottom: 10px;
-}
-
-button {
-    display: inline-block;
-    color: #ffffff;
-    background-color: #354458;
-    padding: 10px 20px;
-    margin-right: 10px;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #286090;
-}
-
-/* Updated styles for buttons with higher contrast */
-button {
-    background-color: #286090;
-    border: 2px solid #ffffff;
-}
-
-button:hover {
-    background-color: #354458;
-    border: 2px solid #ffffff;
-}
-
-#output {
-    background-color: #ffffff;
-    border: 1px solid #dddddd;
-    padding: 20px;
-    margin-top: 20px;
+  background: #354458;
+  color: #ffffff;
+  padding: 10px;
 }
 
 header a {
-    color: #FFD700; /* Gold */
+  color: #FFD700; /* Gold */
 }
 
 header a:hover {
-    color: #ffffff; /* White */
+  color: #ffffff; /* White */
 }
+/* Header styles END */
+
+
+/* Main styles */
+
+main {
+  background: #354458;
+  color: #ffffff;
+  padding: 10px;
+}
+
+main a {
+  color: #FFD700; /* Gold */
+}
+
+main a:hover {
+  color: #ffffff; /* White */
+}
+
+/* Main styles END */
+
+footer {
+  background: #354458;
+  color: #ffffff;
+  padding: 10px;
+}
+
+footer a {
+  color: #FFD700; /* Gold */
+}
+
+footer a:hover {
+  color: #ffffff; /* White */
+}
+
+/* General typography */
+h1, h2, h3, h4 {
+  margin-bottom: 5px;
+  margin-block-start: 0.25em;
+  margin-block-end: 0.25em;
+}
+
+ol {
+  margin-bottom: 10px;
+}
+
+/* Form and input fields styles */
+textarea {
+  width: 100%;
+  padding: inherit;
+  margin-bottom: 10px;
+}
+
+.tb_hidden {
+  display: none;
+}
+
+.buttonPrimary {
+  display: inline-block;
+  background-color: #286090;
+  border: 2px solid #ffffff;
+  padding: 10px 20px;
+  margin-right: 10px;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+.buttonPrimary:hover {
+  background-color: #354458;
+  border: 2px solid #ffffff;
+}
+
+/* Output section */
+#output {
+  background-color: #ffffff;
+}
+
+/* Tabbed CSS */
+.tabBar {
+    background: #ffffff;
+    padding: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.tab-link {
+  padding: 10px;
+  background-color: #286090;
+  color: #ffffff;
+  cursor: pointer;
+  text-align: center;
+  border: 5px solid #ffffff;
+  flex-basis: 25%; /* Each button takes up 25% of the container width */
+  box-sizing: border-box;
+  font-size: 18px; /* Increase the font size to your desired value */
+  font-weight: bold; /* Add this line to make the text bold */
+}
+
+.tab-link.active {
+  background-color: #FFD700;
+  color: #354458;
+}
+
+.tab-link:hover {
+  background-color: #354458;
+  color: #ffffff;
+}
+
+
+.tab-link:not(:last-child) {
+  border-right: none;
+}
+
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+@media screen and (max-width: 600px) {
+  .tabbed-links {
+    flex-direction: column;
+  }
+
+  .tab-link {
+    margin-bottom: 10px;
+  }
+}
+
+/* Table styles */
+.merged-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.merged-table th,
+.merged-table td {
+  padding: 2px;
+  border: 3px solid #dddddd;
+}
+
+.merged-table th {
+  background-color: #354458;
+  color: #ffffff;
+}
+
+.merged-table td.center {
+  text-align: center;
+}
+
+.merged-table td.left {
+  text-align: left;
+}
+
+/* Checkmark styles */
+.checkmark {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  line-height: normal; /* adjust as needed */
+}
+
+/* Color coding styles */
+.no-courses-taken {
+  background-color: #d18a8a; /* Muted Red */
+}
+
+.all-courses-taken {
+  background-color: #add1ae; /* Pale Green */
+}
+
+.some-courses-taken .not-taken {
+  background-color: #d18a8a; /* Muted Red */
+}
+
+.some-courses-taken .taken {
+  background-color: #add1ae; /* Pale Green */
+}
+
+.student-info {
+  background-color: #fafaba; /* Muted Yellow */
+}
+
+/* Dialog box styles */
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  background-color: white;
+  border: 3px solid black;
+  z-index: 1000; /* Make sure dialog is above all other elements */
+  opacity: 0;
+  animation: fade-in 0.3s forwards;
+}
+
+.dialog-message {
+  margin-bottom: 20px;
+}
+
+.dialog-button {
+  display: inline-block;
+  background-color: #286090;
+  border: 2px solid #ffffff;
+  padding: 10px 20px;
+  margin-right: 10px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.dialog-button:hover {
+  background-color: #354458;
+  border: 2px solid #ffffff;
+}
+
+@keyframes fade-in {
+  to { opacity: 1; }
+}
+
+/* Table styles */
+#tableContainer {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 15px;
+  background-color: white;
+}
+
+#tableContainer {
+  display: none;
+}
+
+#spreadsheetControls {
+  text-align: center;
+}
+
+/* Status Box Starts */
+
+.status-indicator {
+  display: inline-block;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  margin-bottom: 1em;
+  border-radius: 5px;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
+  box-shadow: inset 0 5px 5px rgba(0, 0, 0, 0.50);  /* Add this line for the inset shadow effect */
+}
+
+.status-indicator.status-good {
+  background-color: #68aa62; /* or any desired color */
+}
+
+.status-indicator.status-bad {
+  background-color: #cf4b4b; /* or any desired color */
+}
+
+.status-indicator.status-default {
+  background-color: #c6c6c6; /* or any desired color */
+  color:#000000;
+}
+/* Status Box End */
+
+/* Overlay Effect to Disable Prereqs */
+
+#prerequisiteContainer {
+  position: relative;
+}
+
+#disableUntilRosterAccepted.disabled {
+  content: 'Please complete the Roster Data section first';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #808080cc;
+  pointer-events: all;
+}
+
+#overlayMessage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #bb0c0c;
+  font-weight: bold;
+  font-size: 16px; /* Increase the font size to your desired value */
+}
+
+/* Overlay Effect to Disable Prereqs End*/
 

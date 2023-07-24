@@ -1,43 +1,407 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Student Prerequisite Analyzer</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <header class="container">
-        <h1>Student Prerequisite Analyzer</h1>
-        <p>Welcome to the Student Prerequisite Analyzer!</p>
-        <p>My name is Richard Gentry, and I am a professor in the Mechanical-Electrical Technology Department at Sacramento City College. I created this app to simplify my own tasks as a faculty member, and I hope it can make your work easier too. The Student Prerequisite Analyzer automates the process of checking student prerequisites, providing you with clear and organized data. If you have any questions or suggestions, feel free to reach out to me at <a href="mailto:gentryr@scc.losrios.edu">gentryr@scc.losrios.edu</a>. Enjoy using the app!</p>
-        <p>This tool is designed to make your life as an instructor easier by simplifying the process of checking course prerequisites. If you've ever struggled with organizing and tracking which students have completed specific courses, this app is here to help. Just follow the steps below to fetch your roster data, paste it into the text box, and hit submit. The Student Prerequisite Analyzer will analyze and present the data in a clear, easy-to-read format. You'll be able to quickly identify which students are ready to proceed and which ones still need to complete prerequisites. Let's get started!</p>
-        <h2>Directions</h2>
-        <ol>
-            <li>Begin by logging into the <a href="https://inside.losrios.edu/~intranet" target="_blank" rel="noopener noreferrer">Los Rios Intranet</a> (opens in a new tab).</li>
-            <li>Once you're in, locate and click on <strong>"Online Grade Reporting and Class Rosters"</strong> from the available options.</li>
-            <li>Next, tap on the <strong>"Go to Service"</strong> button to proceed.</li>
-            <li>From the list of rosters available, select the one you're interested in and hit <strong>"Get Roster"</strong>.</li>
-            <li>You'll find yourself on a new page. Look for the link titled <strong>"Prereq Checker"</strong> and click it.</li>
-            <li>Click anywhere on the page to activate it. Now, for Windows PC users, press <strong>"Ctrl + A"</strong> to highlight the entire page, followed by <strong>"Ctrl + C"</strong> to copy the contents.</li>
-            <li>Before you bring in the new data, let's ensure a clean slate. If there's any existing data in our tool, the Student Prerequisite Analyzer, just hit <strong>"Reset"</strong> to clear it out and make room for the new data.</li>
-            <li>Now, it's time to paste the copied data into the textbox. Click anywhere inside the textbox and press <strong>"Ctrl + V"</strong>.</li>
-            <li>After you've pasted the new data, press <strong>"Submit"</strong>. Your student data will be neatly organized and displayed below.</li>
-        </ol>
-        <form>
-            <label for="inputText"><h3>Paste the class data here:</h3></label><br>  
-            <textarea id="inputText" rows="20" cols="60%" placeholder="Paste class data here"></textarea>
-        </form>
-        <button id="submit" type="button">Submit</button>
-        <button id="reset" type="button">Reset</button>
+  <head>
+    <title>LRCCD Student Prerequisite Analyzer v2.1.0</title>
+      <meta name="description" content="Simplify the process of checking course prerequisites with the LRCCD Student Prerequisite Analyzer. Automate the task of organizing and tracking student prerequisites for clear and organized data.">
+      <link rel="shortcut icon" href="/img/favicon/favicon-32x32.png" />
+      <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+      <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-32x32.png">
+      <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
+      <link rel="mask-icon" href="/img/favicon/safari-pinned-tab.svg" color="#5bbad5">
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="styles.css" rel="preload" as="style">
+      <link rel="manifest" href="/manifest.json">
+      <meta name="theme-color" content="#000080">
+      <script type="text/javascript" src="/js/xlsx/xlsx.full.min.js" defer></script>
+      <script type="text/javascript" src="/js/FileSaver.js" defer></script>
+  </head>
+  <body>
+    <div class="container">
+    <header>
+        <h1 id="top">LRCCD Student Prerequisite Analyzer v2.1.0</h1>
+        <p>Simplify the process of checking course prerequisites with the Student Prerequisite Analyzer. This app automates the task of organizing and tracking student prerequisites, providing clear and organized data.</p>
+        <p>No data is transmitted, and all processing is handled directly in your browser for security.</p>
     </header>
+    <nav class="tabbed-links">
+      <!-- Links To Los Rios Info -->
+    </nav>
+    <section class="tabBar" aria-label="Page navigation">
+      <button class="tab-link active" data-tab="tab1" aria-pressed="true">Instructions</button>
+      <button class="tab-link" data-tab="tab2" aria-pressed="false">Feedback</button>
+      <button class="tab-link" data-tab="tab3" aria-pressed="false">Roadmap</button>
+      <button class="tab-link" data-tab="tab4" aria-pressed="false">Version</button>
+    </section>
+    <main>
+      <div class="tab-content">
+        <section id="tab1" class="tab-panel active">
+          <!-- Content for Tab 1 -->
+          <article>
+            <h2>Instructions:</h2>
+            <ol>
+              <li>If you believe there is any data in the textboxes below, click <strong>Reset Roster</strong> or <strong>Reset All Fields</strong> in the Student Prerequisite Analyzer to clear existing data before proceeding.</li>
+              <li>Log into the <a href="https://inside.losrios.edu/~intranet" target="_blank" rel="noopener noreferrer">Los Rios Intranet</a> (opens in a new tab).</li>
+              <li>Select <strong>Online Grade Reporting and Class Rosters</strong> and click <strong>Go to Service</strong>.</li>
+              <li>Select the desired roster and click <strong>Get Roster</strong>.</li>
+              <li>Activate the page and copy its contents (Ctrl + A, Ctrl + C on Windows or Cmd + A, Cmd + C on Mac).</li>
+              <li>Paste the copied data (Ctrl + V on Windows or Cmd + V on Mac) into the <strong>Roster Data</strong> textbox.</li>
+            </ol>
+            <p style="color: #FFD700; font-weight:bold;">Please note: Roster Data must be pasted and processed before Prerequisite or Indirect Prerequisite data.</p>
+            <ol start="7">
+              <li>Before proceeding, make sure to check the boxes for the prerequisites (Direct, Indirect, or both) you wish to verify.</li>
+              <li>Back in the LRCCD roster, click on the <strong>Prereq Checker</strong> link.</li>
+              <li>Activate the page and copy its contents (Ctrl + A, Ctrl + C on Windows or Cmd + A, Cmd + C on Mac).</li>
+              <li>Paste the copied data (Ctrl + V on Windows or Cmd + V on Mac) into the <strong>Prerequisite Data</strong> textbox.</li>
+              <li>If the course also has indirect prerequisite courses you wish to check, click on the <strong>Indirect Prereq Checker</strong> link in the Prerequiste Checker page.</li>
+              <li>Activate the page and copy its contents (Ctrl + A, Ctrl + C on Windows or Cmd + A, Cmd + C on Mac).</li>
+              <li>Paste the copied data (Ctrl + V on Windows or Cmd + V on Mac) into the <strong>Indirect Prerequisite Data</strong> textbox.</li>
+              <li>Click <strong>Process Data</strong> to view your organized student data.</li>
+              <li>If you would like to save your data for later, scroll down to the <strong>Download</strong> section.</li>
+              <li>Select your preferred file format from the dropdown menu.</li>
+              <li>Click the <strong>Download</strong> button to save your processed data.</li>
+            </ol>
+          </article>
+        </section>
+        <section id="tab2" class="tab-panel">
+          <!-- Content for Tab 2 -->
+          <article>
+              <h2>User Feedback</h2>
+                  <p>The feedback form and data logging still needs to be built.</p>
+                  <p>For now, please contact me, Richard Gentry, at <a href="mailto:gentryr@scc.losrios.edu">gentryr@scc.losrios.edu</a> for any questions or suggestions.</p>
+                  <p>I hope you enjoy using the app!</p>
+          </article>
+        </section>
+        <section id="tab3" class="tab-panel">
+          <!-- Content for Tab 3 -->
+          <article>
+            <h2>Project Road Map</h2>
+            <h3>User-Requested Enhancements</h3>
+            <ul>
+              <li><strong>(Complete)</strong> Implement Indirect Prerequisite Checker functionality.</li>
+              <li><strong>(Complete)</strong> Enhance the UI/UX to better facilitate the Indirect Prerequisite Checker functionality.</li>
+              <li><strong>(Complete)</strong> Improve error handling to provide clearer instructions and error messages during indirect prerequisite data processing.</li>
+            </ul>
+            <h3>Basic Setup and Main Page</h3>
+            <ul>
+              <li><strong>(Complete)</strong> Improve the styling and layout of the main page for better readability and accessibility.</li>
+              <li><strong>(Complete)</strong> Set up the development environment.</li>
+              <li><strong>(Complete)</strong> Create the main HTML page with the necessary input fields and a text area for pasting data. Add a new text box for the roster data.</li>
+            </ul>
+            
+            <h3>Data Parsing Module</h3>
+            <ul>
+              <li><strong>(Complete)</strong> Write a JavaScript function to parse the prerequisite data.</li>
+              <li><strong>(Complete)</strong> Write a JavaScript function to parse the roster data.</li>
+              <li><strong>(Complete)</strong> Implement error handling for handling data format issues.</li>
+              <li><strong>(Complete)</strong> Compare lab and lecture information for error checking.</li>
+            </ul>
+            
+            <h3>Table Generation Module</h3>
+            <ul>
+              <li><strong>(Complete)</strong> Write a JavaScript function to generate an HTML table based on the parsed data.</li>
+              <li><strong>(Complete)</strong> Implement color-coding logic to mark cells and rows based on course completion status.</li>
+              <li><strong>(Complete)</strong> Refine the table layout and styling for improved visual presentation.</li>
+            </ul>
+            
+            <h3>Color Coding Module</h3>
+            <ul>
+              <li><strong>(Complete)</strong> Implement the color-coding logic to mark cells and rows based on the course completion status.</li>
+            </ul>
+            
+            <h3>Download Functionality Module</h3>
+            <ul>
+              <li><strong>(Complete)</strong> Implement the ability to download the table data in various formats (Excel, Google Sheets, CSV).</li>
+            </ul>
+            
+            <h3>User Interaction and Feedback</h3>
+            <ul>
+              <li><strong>(Not Needed)</strong> Implement a loading indicator to provide feedback during data processing.</li>
+              <li><strong>(Complete)</strong> Implement a reset button to clear the input and output.</li>
+              <li><strong>(Complete)</strong> Improve error handling with clear error messages.</li>
+              <li><strong>(To Do)</strong> Build feedback form</li>
+              <li><strong>(Continuous Revision)</strong> Update instructions and guidance for better clarity and usability.</li>
+            </ul>
+            <h3>Progressive Web App (PWA) Conversion</h3>
+            <ul>
+                <li><strong>(Complete)</strong> Added and configured the web app manifest file.</li>
+                <li><strong>(Complete)</strong> Set up the basic structure for the service worker file.</li>
+                <li><strong>(Complete)</strong> Registered the service worker in the main JavaScript file.</li>
+                <li><strong>(Complete)</strong> Implemented fetch event listeners in the service worker for offline support.</li>
+                <li><strong>(Complete)</strong> Fixed caching issues to ensure all required files are available offline.</li>
+                <li><strong>(Complete)</strong> Added PWA icons and updated the theme color in the manifest and HTML meta tag.</li>
+                <li><strong>(Complete)</strong> Conducted thorough testing to ensure PWA functionality works as expected.</li>
+            </ul>
+            <h3>Testing and Refinement</h3>
+            <ul>
+              <li><strong>(Continuous Need)</strong> Thoroughly test the application, covering different scenarios and edge cases.</li>
+              <li><strong>(Continuous Need)</strong> Gather user feedback and make necessary refinements to enhance usability and functionality.</li>
+            </ul>
+            
+            <h3>Deployment</h3>
+            <ul>
+              <li><strong>(Complete)</strong> Deploy the application to the shared server.</li>
+              <li><strong>(Testing In Progress)</strong> Perform final testing in the production environment.</li>
+            </ul>
+            <a href="#top" class="back-to-top">Back to Top</a> 
+          </article>
+        </section>
+        <section id="tab4" class="tab-panel">
+          <!-- Content for Tab 4 -->
+          <article>
+            <h2>Version</h2>
+            <h3>2.1.0</h3>
+            <ul>
+              <li>Introduced a notification system to inform users of important updates and known issues.</li>
+              <li>The notification system uses local storage to remember user preferences for each message and to prevent repeated messages. Messages can be configured to reappear after a certain number of days.</li>
+              <li>Improved the user experience by presenting all new messages together in a single dialog box, each remembered separately for future notifications.</li>
+              <li>Enhanced the dialog system to allow more flexible messages, including different responses to messages and the use of HTML tags in message text.</li>
+              <li>Added a default message header to the notification system to help identify system status messages, improving clarity for the users.</li>
+              <li>Added functionality to allow notifications to be easily turned off when not needed, improving system efficiency and user experience.</li>
+              <li>Continued to optimize and clean up code for enhanced performance and maintainability.</li>
+            </ul>
+            <h3>2.0.0</h3>
+            <ul>
+              <li>Added capability for Indirect Prerequisite checking in addition to Direct Prerequisites, greatly extending the functionality of the application.</li>
+              <li>Significantly updated the user interface and user experience with clearer instructions and intuitive error messages.</li>
+              <li>Introduced checkboxes for the selection of Direct and Indirect prerequisites, providing the user with more control over the data verification process.</li>
+              <li>Enhanced error handling mechanisms during data parsing and processing for more robust application performance.</li>
+              <li>Improved the parsing logic and paste handlers to efficiently handle both Direct and Indirect prerequisites data.</li>
+              <li>Optimized the HTML table and spreadsheet generation to handle both Direct and Indirect prerequisites data, providing the user with comprehensive data reports.</li>
+              <li>Implemented detailed logging for better debugging and error tracing, enabling more efficient troubleshooting and maintenance.</li>
+              <li>General code cleanup and optimization, improving the overall performance and readability of the codebase.</li>
+            </ul>
+            <h3>1.0.0</h3>
+            <ul>
+              <li>Implemented the Indirect Prerequisite Checker functionality.</li>
+              <li>Refactored and improved the parsing logic to handle direct and indirect prerequisites data.</li>
+              <li>Updated the paste handlers to handle direct and indirect prerequisites data.</li>
+              <li>Improved error handling during data parsing and processing.</li>
+              <li>Refactored the HTML table and spreadsheet generation to support both direct and indirect prerequisites data.</li>
+              <li>Improved the user interface and user experience, providing clearer instructions and error messages.</li>
+              <li>Enhanced the performance by optimizing the data processing flow.</li>
+              <li>Implemented logging for better debugging and error tracing.</li>
+              <li>General code cleanup and optimization.</li>
+            </ul>
+            <h3>0.9.0</h3>
+            <ul>
+                <li>Improved the user interface with a more aesthetic design, better readability, and enhanced accessibility. </li>
+                <li>Added an open-source MIT license.</li>
+                <li>Optimized the layout of the main page for better readability and accessibility.</li>
+                <li>Updated sections to be hidden until specific actions are performed, improving user experience.</li>
+                <li>Improved the download button visibility to enhance the user workflow.</li>
+                <li>Redesigned navigation tabs with new color coding for better visual feedback and user experience.</li>
+                <li>Updated version display in the footer.</li>
+            </ul>
+            <h3>0.8.9</h3>
+            <ul>
+                <li>Implemented responsive design for navigation tabs.</li>
+            </ul>
+            <h3>0.8.5</h3>
+            <ul>
+                <li>Updated user interface with CSS improvements for accessibility and responsiveness.</li>
+                <li>Added animation to the error dialog box for a better user experience.</li>
+            </ul>
+            <h3>0.8.2</h3>
+            <ul>
+              <li>General code cleanup and optimization.</li>    
+            </ul>
+            <h3>0.8.0</h3>
+            <ul>
+              <li>Final adjustments and overall testing for PWA functionality.</li>
+              <li>Completed service worker optimization and caching improvements.</li>
+            </ul>
 
-    <main class="container">
-        <div id="output">
-            <!-- Parsed data will appear here -->
+            <h3>0.7.9</h3>
+            <ul>
+              <li>Added images/icons for PWA manifest.</li>
+              <li>Added theme color to manifest and to the meta tag in HTML.</li>
+            </ul>
+
+            <h3>0.7.8</h3>
+            <ul>
+              <li>Updated the manifest file with correct information and necessary fields.</li>
+            </ul>
+
+            <h3>0.7.7</h3>
+            <ul>
+              <li>Fixed issues with service worker registration and caching strategy.</li>
+            </ul>
+
+            <h3>0.7.6</h3>
+            <ul>
+              <li>Addressed caching issues, making sure all required files are cached.</li>
+            </ul>
+
+            <h3>0.7.5</h3>
+            <ul>
+              <li>Implemented service worker with fetch event listeners for offline support.</li>
+            </ul>
+
+            <h3>0.7.4</h3>
+            <ul>
+              <li>Created service worker for the application and registered it in the main JavaScript file.</li>
+            </ul>
+
+            <h3>0.7.3</h3>
+            <ul>
+              <li>Added basic structure for the service worker file (service-worker.js).</li>
+            </ul>
+
+            <h3>0.7.2</h3>
+            <ul>
+              <li>Configured the web app manifest file (manifest.json) with initial settings.</li>
+            </ul>
+
+            <h3>0.7.1</h3>
+            <ul>
+              <li>Set up the basic structure for the PWA including the addition of the manifest file in the HTML file.</li>
+            </ul>
+            <h3>0.7.0</h3>
+            <ul>
+                <li>Minor code cleanup and formatting improvements.</li>
+            </ul>
+
+            <h3>0.6.9</h3>
+            <ul>
+                <li>Modified the file name of the generated spreadsheet to include the course name, LEC number (preferred), LAB number, and the current date (in the format of year-month-day).</li>
+            </ul>
+
+            <h3>0.6.8</h3>
+            <ul>
+                <li>Updated the code to display the course, professor, LEC number, and LAB number at the top of each spreadsheet.</li>
+                <li>Added a blank line between the header information and the student roster table.</li>
+            </ul>
+
+            <h3>0.6.7</h3>
+            <ul>
+                <li>Fixed a bug in the scrolling functionality by ensuring the DOM is fully loaded before attaching event listeners.</li>
+            </ul>
+
+            <h3>0.6.6</h3>
+            <ul>
+                <li>Added smooth scrolling to the download button after processing the data.</li>
+            </ul>
+
+            <h3>0.6.5</h3>
+            <ul>
+                <li>Improved table layout and styles for better readability.</li>
+                <li>Added color-coding to the table rows for easier data interpretation.</li>
+                <li>Added support for generating spreadsheet files in multiple formats (xlsx, csv, ods).</li>
+                <li>Added a dropdown menu to select the desired file format.</li>
+                <li>Implemented the generateSpreadsheetFile function to handle the file generation based on the selected format.</li>
+                <li>Modified the generateSelectedSpreadsheetFile function to retrieve the selected format from the dropdown and call the main function with the appropriate parameters.</li>
+            </ul>
+            <h3>0.5.1</h3>
+            <ul>
+                <li>Public Release</li>
+                <ul>
+                    <li>Fixed a parsing error from Firefox including extra white spaces</li>
+                </ul>
+            </ul>
+            <h3>0.5.0</h3>
+            <ul>
+                <li>Public Release</li>
+                <ul>
+                    <li>All major functionality should be working.</li>
+                    <li>More user testing is needed.</li>
+                    <li>Minor error - Table is being generated even when prerequisites are not present. Instead a pop-up should be shown letting user know that the prerequisite data could not be found.</li>
+                </ul>
+            </ul>
+            <a href="#top" class="back-to-top">Back to Top</a>
+          </article>
+        </section>
+      </div>
+        <hr>
+        <section>
+          <form>
+            <fieldset>
+              <legend>Enter Course Data Below</legend>
+              <section id="rosterDataSection">
+                <label for="rosterData"><h3>Roster Data</h3></label>  
+                <textarea id="rosterData" rows="20" cols="60%" placeholder="Paste roster data here"></textarea>
+                <span id="rosterStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
+                <button id="resetRoster" type="button" class="buttonPrimary">Reset Roster</button>
+              </section>
+              <hr>
+              <div id="prerequisiteContainer">
+                <div id="disableUntilRosterAccepted" class="disabled">
+                  <div id="overlayMessage">Please complete the Roster Data section first</div>
+                </div>
+                <section id="prerequisiteOptionsSection">
+                  <label for="includeDirectPrerequisites"><input type="checkbox" id="includeDirectPrerequisites" checked>Include Prerequisites (Common)</label>
+                  <br>
+                  <label for="includeIndirectPrerequisites"><input type="checkbox" id="includeIndirectPrerequisites">Include Indirect Prerequisites (Less Common)</label>
+                </section>
+                <section id="prerequisiteDataGroup" class="tb_hidden">
+                  <label for="prerequisiteData"><h3>Prerequisite Data</h3></label>
+                  <textarea id="prerequisiteData" rows="20" cols="60%" placeholder="Paste prerequisite data here"></textarea>
+                  <span id="prerequisiteStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
+                  <button id="resetPrerequisite" type="button" class="buttonPrimary">Reset Prerequisite</button>
+                </section>
+                <section id="indirectPrerequisiteDataGroup" class="tb_hidden">
+                  <label for="indirectPrerequisiteData"><h3>Indirect Prerequisite</h3></label>
+                  <textarea id="indirectPrerequisiteData" rows="20" cols="60%" placeholder="Paste indirect prerequisite data here"></textarea>
+                  <span id="indirectPrerequisiteStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
+                  <button id="resetIndirectPrerequisite" type="button" class="buttonPrimary">Reset Indirect Prerequisite</button>
+                </section>
+              </div>
+            </fieldset>
+          </form>
+          <br>
+          <button id="submit" type="button" class="buttonPrimary">Process Data</button>
+          <button id="resetAll" type="button" class="buttonPrimary">Reset All Fields</button>
+        </section>
+      </div>
+      <div id="tableContainer">
+        <section id="output">
+          <!-- Parsed data will appear here -->
+        </section>
+        <div id="spreadsheetControls">
+          <label for="formatSelect">Select Format:</label>
+          <select id="formatSelect">
+            <option>Pick one</option>
+            <option value="xlsx">XLSX</option>
+            <option value="csv">CSV</option>
+            <option value="ods">ODS</option>
+          </select>
+          <button id="downloadBtn" type="button" class="buttonPrimary">Download</button>
         </div>
+      </div>
     </main>
-
+    <div class="container">
+    <footer>
+        <a href="#top" class="back-to-top">Back to Top</a>
+        <p>&copy; 2023 Richard Gentry. This website is licensed under the <a href="LICENSE.txt">MIT License</a>.</p>
+        <p>Web app designed and developed by Richard Gentry and the Mechanical-Electrical Technology Department</p>
+    </footer>
+    </div>
+    <script type="text/javascript" src="checkboxes.js" defer></script>
     <script type="module" src="main.js" defer></script>
-</body>
+    <script>
+      // Get all tab links
+      const tabLinks = document.querySelectorAll('.tab-link');
+
+      // Attach click event handlers to each tab link
+      tabLinks.forEach(link => {
+          link.addEventListener('click', e => {
+              e.preventDefault();
+
+              // Remove 'active' class from all tab links and panels
+              tabLinks.forEach(tabLink => {
+                  tabLink.classList.remove('active');
+                  tabLink.setAttribute('aria-pressed', 'false');
+              });
+              const tabPanels = document.querySelectorAll('.tab-panel');
+              tabPanels.forEach(panel => panel.classList.remove('active'));
+
+              // Add 'active' class to the clicked tab link and its corresponding panel
+              const tabId = link.getAttribute('data-tab');
+              const activeTabPanel = document.getElementById(tabId);
+              link.classList.add('active');
+              link.setAttribute('aria-pressed', 'true');
+              activeTabPanel.classList.add('active');
+          });
+      });
+    </script>
+  </body>
 </html>

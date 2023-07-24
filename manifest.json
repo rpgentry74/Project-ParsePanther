@@ -1,0 +1,21 @@
+{
+    "short_name": "Class Checker",
+    "name": "Class Prerequisite Checker",
+    "icons": [
+      {
+        "src": "/img/icons/icons-512.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "/img/icons/icons-512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "start_url": "/index.html",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff"
+  }
+  

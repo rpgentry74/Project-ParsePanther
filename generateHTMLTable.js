@@ -1,63 +1,117 @@
-import { sortStudentsByLastNameFirstNameID } from './studentSorting.js';
+// Import necessary modules
+import { getState } from './state.js';
+import { colorCodeCells } from './colorCodeCells.js';
 
-export function generateHTMLTable(parsedData) {
-  // Start the HTML string
-  let html = `<h2>${parsedData.course}</h2>`;
-  html += `<h3>Professor: ${parsedData.professor}</h3>`;
-  if (parsedData.lecNum) {
-    html += `<h3>LEC: ${parsedData.lecNum}</h3>`;
-  }
-  if (parsedData.labNum) {
-    html += `<h3>LAB: ${parsedData.labNum}</h3>`;
-  }
+// Define the generateHTMLTable function
+export async function generateHTMLTable() {
+  // Retrieve data from the state
+  let { rosterData, classData, indirectClassData } = getState();
 
-  // Start the table
-  html += `<table border="1">`;
-  html += `<tr><th>Last Name</th><th>First Name</th><th>W-id</th>`;
-
-  // Add a column header for each prerequisite course
-  for (let course in parsedData.prerequisiteCourses) {
-    html += `<th>${course}</th>`;
-  }
-  html += `</tr>`;
-
-  // Collect all the students
-  let students = {};
-  for (let course in parsedData.prerequisiteCourses) {
-    for (let student of parsedData.prerequisiteCourses[course]) {
-      if (!students[student.studentID]) {
-        students[student.studentID] = {
-          lastName: student.lastName,
-          firstName: student.firstName,
-          studentID: student.studentID,
-          courses: {}
-        };
-      }
-      students[student.studentID].courses[course] = true;
-    }
+  // Ensure classData is resolved
+  if (classData instanceof Promise) {
+    classData = await classData;
   }
 
-  // Convert the students object into an array
-  let studentsArray = Object.values(students);
-
-  // Sort the students array
-  studentsArray = sortStudentsByLastNameFirstNameID(studentsArray);
-
-  // Add a row for each student
-  for (let student of studentsArray) {
-    html += `<tr>`;
-    html += `<td>${student.lastName}</td>`;
-    html += `<td>${student.firstName}</td>`;
-    html += `<td>${student.studentID}</td>`;
-    for (let course in parsedData.prerequisiteCourses) {
-      html += `<td>${student.courses[course] ? '✓' : ''}</td>`;
-    }
-    html += `</tr>`;
+  // Ensure indirectClassData is resolved
+  if (indirectClassData instanceof Promise) {
+    indirectClassData = await indirectClassData;
   }
 
-  // End the table
-  html += `</table>`;
+  // Ensure there is valid data to work with
+  if (!rosterData || (!classData && !indirectClassData)) {
+    return "<p>Error: Invalid roster data or class data.</p>";
+  }
 
-  // Return the generated HTML
-  return html;
+  // Extract necessary data from the state
+  const professorName = rosterData.professor || 'Unknown';
+  const courseName = rosterData.course || 'Unknown';
+  const lecNum = rosterData.lecNum || 'None';
+  const labNum = rosterData.labNum || 'None';
+
+  // Merge classData.prerequisiteCourses and indirectClassData.prerequisiteCourses if they exist
+  const directPrerequisites = (classData && classData.prerequisiteCourses) ? classData.prerequisiteCourses : {};
+  const indirectPrerequisites = (indirectClassData && indirectClassData.prerequisiteCourses) ? indirectClassData.prerequisiteCourses : {};
+  const allPrerequisites = { ...directPrerequisites, ...indirectPrerequisites };
+
+  // Generate a list of unique prerequisites
+  const uniquePrerequisites = [...new Set(Object.keys(allPrerequisites))];
+
+  // Generate table headers for each unique prerequisite
+  const prerequisiteHeadersHTML = uniquePrerequisites
+    .map((prerequisite) => `<th>${prerequisite}</th>`)
+    .join('');
+
+  // Generate rows for student roster and course completion
+  const rowsHTML = rosterData.studentRoster
+    .map((student) => {
+      const courseCompletionHTML = uniquePrerequisites
+        .map((prerequisite) => {
+          const hasTakenCourse = (directPrerequisites[prerequisite] || indirectPrerequisites[prerequisite]).includes(student.studentID);
+          const checkmarkHTML = hasTakenCourse ? `<span class="checkmark">&#x2713;</span>` : '';
+          return `<td class="${hasTakenCourse ? 'taken' : 'not-taken'}">${checkmarkHTML}</td>`;
+        })
+        .join('');
+
+      return `
+        <tr>
+          <td class="center student-info">${student.studentID}</td>
+          <td class="left student-info">${student.studentName}</td>
+          ${courseCompletionHTML}
+        </tr>
+      `;
+    })
+    .join('');
+
+  // Assign an id attribute to the table element
+  const tableId = 'mergedTable';
+  const tableElementHTML = `
+    <table class="merged-table" id="${tableId}">
+      <thead>
+        <tr>
+            <th colspan="2">Student Info</th>
+            <th colspan="${uniquePrerequisites.length}">Prerequisites</th>
+        </tr>
+        <tr>
+            <th class="center">Student ID</th>
+            <th class="left">Student Name</th>
+            ${prerequisiteHeadersHTML}
+        </tr>
+      </thead>
+      <tbody>
+        ${rowsHTML}
+      </tbody>
+    </table>
+  `;
+
+  // Generate header
+  const headerHTML = `
+    <div class="outputHeader">
+      <header class="header">
+        <h2>${courseName}</h2>
+        <h3>${professorName}</h3>
+        <h4>LEC Number: ${lecNum}</h4>
+        <h4>LAB Number: ${labNum}</h4>
+      </header>
+    </div>
+  `;
+
+  // Construct the final HTML by combining the header and table
+  const outputHTML = `
+    ${headerHTML}
+    <div class="outputTable">
+      ${tableElementHTML}
+    </div>
+  `;
+
+  // Add HTML to the output div
+  const outputDiv = document.getElementById('output');
+  outputDiv.innerHTML = outputHTML;
+
+  // Apply color coding to each row
+  setTimeout(() => {
+    const rows = Array.from(document.querySelectorAll(`#${tableId} tbody tr`));
+    rows.forEach(colorCodeCells);
+  }, 0);
+
+  return outputHTML;
 }
