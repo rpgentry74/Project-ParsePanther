@@ -7,6 +7,7 @@ import { handleRosterDataPaste } from './rosterDataHandler.js';
 import { handlePrerequisiteDataPaste } from './prerequisiteDataHandler.js';
 import { handleIndirectPrerequisiteDataPaste } from './indirectPrerequisiteDataHandler.js';
 import { allowOnlyPaste } from './inputValidation.js';
+import './generateSpreadsheetFile.js';
 
 // Attach the onSubmit function to the submit button
 document.getElementById('submit').addEventListener('click', handleFormSubmission);
