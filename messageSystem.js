@@ -15,8 +15,8 @@ const MESSAGE_HEADER = '<strong>Important system updates:</strong>';
 // The text property contains the message that will be displayed to the user.
 // You can add more messages to this array as needed.
 const messages = [
-  { id: '20230723.1', text: 'Downloading your table to a spreadsheet should now work, again! =)' },
-  { id: '20230723.2', text: 'This is a test =)' },
+  { id: '20230723.1', text: 'Downloading your table to a spreadsheet should now work, again! =) <br> Please notify me if you have any continued issues.' },
+  { id: '20230729.1', text: 'A problem with parsing rosters with pronouns is fixed.' },
 ];
 
 // Custom dialog function for the message system
