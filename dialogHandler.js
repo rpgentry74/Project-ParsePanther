@@ -1,4 +1,4 @@
-export function showDialog(message, withConfirmation = true) {
+export function showDialog(message, withConfirmation = false) {
   return new Promise((resolve) => {
     // If there's already a dialog, remove it
     const existingDialog = document.querySelector('.dialog');
@@ -8,25 +8,34 @@ export function showDialog(message, withConfirmation = true) {
     const dialog = document.createElement('div');
     const messageElement = document.createElement('p');
     const closeButton = document.createElement('button');
-    const remindLaterButton = document.createElement('button');
+    let confirmButton;
 
     // Set element content
     messageElement.innerHTML = message; // changed from textContent to innerHTML
-    closeButton.textContent = 'Don\'t show again';
-    remindLaterButton.textContent = 'Remind me later';
+    closeButton.textContent = 'Close';
+
+    if (withConfirmation) {
+      confirmButton = document.createElement('button');
+      confirmButton.textContent = 'Confirm';
+    }
 
     // Set element classes for styling
     dialog.className = 'dialog';
     messageElement.className = 'dialog-message';
     closeButton.className = 'dialog-button';
-    remindLaterButton.className = 'dialog-button remind-later';
+
+    if (confirmButton) {
+      confirmButton.className = 'dialog-button confirm';
+    }
 
     // Set the role attribute for the dialog
     dialog.setAttribute('role', 'dialog');
 
     // Add close functionality to button
     closeButton.addEventListener('click', () => closeDialog(false));
-    remindLaterButton.addEventListener('click', () => closeDialog(true));
+    if (confirmButton) {
+      confirmButton.addEventListener('click', () => closeDialog(true));
+    }
 
     // Close the dialog box when 'Esc' key is pressed
     document.addEventListener('keydown', escKeyListener);
@@ -34,7 +43,9 @@ export function showDialog(message, withConfirmation = true) {
     // Append elements
     dialog.appendChild(messageElement);
     dialog.appendChild(closeButton);
-    dialog.appendChild(remindLaterButton);
+    if (confirmButton) {
+      dialog.appendChild(confirmButton);
+    }
 
     // Append dialog to body
     document.body.appendChild(dialog);
@@ -50,10 +61,10 @@ export function showDialog(message, withConfirmation = true) {
     }
 
     // Function to close the dialog
-    function closeDialog(remindLater) {
+    function closeDialog(confirmed) {
       dialog.remove();
       document.removeEventListener('keydown', escKeyListener);
-      resolve(remindLater);
+      resolve(confirmed);
     }
   });
 }

@@ -10,28 +10,18 @@ export function parseIndirectClassData() {
     const prerequisiteData = document.getElementById('indirectPrerequisiteData').value;
     const indirectPrerequisiteStatus = document.getElementById('indirectPrerequisiteStatus');
     
-    // Check if the data includes 'Indirect Prerequisite Checker'
     if (/Indirect Prerequisite Checker.*(Professor|Instructor)/is.test(prerequisiteData)) {
       const parsedIndirectClassData = parseIndirectPrerequisiteData(prerequisiteData);
 
-      // Extract the necessary data for confirmation
       const { professor, course, lecNum, labNum } = parsedIndirectClassData;
 
-      // Get the roster data from the state
       const rosterData = getState().rosterData;
-      
-      console.log('Parsed professor length:', parsedIndirectClassData.professor.length);
-      console.log('Roster professor length:', rosterData.professor.length);
-      
-      console.log('Parsed course length:', parsedIndirectClassData.course.length);
-      console.log('Roster course length:', rosterData.course.length);
-      
-      console.log('Parsed LEC number length:', parsedIndirectClassData.lecNum.length);
-      console.log('Roster LEC number length:', rosterData.lecNum.length);
-      
-      console.log('Parsed LAB number length:', parsedIndirectClassData.labNum.length);
-      console.log('Roster LAB number length:', rosterData.labNum.length);
-      
+
+      const parsedLecNum = lecNum ? lecNum.trim().toLowerCase() : null;
+      const parsedLabNum = labNum ? labNum.trim().toLowerCase() : null;
+
+      const rosterLecNum = rosterData.lecNum ? rosterData.lecNum.trim().toLowerCase() : null;
+      const rosterLabNum = rosterData.labNum ? rosterData.labNum.trim().toLowerCase() : null;
 
       for (let i = 0; i < Math.max(parsedIndirectClassData.course.length, rosterData.course.length); i++) {
         if (parsedIndirectClassData.course[i] !== rosterData.course[i]) {
@@ -43,22 +33,20 @@ export function parseIndirectClassData() {
       if (
         parsedIndirectClassData.professor.trim().toLowerCase() === rosterData.professor.trim().toLowerCase() &&
         parsedIndirectClassData.course.trim().toLowerCase() === rosterData.course.trim().toLowerCase() &&
-        parsedIndirectClassData.lecNum.trim().toLowerCase() === rosterData.lecNum.trim().toLowerCase() &&
-        parsedIndirectClassData.labNum.trim().toLowerCase() === rosterData.labNum.trim().toLowerCase()
+        parsedLecNum === rosterLecNum &&
+        parsedLabNum === rosterLabNum
       ) {
-        // If they match, store the parsed data in the state and resolve the promise
         setState({ indirectClassData: parsedIndirectClassData });
         indirectPrerequisiteStatus.innerText = 'Indirect class data processed successfully.';
         indirectPrerequisiteStatus.classList.remove('status-bad', 'status-default');
         indirectPrerequisiteStatus.classList.add('status-good');
         resolve(parsedIndirectClassData);
       } else {
-        // If they don't match, show a dialog with the difference and clear the textbox and the state
         showDialog(`The class data doesn't match the roster data: <br>
           <strong>Professor:</strong> ${parsedIndirectClassData.professor} vs ${rosterData.professor} <br>
           <strong>Course:</strong> ${parsedIndirectClassData.course} vs ${rosterData.course}<br>
-          <strong>LEC Number:</strong> ${parsedIndirectClassData.lecNum} vs ${rosterData.lecNum}<br>
-          <strong>LAB Number:</strong> ${parsedIndirectClassData.labNum} vs ${rosterData.labNum}`);
+          <strong>LEC Number:</strong> ${lecNum ? lecNum : 'N/A'} vs ${rosterData.lecNum ? rosterData.lecNum : 'N/A'}<br>
+          <strong>LAB Number:</strong> ${labNum ? labNum : 'N/A'} vs ${rosterData.labNum ? rosterData.labNum : 'N/A'}`);
         document.getElementById('indirectPrerequisiteData').value = '';
         setState({ indirectClassData: null });
         resolve(null);

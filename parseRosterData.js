@@ -23,8 +23,8 @@ export function parseRosterData() {
       showDialog(`Is this information correct? <br>
       <strong>Professor:</strong> ${professor} <br>
       <strong>Course:</strong> ${course}<br>
-      <strong>LEC Number:</strong> ${lecNum}<br>
-      <strong>LAB Number:</strong> ${labNum}`, true)
+      <strong>LEC Number:</strong> ${lecNum || 'N/A'}<br>
+      <strong>LAB Number:</strong> ${labNum || 'N/A'}`, true)
 
       .then((confirmed) => {
         if (confirmed) {
@@ -132,25 +132,37 @@ function parseClassRosterData(rosterData) {
       throw new Error("Meeting information not found.");
     }
 
-    // Extract student roster information
-    const studentMatches = rosterData.matchAll(/(\d{1,3}\.\s+)([^\(]+?)(?:\s+\(|\s+)(\d{7})/g);
-    if (studentMatches) {
-      for (let match of studentMatches) {
-        const [, , studentName, studentID] = match;
-        const trimmedStudentName = cleanString(studentName.trim());  // Added cleaning operation here
+// Extract student roster information
+let studentRosterStartMatch = rosterData.match(/Student Name:\s*ID Num:|Student Name\s*Student ID/i);
+if (!studentRosterStartMatch) {
+  throw new Error("Student roster start line not found.");
+}
+
+let studentRosterStartIndex = studentRosterStartMatch.index;
+
+let studentRosterData = rosterData.slice(studentRosterStartIndex);
+
+const studentMatches = studentRosterData.matchAll(/(\d{1,3}\.)\s*\n*(.*?)\n*\n*(\d{7})/g);
+if (studentMatches) {
+  for (let match of studentMatches) {
+    const [, , studentName, studentID] = match;
     
-        // Check if the current line contains the stop headers
-        if (trimmedStudentName.startsWith("Dropped Students") || trimmedStudentName.startsWith("Drops")) {
-          break; // Stop parsing if either header is encountered
-        }
+    // Trimming the parentheses and what's inside if they exist
+    let trimmedStudentName = studentName.replace(/\s*\(.+\)\s*$/, "");
+    trimmedStudentName = cleanString(trimmedStudentName.trim());  // Further cleaning operation here
     
-        studentRoster.push({ studentID, studentName: trimmedStudentName });
-      }
-    } else {
-      throw new Error("No student roster information found.");
+    // Check if the current line contains the stop headers
+    if (trimmedStudentName.startsWith("Dropped Students") || trimmedStudentName.startsWith("Drops")) {
+      break; // Stop parsing if either header is encountered
     }
     
+    studentRoster.push({ studentID, studentName: trimmedStudentName });
+  }
+} else {
+  throw new Error("No student roster information found.");
+}
 
+    
     // Log the parsed data for testing purposes
     console.log("Parsed data:");
     console.log("Professor: " + professor);

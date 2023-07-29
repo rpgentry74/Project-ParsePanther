@@ -10,44 +10,34 @@ export function parseClassData() {
     const prerequisiteData = document.getElementById('prerequisiteData').value;
     const prerequisiteStatus = document.getElementById('prerequisiteStatus');
     
-    // Check if the data includes 'Prerequisite Checker'
     if (/Prerequisite Checker(?! Indirect)?.*(Professor|Instructor)/is.test(prerequisiteData)) {
       const parsedPrerequisiteData = parsePrerequisiteData(prerequisiteData);
-
-      // Extract the necessary data for confirmation
       const { professor, course, lecNum, labNum } = parsedPrerequisiteData;
-
-      // Get the roster data from the state
       const rosterData = getState().rosterData;
 
-      console.log('Parsed course length:', parsedPrerequisiteData.course.length);
-      console.log('Roster course length:', rosterData.course.length);
+      // Handling null values
+      const doLecNumsMatch = (lecNum === null && rosterData.lecNum === null) || 
+      (lecNum && rosterData.lecNum && lecNum.trim().toLowerCase() === rosterData.lecNum.trim().toLowerCase());
 
-      for (let i = 0; i < Math.max(parsedPrerequisiteData.course.length, rosterData.course.length); i++) {
-        if (parsedPrerequisiteData.course[i] !== rosterData.course[i]) {
-          console.log(`Mismatch at index ${i}: parsed is '${parsedPrerequisiteData.course[i]}', roster is '${rosterData.course[i]}'`);
-          break;
-        }
-      }
+      const doLabNumsMatch = (labNum === null && rosterData.labNum === null) ||
+      (labNum && rosterData.labNum && labNum.trim().toLowerCase() === rosterData.labNum.trim().toLowerCase());
 
+      if (professor.trim().toLowerCase() === rosterData.professor.trim().toLowerCase() &&
+      course.trim().toLowerCase() === rosterData.course.trim().toLowerCase() &&
+      doLecNumsMatch && doLabNumsMatch) {
 
-      if (parsedPrerequisiteData.professor.trim().toLowerCase() === rosterData.professor.trim().toLowerCase() &&
-      parsedPrerequisiteData.course.trim().toLowerCase() === rosterData.course.trim().toLowerCase() &&
-      parsedPrerequisiteData.lecNum.trim().toLowerCase() === rosterData.lecNum.trim().toLowerCase() &&
-      parsedPrerequisiteData.labNum.trim().toLowerCase() === rosterData.labNum.trim().toLowerCase()) {
-
-        // If they match, store the parsed data in the state and resolve the promise
         setState({ prerequisiteData: parsedPrerequisiteData });
         prerequisiteStatus.innerText = 'Prerequisite data processed successfully.';
         prerequisiteStatus.classList.remove('status-bad', 'status-default');
         prerequisiteStatus.classList.add('status-good');
         resolve(parsedPrerequisiteData);
+
       } else {
         showDialog(`The prerequisite data doesn't match the roster data: <br>
-          <strong>Professor:</strong> ${parsedPrerequisiteData.professor} vs ${rosterData.professor} <br>
-          <strong>Course:</strong> ${parsedPrerequisiteData.course} vs ${rosterData.course}<br>
-          <strong>LEC Number:</strong> ${parsedPrerequisiteData.lecNum} vs ${rosterData.lecNum}<br>
-          <strong>LAB Number:</strong> ${parsedPrerequisiteData.labNum} vs ${rosterData.labNum}`, true)
+          <strong>Professor:</strong> ${professor} vs ${rosterData.professor} <br>
+          <strong>Course:</strong> ${course} vs ${rosterData.course}<br>
+          <strong>LEC Number:</strong> ${lecNum || 'N/A'} vs ${rosterData.lecNum || 'N/A'}<br>
+          <strong>LAB Number:</strong> ${labNum || 'N/A'} vs ${rosterData.labNum || 'N/A'}`, true)
         .then(() => {
           document.getElementById('prerequisiteData').value = '';
           setState({ prerequisiteData: null });
@@ -58,43 +48,36 @@ export function parseClassData() {
         });
       }
     } else {
-
-      // Identify which checker is present
       let checkerType;
       if (/Class Roster.*(Professor|Instructor)/is.test(prerequisiteData)) {
         checkerType = 'Class Roster';
-      } else if (/Indirect Prerequisite Checker.*(Professor|Instructor)/is.test(rosterData)) {
+      } else if (/Indirect Prerequisite Checker.*(Professor|Instructor)/is.test(prerequisiteData)) {
         checkerType = 'Indirect Prerequisite';
       }
 
       if (checkerType) {
-        // Update the status indicator with failure
         prerequisiteStatus.innerText = 'Invalid data provided. Please paste the  Prerequisite data.';
         prerequisiteStatus.classList.remove('status-good', 'status-default');
         prerequisiteStatus.classList.add('status-bad');
-        // The user is trying to paste incorrect data, show an error dialog
         showDialog(`It looks like you are trying to paste ${checkerType} data into the  Prerequisite field.`)
         .then(() => {
-          // After user has interacted with the dialog, clear the textbox
           document.getElementById('prerequisiteData').value = '';
-          resolve(null); // Resolve the promise with null as no  prerequisite data was parsed
+          resolve(null);
         });
       } else {
-        // The data doesn't match any known headers, remind the user to select all
-        // Update the status indicator with failure
         prerequisiteStatus.innerText = 'No recognizable data found. Please ensure you have copied the full page.';
         prerequisiteStatus.classList.remove('status-good', 'status-default');
         prerequisiteStatus.classList.add('status-bad');
         showDialog('Please ensure you have copied the full page by using Ctrl+A (or Cmd+A on Mac).')
         .then(() => {
-          // After user has interacted with the dialog, clear the textbox
           document.getElementById('prerequisiteData').value = '';
-          resolve(null); // Resolve the promise with null as no roster data was parsed
+          resolve(null);
         });
       }
     }
   });
 }
+
 
 function parsePrerequisiteData(prerequisiteData) {
   try {
