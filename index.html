@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>LRCCD Student Prerequisite Analyzer v2.1.0</title>
+    <title>LRCCD Student Prerequisite Analyzer v2.1.2</title>
       <meta name="description" content="Simplify the process of checking course prerequisites with the LRCCD Student Prerequisite Analyzer. Automate the task of organizing and tracking student prerequisites for clear and organized data.">
       <link rel="shortcut icon" href="/img/favicon/favicon-32x32.png" />
       <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
@@ -19,7 +19,7 @@
   <body>
     <div class="container">
     <header>
-        <h1 id="top">LRCCD Student Prerequisite Analyzer v2.1.0</h1>
+        <h1 id="top">LRCCD Student Prerequisite Analyzer v2.1.2</h1>
         <p>Simplify the process of checking course prerequisites with the Student Prerequisite Analyzer. This app automates the task of organizing and tracking student prerequisites, providing clear and organized data.</p>
         <p>No data is transmitted, and all processing is handled directly in your browser for security.</p>
     </header>
@@ -140,7 +140,7 @@
             <h3>Deployment</h3>
             <ul>
               <li><strong>(Complete)</strong> Deploy the application to the shared server.</li>
-              <li><strong>(Testing In Progress)</strong> Perform final testing in the production environment.</li>
+              <li><strong>(Complete)</strong> Perform final testing in the production environment.</li>
             </ul>
             <a href="#top" class="back-to-top">Back to Top</a> 
           </article>
@@ -149,6 +149,21 @@
           <!-- Content for Tab 4 -->
           <article>
             <h2>Version</h2>
+            <h3>2.1.2</h3>
+            <ul>
+              <li>Resolved an issue where 'null' values in indirect prerequisite data caused unexpected behaviour during data parsing. The data parsing function now correctly handles 'null' values and provides a robust comparison with the roster data.</li>
+              <li>Eliminated unnecessary console logs from the 'parseIndirectClassData' function, leading to cleaner code and improved performance.</li>
+              <li>Improved error handling in indirect prerequisite data parsing to provide more insightful and useful error messages for developers.</li>
+              <li>Modified the messaging in 'parseIndirectClassData' function to better inform the user about the specific data checker detected in the prerequisite data, thus improving the user's understanding of the data parsing process.</li>
+              <li>Persisted with code optimization efforts and cleanup to continue enhancing system performance and maintainability.</li>
+            </ul>
+            <h3>2.1.1</h3>
+            <ul>
+              <li>Fixed an issue that prevented the downloading of spreadsheets, restoring this key functionality for users.</li>
+              <li>Refined the message display system to ensure that notifications are presented in a clearer, more user-friendly way. This includes presenting new messages in an ordered list and ensuring old messages do not reappear if they've already been acknowledged.</li>
+              <li>Introduced an enhanced system for message storage, making sure that new and old messages are managed separately and efficiently.</li>
+              <li>Continued work on code optimization and cleanup to enhance system performance and maintainability.</li>
+            </ul>
             <h3>2.1.0</h3>
             <ul>
               <li>Introduced a notification system to inform users of important updates and known issues.</li>
