@@ -36,7 +36,7 @@ export function parseIndirectClassData() {
         parsedLecNum === rosterLecNum &&
         parsedLabNum === rosterLabNum
       ) {
-        setState({ indirectClassData: parsedIndirectClassData });
+        setState({ indirectPrerequisiteData: parsedIndirectClassData });
         indirectPrerequisiteStatus.innerText = 'Indirect class data processed successfully.';
         indirectPrerequisiteStatus.classList.remove('status-bad', 'status-default');
         indirectPrerequisiteStatus.classList.add('status-good');
@@ -48,7 +48,7 @@ export function parseIndirectClassData() {
           <strong>LEC Number:</strong> ${lecNum ? lecNum : 'N/A'} vs ${rosterData.lecNum ? rosterData.lecNum : 'N/A'}<br>
           <strong>LAB Number:</strong> ${labNum ? labNum : 'N/A'} vs ${rosterData.labNum ? rosterData.labNum : 'N/A'}`);
         document.getElementById('indirectPrerequisiteData').value = '';
-        setState({ indirectClassData: null });
+        setState({ indirectPrerequisiteData: null });
         resolve(null);
       }
     } else {
