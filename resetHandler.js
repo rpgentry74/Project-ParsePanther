@@ -1,5 +1,5 @@
 // resetHandler.js
-import { resetState, setClassData, setIndirectClassData } from './state.js';
+import { resetState, setDirectPrerequisiteData, setIndirectPrerequisiteData } from './state.js';
 import { updateStatusIndicator } from './statusIndicator.js';
 
 function clearOutput() {
@@ -37,13 +37,13 @@ export function handleRosterReset() {
 export function handlePrerequisiteReset() {
   resetTextarea('prerequisiteData');
   updateStatusIndicator('prerequisiteStatus', 'No data processed yet.', 'default');
-  setClassData(null);
+  setDirectPrerequisiteData(null);
 }
 
 export function handleIndirectPrerequisiteReset() {
   resetTextarea('indirectPrerequisiteData');
   updateStatusIndicator('indirectPrerequisiteStatus', 'No data processed yet.', 'default');
-  setIndirectClassData(null);
+  setIndirectPrerequisiteData(null);
 }
 
 export function handleFormReset() {
