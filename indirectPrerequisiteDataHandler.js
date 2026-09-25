@@ -3,18 +3,20 @@ import { parseIndirectClassData } from './parseIndirectClassData.js';
 import { invalidateForIndirectPrerequisitePaste } from './resetHandler.js';
 
 export function handleIndirectPrerequisiteDataPaste() {
-  const indirectPrerequisiteDataTextbox = document.getElementById('indirectPrerequisiteData');
+  const textbox = document.getElementById('indirectPrerequisiteData');
 
-  indirectPrerequisiteDataTextbox.addEventListener('paste', () => {
+  textbox.addEventListener('paste', async (event) => {
+    event.preventDefault();
+
+    const pastedText = event.clipboardData?.getData('text/plain') || '';
+
     invalidateForIndirectPrerequisitePaste();
+    textbox.value = pastedText;
 
-    // Wait until the browser has placed the pasted text in the textarea.
-    setTimeout(async () => {
-      try {
-        await parseIndirectClassData();
-      } catch (error) {
-        console.error('Error occurred while parsing indirect prerequisite data:', error.message);
-      }
-    }, 100);
+    try {
+      await parseIndirectClassData();
+    } catch (error) {
+      console.error('Error occurred while parsing indirect prerequisite data:', error.message);
+    }
   });
 }
