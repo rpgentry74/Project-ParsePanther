@@ -39,12 +39,16 @@
 <body>
   <main>
     <h1>ParsePanther v3 Parser Tests</h1>
-    <p>This page runs the sanitized roster, direct prerequisite, indirect prerequisite, and prerequisite merge regression suites.</p>
+    <p>This page runs sanitized parser, merge, result-model, workflow, Copy Message, and diagnostics regression suites.</p>
 
     <div id="rosterResult" class="test-result">Roster tests: running...</div>
     <div id="directResult" class="test-result">Direct prerequisite tests: running...</div>
     <div id="indirectResult" class="test-result">Indirect prerequisite tests: running...</div>
     <div id="mergeResult" class="test-result">Prerequisite merge tests: running...</div>
+    <div id="resultsModelResult" class="test-result">Results model tests: running...</div>
+    <div id="studentMessageResult" class="test-result">Student message tests: running...</div>
+    <div id="workflowRulesResult" class="test-result">Workflow rule tests: running...</div>
+    <div id="diagnosticsResult" class="test-result">Diagnostics privacy tests: running...</div>
 
     <h2 id="overallResult">Overall: running...</h2>
 
@@ -52,6 +56,10 @@
     <iframe id="directFrame" src="./directPrerequisiteParserTests.html" title="Direct prerequisite parser tests"></iframe>
     <iframe id="indirectFrame" src="./indirectPrerequisiteParserTests.html" title="Indirect prerequisite parser tests"></iframe>
     <iframe id="mergeFrame" src="./prerequisiteDataUtilsTests.html" title="Prerequisite merge tests"></iframe>
+    <iframe id="resultsModelFrame" src="./resultsModelTests.html" title="Results model tests"></iframe>
+    <iframe id="studentMessageFrame" src="./studentMessageTests.html" title="Student message tests"></iframe>
+    <iframe id="workflowRulesFrame" src="./workflowRulesTests.html" title="Workflow rule tests"></iframe>
+    <iframe id="diagnosticsFrame" src="./diagnosticsTests.html" title="Diagnostics privacy tests"></iframe>
   </main>
 
   <script>
@@ -60,6 +68,10 @@
       { frame: 'directFrame', output: 'directResult', label: 'Direct prerequisite tests' },
       { frame: 'indirectFrame', output: 'indirectResult', label: 'Indirect prerequisite tests' },
       { frame: 'mergeFrame', output: 'mergeResult', label: 'Prerequisite merge tests' },
+      { frame: 'resultsModelFrame', output: 'resultsModelResult', label: 'Results model tests' },
+      { frame: 'studentMessageFrame', output: 'studentMessageResult', label: 'Student message tests' },
+      { frame: 'workflowRulesFrame', output: 'workflowRulesResult', label: 'Workflow rule tests' },
+      { frame: 'diagnosticsFrame', output: 'diagnosticsResult', label: 'Diagnostics privacy tests' },
     ];
 
     function readSuite(suite) {
