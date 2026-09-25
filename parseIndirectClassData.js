@@ -64,12 +64,12 @@ export async function parseIndirectClassData() {
 
     updateStatusIndicator(
       'indirectPrerequisiteStatus',
-      'Unable to process indirect prerequisite data.',
+      'Unable to process Indirect Evidence data.',
       'bad'
     );
 
     await showDialog(
-      `ParsePanther could not safely determine the indirect prerequisites from this page.<br><br><strong>Reason:</strong> ${escapeHTML(result.message)}<br><br>No prerequisite determination was made.`
+      `The Student Prerequisite Analyzer could not safely determine the Indirect Evidence from this page.<br><br><strong>Reason:</strong> ${escapeHTML(result.message)}<br><br>No prerequisite determination was made.`
     );
 
     textbox.value = '';
@@ -96,7 +96,7 @@ export async function parseIndirectClassData() {
     );
 
     await showDialog(
-      'Please paste and confirm the Class Roster before processing indirect prerequisite data.'
+      'Please paste and confirm the Class Roster before processing Indirect Evidence data.'
     );
 
     textbox.value = '';
@@ -119,12 +119,12 @@ export async function parseIndirectClassData() {
 
     updateStatusIndicator(
       'indirectPrerequisiteStatus',
-      'Indirect prerequisite data does not match the roster.',
+      'Indirect Evidence data does not match the roster.',
       'bad'
     );
 
     await showDialog(
-      `The indirect prerequisite data does not match the confirmed Class Roster:<br>
+      `The Indirect Evidence data does not match the confirmed Class Roster:<br>
       <strong>Professor:</strong> ${escapeHTML(parsed.professor || 'N/A')} vs ${escapeHTML(rosterData.professor || 'N/A')}<br>
       <strong>Course:</strong> ${escapeHTML(parsed.course || 'N/A')} vs ${escapeHTML(rosterData.course || 'N/A')}<br>
       <strong>LEC Number:</strong> ${escapeHTML(parsed.lecNum || 'N/A')} vs ${escapeHTML(rosterData.lecNum || 'N/A')}<br>
@@ -147,7 +147,7 @@ export async function parseIndirectClassData() {
 
   updateStatusIndicator(
     'indirectPrerequisiteStatus',
-    `${indirectVariantLabel(parsed.variant)} indirect prerequisite data processed successfully.`,
+    `${indirectVariantLabel(parsed.variant)} Indirect Evidence data processed successfully.`,
     'good'
   );
 
