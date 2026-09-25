@@ -69,7 +69,7 @@ export function parseIndirectPrerequisiteText(rawText) {
       ok: false,
       variant: 'unknown',
       code: 'EMPTY_INDIRECT_PREREQUISITE',
-      message: 'No indirect prerequisite data was provided.',
+      message: 'No Indirect Evidence data was provided.',
     };
   }
 
@@ -81,7 +81,7 @@ export function parseIndirectPrerequisiteText(rawText) {
       variant,
       code: 'UNKNOWN_INDIRECT_PREREQUISITE_FORMAT',
       message:
-        'ParsePanther could not identify this as a supported Faculty or Admin indirect prerequisite format.',
+        'The Student Prerequisite Analyzer could not identify this as a supported Faculty or Admin Indirect Prerequisite Checker format.',
     };
   }
 
