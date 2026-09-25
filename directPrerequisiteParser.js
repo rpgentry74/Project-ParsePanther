@@ -14,7 +14,7 @@ export function detectDirectPrerequisiteVariant(rawText) {
 
   const hasAdminClassList = /^Admin Class List\s*$/im.test(source);
   const hasAdminSectionTitle =
-    /^[A-Z]{2,5}\s+\d{3}[A-Z]?\s+Prerequisite Courses Completed Within Los Rios\s*$/im.test(
+    /^[A-Z]{2,5}\s+[A-Z]?\d{3,4}[A-Z]?\s+Prerequisite Courses Completed Within Los Rios\s*$/im.test(
       source
     );
   const hasAdminStudentHeader =
