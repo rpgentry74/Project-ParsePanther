@@ -1,7 +1,7 @@
 // generateHTMLTable.js
 import { getState } from './state.js';
 import { colorCodeCells } from './colorCodeCells.js';
-import { mergePrerequisiteData } from './prerequisiteDataUtils.js';
+import { buildResultsModel } from './resultsModel.js';
 import { escapeHTML } from './htmlUtils.js';
 import { initializeResultsInteractions } from './resultsInteractions.js';
 
@@ -24,58 +24,6 @@ function buildCourseHeader(
     : '';
 
   return `<th scope="col"${classAttribute}>${escapeHTML(courseName)}${aliasHTML}${labelHTML}</th>`;
-}
-
-function buildStatus(prerequisiteNames, prerequisiteCourses, studentId) {
-  if (prerequisiteNames.length === 0) {
-    return {
-      key: 'neutral',
-      className: 'status-neutral',
-      text: 'No prerequisites evaluated',
-      missingCount: 0,
-    };
-  }
-
-  const completed = prerequisiteNames.filter((prerequisite) =>
-    prerequisiteCourses[prerequisite].includes(studentId)
-  ).length;
-  const missing = prerequisiteNames.length - completed;
-
-  if (missing === 0) {
-    return {
-      key: 'complete',
-      className: 'status-complete',
-      text: 'All prerequisites complete',
-      missingCount: 0,
-    };
-  }
-
-  return {
-    key: 'missing',
-    className: 'status-missing',
-    text: `Missing ${missing} prerequisite${missing === 1 ? '' : 's'}`,
-    missingCount: missing,
-  };
-}
-
-function hasIndirectEvidence(
-  studentId,
-  prerequisiteNames,
-  prerequisiteEvidenceSources,
-  indirectEvidenceCourses
-) {
-  const supportsOfficialPrerequisite = prerequisiteNames.some(
-    (prerequisite) =>
-      (prerequisiteEvidenceSources[prerequisite]?.[studentId] || [])
-        .some((entry) => entry.source === 'indirect')
-  );
-
-  if (supportsOfficialPrerequisite) {
-    return true;
-  }
-
-  return Object.values(indirectEvidenceCourses)
-    .some((studentIds) => studentIds.includes(studentId));
 }
 
 function buildSummaryHTML(
@@ -175,53 +123,30 @@ export function generateHTMLTable() {
   const lecNum = escapeHTML(rosterData.lecNum || 'None');
   const labNum = escapeHTML(rosterData.labNum || 'None');
 
-  const {
-    prerequisiteCourses,
-    courseAliases,
-    prerequisiteEvidenceSources,
-    indirectEvidenceCourses,
-    indirectEvidenceAliases,
-  } = mergePrerequisiteData(
+  const resultsModel = buildResultsModel(
+    rosterData,
     directPrerequisiteData,
     indirectPrerequisiteData
   );
 
-  const prerequisiteNames = Object.keys(prerequisiteCourses);
-  const indirectEvidenceNames = Object.keys(indirectEvidenceCourses);
+  const {
+    prerequisiteCourses,
+    courseAliases,
+    indirectEvidenceCourses,
+    indirectEvidenceAliases,
+    prerequisiteNames,
+    indirectEvidenceNames,
+    students: studentModels,
+    summary: {
+      studentCount,
+      completeCount,
+      missingCount,
+      indirectCount,
+    },
+  } = resultsModel;
+
   const totalDisplayColumns =
     prerequisiteNames.length + indirectEvidenceNames.length;
-  const studentCount = rosterData.studentRoster.length;
-
-  const studentModels = rosterData.studentRoster.map((student) => {
-    const studentId = String(student.studentID).trim();
-    const status = buildStatus(
-      prerequisiteNames,
-      prerequisiteCourses,
-      studentId
-    );
-
-    return {
-      student,
-      studentId,
-      status,
-      hasIndirect: hasIndirectEvidence(
-        studentId,
-        prerequisiteNames,
-        prerequisiteEvidenceSources,
-        indirectEvidenceCourses
-      ),
-    };
-  });
-
-  const completeCount = studentModels.filter(
-    ({ status }) => status.key === 'complete'
-  ).length;
-  const missingCount = studentModels.filter(
-    ({ status }) => status.key === 'missing'
-  ).length;
-  const indirectCount = studentModels.filter(
-    ({ hasIndirect }) => hasIndirect
-  ).length;
 
   const headerHTML = `
     <div class="outputHeader">
@@ -275,7 +200,7 @@ export function generateHTMLTable() {
     .join('');
 
   const rowsHTML = studentModels
-    .map(({ student, studentId, status, hasIndirect }) => {
+    .map(({ student, studentId, status, hasIndirectEvidence }) => {
       const prerequisiteCompletionHTML = prerequisiteNames
         .map((prerequisite) => {
           const hasTakenCourse =
@@ -304,7 +229,7 @@ export function generateHTMLTable() {
         <tr
           class="student-result-row"
           data-result-status="${status.key}"
-          data-has-indirect="${hasIndirect ? 'yes' : 'no'}"
+          data-has-indirect="${hasIndirectEvidence ? 'yes' : 'no'}"
         >
           <td class="center student-info">${escapeHTML(student.studentID)}</td>
           <td class="left student-info">${escapeHTML(student.studentName)}</td>
