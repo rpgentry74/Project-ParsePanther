@@ -347,3 +347,9 @@ textarea {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+
+/* Indirect-only evidence is informational and does not affect prerequisite status. */
+.indirect-evidence {
+  background-color: #f2f2f2;
+}
