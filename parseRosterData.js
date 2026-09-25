@@ -3,6 +3,7 @@ import { setRosterData } from './state.js';
 import { showDialog } from './dialogHandler.js';
 import { updateStatusIndicator } from './statusIndicator.js';
 import { parseRosterText } from './rosterParser.js';
+import { escapeHTML } from './htmlUtils.js';
 
 function rosterVariantLabel(variant) {
   if (variant === 'faculty') {
@@ -30,7 +31,7 @@ export async function parseRosterData() {
     );
 
     await showDialog(
-      `Unable to process the Class Roster.<br><br><strong>Reason:</strong> ${result.message}<br><br>Please confirm that you copied the complete roster page.`
+      `Unable to process the Class Roster.<br><br><strong>Reason:</strong> ${escapeHTML(result.message)}<br><br>Please confirm that you copied the complete roster page.`
     );
 
     rosterTextbox.value = '';
@@ -48,10 +49,10 @@ export async function parseRosterData() {
   const confirmed = await showDialog(
     `Is this information correct?<br>
     <strong>Roster Type:</strong> ${rosterVariantLabel(variant)}<br>
-    <strong>Professor:</strong> ${professor || 'N/A'}<br>
-    <strong>Course:</strong> ${course || 'N/A'}<br>
-    <strong>LEC Number:</strong> ${lecNum || 'N/A'}<br>
-    <strong>LAB Number:</strong> ${labNum || 'N/A'}`,
+    <strong>Professor:</strong> ${escapeHTML(professor || 'N/A')}<br>
+    <strong>Course:</strong> ${escapeHTML(course || 'N/A')}<br>
+    <strong>LEC Number:</strong> ${escapeHTML(lecNum || 'N/A')}<br>
+    <strong>LAB Number:</strong> ${escapeHTML(labNum || 'N/A')}`,
     true
   );
 
