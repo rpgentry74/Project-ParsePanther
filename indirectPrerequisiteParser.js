@@ -1,5 +1,6 @@
 // indirectPrerequisiteParser.js
 import { parseFacultyIndirectPrerequisites } from './parseFacultyIndirectPrerequisites.js';
+import { parseAdminIndirectPrerequisites } from './parseAdminIndirectPrerequisites.js';
 
 export function normalizeIndirectPrerequisiteSource(rawText) {
   return String(rawText || '')
@@ -11,16 +12,49 @@ export function normalizeIndirectPrerequisiteSource(rawText) {
 export function detectIndirectPrerequisiteVariant(rawText) {
   const source = normalizeIndirectPrerequisiteSource(rawText);
 
+  const hasAdminClassList = /^Admin Class List\s*$/im.test(source);
+  const hasAdminPageTitle = /^Indirect Prerequisite Checker\s*$/im.test(source);
+  const hasAdminSectionLabel = /^Indirect Prerequisites:\s*$/im.test(source);
+  const hasAdminResultsHeading =
+    /^List of students who have completed the [A-Z]{2,5}\s+\d{3}[A-Z]? prerequisite courses indirectly\s*$/im.test(
+      source
+    );
+
   const hasFacultyPageTitle =
     /^Indirect Prerequisite Checker \[Experimental Service\]\s*$/im.test(source);
-  const hasIndirectHeading =
+  const hasFacultySectionLabel =
     /^INDIRECT PREQUISITES\s*$/im.test(source);
   const hasFacultyResultsHeading =
     /^LIST OF STUDENTS WHO HAVE COMPLETED THE PREREQUISITE COURSES INDIRECTLY\s*$/im.test(
       source
     );
 
-  if (hasFacultyPageTitle && hasIndirectHeading && hasFacultyResultsHeading) {
+  const adminSignals = [
+    hasAdminClassList,
+    hasAdminPageTitle,
+    hasAdminSectionLabel,
+    hasAdminResultsHeading,
+  ].filter(Boolean).length;
+
+  const facultySignals = [
+    hasFacultyPageTitle,
+    hasFacultySectionLabel,
+    hasFacultyResultsHeading,
+  ].filter(Boolean).length;
+
+  if (
+    hasAdminClassList &&
+    hasAdminResultsHeading &&
+    adminSignals > facultySignals
+  ) {
+    return 'admin';
+  }
+
+  if (
+    hasFacultyPageTitle &&
+    hasFacultyResultsHeading &&
+    facultySignals > adminSignals
+  ) {
     return 'faculty';
   }
 
@@ -47,12 +81,15 @@ export function parseIndirectPrerequisiteText(rawText) {
       variant,
       code: 'UNKNOWN_INDIRECT_PREREQUISITE_FORMAT',
       message:
-        'ParsePanther could not identify this as a supported indirect prerequisite format. The Faculty format is supported; the Admin format still needs to be captured.',
+        'ParsePanther could not identify this as a supported Faculty or Admin indirect prerequisite format.',
     };
   }
 
   try {
-    const parsed = parseFacultyIndirectPrerequisites(source);
+    const parsed =
+      variant === 'faculty'
+        ? parseFacultyIndirectPrerequisites(source)
+        : parseAdminIndirectPrerequisites(source);
 
     return {
       ok: true,
