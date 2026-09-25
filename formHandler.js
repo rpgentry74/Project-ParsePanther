@@ -56,7 +56,7 @@ export async function handleFormSubmission() {
       code: 'DIRECT_REQUIRED',
     });
     await showDialog(
-      'Please paste and successfully process the direct Prerequisite data before continuing.'
+      'Please paste and successfully process the Prerequisite Checker data before continuing.'
     );
     return;
   }
@@ -70,7 +70,7 @@ export async function handleFormSubmission() {
         directPrerequisiteData
       ) {
         const continueWithoutIndirect = await showDialog(
-          'No Indirect Prerequisite Checker data has been provided.<br><br>You can continue using the official prerequisite data already processed, or go back and paste the Indirect Prerequisite Checker page.',
+          'No Indirect Prerequisite Checker data has been provided.<br><br>You can continue using the prerequisite data already processed, or go back and paste the Indirect Prerequisite Checker page.',
           true,
           {
             closeLabel: 'Go Back',
