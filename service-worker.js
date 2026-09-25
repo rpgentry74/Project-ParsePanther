@@ -1,6 +1,6 @@
 // service-worker.js
 
-const CACHE_NAME = 'parsepanther-v3-1';
+const CACHE_NAME = 'parsepanther-v3-2';
 
 const APP_SHELL = [
   './',
@@ -71,7 +71,7 @@ async function networkFirst(request) {
     await cacheResponse(request, response);
     return response;
   } catch (error) {
-    const cachedResponse = await caches.match(request);
+    const cachedResponse = await caches.match(request, { ignoreSearch: true });
 
     if (cachedResponse) {
       return cachedResponse;
