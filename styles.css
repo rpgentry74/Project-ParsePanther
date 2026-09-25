@@ -670,6 +670,20 @@ textarea:focus {
   text-align: center;
 }
 
+.not-complete {
+  display: block;
+  width: 100%;
+  color: #667085;
+  font-weight: 700;
+  text-align: center;
+}
+
+.empty-results {
+  margin: 0;
+  padding: 1rem;
+  color: var(--muted);
+}
+
 .no-courses-taken {
   background-color: #f2cece;
 }
