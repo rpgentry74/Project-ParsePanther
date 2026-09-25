@@ -12,6 +12,7 @@ import { handleRosterDataPaste } from './rosterDataHandler.js';
 import { handlePrerequisiteDataPaste } from './prerequisiteDataHandler.js';
 import { handleIndirectPrerequisiteDataPaste } from './indirectPrerequisiteDataHandler.js';
 import { allowOnlyPaste } from './inputValidation.js';
+import { initializePrerequisiteOptions } from './checkboxes.js';
 import './generateSpreadsheetFile.js';
 
 // Attach button handlers once, from the application entry point.
@@ -20,6 +21,9 @@ document.getElementById('resetAll').addEventListener('click', handleFormReset);
 document.getElementById('resetRoster').addEventListener('click', handleRosterReset);
 document.getElementById('resetPrerequisite').addEventListener('click', handlePrerequisiteReset);
 document.getElementById('resetIndirectPrerequisite').addEventListener('click', handleIndirectPrerequisiteReset);
+
+// Initialize prerequisite option controls.
+initializePrerequisiteOptions();
 
 // Handle pasted data.
 handleRosterDataPaste();
