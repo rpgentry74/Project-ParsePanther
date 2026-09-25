@@ -1,6 +1,7 @@
 // resetHandler.js
 import { resetState, setDirectPrerequisiteData, setIndirectPrerequisiteData } from './state.js';
 import { updateStatusIndicator } from './statusIndicator.js';
+import { recordDiagnostic, setDiagnosticState } from './diagnostics.js';
 
 export function clearGeneratedOutput() {
   document.getElementById('output').innerHTML = '';
@@ -25,6 +26,17 @@ export function resetTextarea(textareaId) {
 }
 
 export function invalidateForRosterPaste() {
+  recordDiagnostic('roster-paste-received');
+  setDiagnosticState({
+    rosterAccepted: false,
+    rosterVariant: null,
+    directAccepted: false,
+    directVariant: null,
+    indirectAccepted: false,
+    indirectVariant: null,
+    outputGenerated: false,
+  });
+
   resetTextarea('prerequisiteData');
   resetTextarea('indirectPrerequisiteData');
 
@@ -37,18 +49,41 @@ export function invalidateForRosterPaste() {
 }
 
 export function invalidateForDirectPrerequisitePaste() {
+  recordDiagnostic('direct-paste-received');
+  setDiagnosticState({
+    directAccepted: false,
+    directVariant: null,
+    outputGenerated: false,
+  });
   setDirectPrerequisiteData(null);
   updateStatusIndicator('prerequisiteStatus', 'Processing pasted data...', 'default');
   clearGeneratedOutput();
 }
 
 export function invalidateForIndirectPrerequisitePaste() {
+  recordDiagnostic('indirect-paste-received');
+  setDiagnosticState({
+    indirectAccepted: false,
+    indirectVariant: null,
+    outputGenerated: false,
+  });
   setIndirectPrerequisiteData(null);
   updateStatusIndicator('indirectPrerequisiteStatus', 'Processing pasted data...', 'default');
   clearGeneratedOutput();
 }
 
 export function handleRosterReset() {
+  recordDiagnostic('roster-reset');
+  setDiagnosticState({
+    rosterAccepted: false,
+    rosterVariant: null,
+    directAccepted: false,
+    directVariant: null,
+    indirectAccepted: false,
+    indirectVariant: null,
+    outputGenerated: false,
+  });
+
   resetTextarea('rosterData');
   resetTextarea('prerequisiteData');
   resetTextarea('indirectPrerequisiteData');
@@ -60,6 +95,13 @@ export function handleRosterReset() {
 }
 
 export function handlePrerequisiteReset() {
+  recordDiagnostic('direct-reset');
+  setDiagnosticState({
+    directAccepted: false,
+    directVariant: null,
+    outputGenerated: false,
+  });
+
   resetTextarea('prerequisiteData');
   updateStatusIndicator('prerequisiteStatus', 'No data processed yet.', 'default');
   setDirectPrerequisiteData(null);
@@ -67,6 +109,13 @@ export function handlePrerequisiteReset() {
 }
 
 export function handleIndirectPrerequisiteReset() {
+  recordDiagnostic('indirect-reset');
+  setDiagnosticState({
+    indirectAccepted: false,
+    indirectVariant: null,
+    outputGenerated: false,
+  });
+
   resetTextarea('indirectPrerequisiteData');
   updateStatusIndicator('indirectPrerequisiteStatus', 'No data processed yet.', 'default');
   setIndirectPrerequisiteData(null);
@@ -74,6 +123,17 @@ export function handleIndirectPrerequisiteReset() {
 }
 
 export function handleFormReset() {
+  recordDiagnostic('all-fields-reset');
+  setDiagnosticState({
+    rosterAccepted: false,
+    rosterVariant: null,
+    directAccepted: false,
+    directVariant: null,
+    indirectAccepted: false,
+    indirectVariant: null,
+    outputGenerated: false,
+  });
+
   resetTextarea('rosterData');
   resetTextarea('prerequisiteData');
   resetTextarea('indirectPrerequisiteData');
