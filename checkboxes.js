@@ -4,6 +4,10 @@ import {
   handleIndirectPrerequisiteReset,
   clearGeneratedOutput,
 } from './resetHandler.js';
+import {
+  recordDiagnostic,
+  setDiagnosticState,
+} from './diagnostics.js';
 
 export function initializePrerequisiteOptions() {
   const includeDirectPrerequisites = document.getElementById('includeDirectPrerequisites');
@@ -18,6 +22,11 @@ export function initializePrerequisiteOptions() {
   includeDirectPrerequisites.addEventListener('change', function () {
     prerequisiteDataGroup.style.display = this.checked ? 'block' : 'none';
 
+    setDiagnosticState({ directSelected: this.checked });
+    recordDiagnostic('direct-selection-changed', {
+      status: this.checked ? 'selected' : 'cleared',
+    });
+
     if (!this.checked) {
       handlePrerequisiteReset();
     } else {
@@ -27,6 +36,11 @@ export function initializePrerequisiteOptions() {
 
   includeIndirectPrerequisites.addEventListener('change', function () {
     indirectPrerequisiteDataGroup.style.display = this.checked ? 'block' : 'none';
+
+    setDiagnosticState({ indirectSelected: this.checked });
+    recordDiagnostic('indirect-selection-changed', {
+      status: this.checked ? 'selected' : 'cleared',
+    });
 
     if (!this.checked) {
       handleIndirectPrerequisiteReset();
