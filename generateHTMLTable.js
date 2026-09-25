@@ -4,6 +4,18 @@ import { colorCodeCells } from './colorCodeCells.js';
 import { mergePrerequisiteData } from './prerequisiteDataUtils.js';
 import { escapeHTML } from './htmlUtils.js';
 
+function buildCourseHeader(courseName, aliases = [], label = '') {
+  const aliasHTML = aliases.length
+    ? `<br><small>(${aliases.map(escapeHTML).join(', ')})</small>`
+    : '';
+
+  const labelHTML = label
+    ? `<br><small>${escapeHTML(label)}</small>`
+    : '';
+
+  return `<th>${escapeHTML(courseName)}${aliasHTML}${labelHTML}</th>`;
+}
+
 export function generateHTMLTable() {
   const {
     rosterData,
@@ -21,14 +33,19 @@ export function generateHTMLTable() {
   const labNum = escapeHTML(rosterData.labNum || 'None');
 
   const {
-    prerequisiteCourses: mergedPrerequisites,
-    courseAliases: mergedCourseAliases,
+    prerequisiteCourses,
+    courseAliases,
+    indirectEvidenceCourses,
+    indirectEvidenceAliases,
   } = mergePrerequisiteData(
     directPrerequisiteData,
     indirectPrerequisiteData
   );
 
-  const prerequisiteNames = Object.keys(mergedPrerequisites);
+  const prerequisiteNames = Object.keys(prerequisiteCourses);
+  const indirectEvidenceNames = Object.keys(indirectEvidenceCourses);
+  const totalDisplayColumns =
+    prerequisiteNames.length + indirectEvidenceNames.length;
 
   const headerHTML = `
     <div class="outputHeader">
@@ -41,11 +58,11 @@ export function generateHTMLTable() {
     </div>
   `;
 
-  if (prerequisiteNames.length === 0) {
+  if (totalDisplayColumns === 0) {
     const outputHTML = `
       ${headerHTML}
       <div class="outputTable">
-        <p>No prerequisite courses were listed for the selected prerequisite checks.</p>
+        <p>No prerequisite courses or indirect evidence were listed for the selected checks.</p>
       </div>
     `;
 
@@ -55,28 +72,49 @@ export function generateHTMLTable() {
   }
 
   const prerequisiteHeadersHTML = prerequisiteNames
-    .map((prerequisite) => {
-      const aliases = mergedCourseAliases[prerequisite] || [];
-      const aliasHTML = aliases.length
-        ? `<br><small>(${aliases.map(escapeHTML).join(', ')})</small>`
-        : '';
+    .map((prerequisite) =>
+      buildCourseHeader(
+        prerequisite,
+        courseAliases[prerequisite] || []
+      )
+    )
+    .join('');
 
-      return `<th>${escapeHTML(prerequisite)}${aliasHTML}</th>`;
-    })
+  const indirectEvidenceHeadersHTML = indirectEvidenceNames
+    .map((courseName) =>
+      buildCourseHeader(
+        courseName,
+        indirectEvidenceAliases[courseName] || [],
+        'Indirect'
+      )
+    )
     .join('');
 
   const rowsHTML = rosterData.studentRoster
     .map((student) => {
       const studentId = String(student.studentID).trim();
 
-      const courseCompletionHTML = prerequisiteNames
+      const prerequisiteCompletionHTML = prerequisiteNames
         .map((prerequisite) => {
-          const hasTakenCourse = mergedPrerequisites[prerequisite].includes(studentId);
+          const hasTakenCourse =
+            prerequisiteCourses[prerequisite].includes(studentId);
           const checkmarkHTML = hasTakenCourse
             ? '<span class="checkmark">&#x2713;</span>'
             : '';
 
-          return `<td class="${hasTakenCourse ? 'taken' : 'not-taken'}">${checkmarkHTML}</td>`;
+          return `<td class="evaluated-prerequisite ${hasTakenCourse ? 'taken' : 'not-taken'}">${checkmarkHTML}</td>`;
+        })
+        .join('');
+
+      const indirectEvidenceHTML = indirectEvidenceNames
+        .map((courseName) => {
+          const hasEvidence =
+            indirectEvidenceCourses[courseName].includes(studentId);
+          const checkmarkHTML = hasEvidence
+            ? '<span class="checkmark">&#x2713;</span>'
+            : '';
+
+          return `<td class="indirect-evidence">${checkmarkHTML}</td>`;
         })
         .join('');
 
@@ -84,11 +122,20 @@ export function generateHTMLTable() {
         <tr>
           <td class="center student-info">${escapeHTML(student.studentID)}</td>
           <td class="left student-info">${escapeHTML(student.studentName)}</td>
-          ${courseCompletionHTML}
+          ${prerequisiteCompletionHTML}
+          ${indirectEvidenceHTML}
         </tr>
       `;
     })
     .join('');
+
+  const prerequisiteGroupHeader = prerequisiteNames.length
+    ? `<th colspan="${prerequisiteNames.length}">Prerequisites</th>`
+    : '';
+
+  const indirectGroupHeader = indirectEvidenceNames.length
+    ? `<th colspan="${indirectEvidenceNames.length}">Indirect Evidence</th>`
+    : '';
 
   const tableId = 'mergedTable';
   const tableElementHTML = `
@@ -96,12 +143,14 @@ export function generateHTMLTable() {
       <thead>
         <tr>
           <th colspan="2">Student Info</th>
-          <th colspan="${prerequisiteNames.length}">Prerequisites</th>
+          ${prerequisiteGroupHeader}
+          ${indirectGroupHeader}
         </tr>
         <tr>
           <th class="center">Student ID</th>
           <th class="left">Student Name</th>
           ${prerequisiteHeadersHTML}
+          ${indirectEvidenceHeadersHTML}
         </tr>
       </thead>
       <tbody>
@@ -120,7 +169,9 @@ export function generateHTMLTable() {
   const outputDiv = document.getElementById('output');
   outputDiv.innerHTML = outputHTML;
 
-  const rows = Array.from(document.querySelectorAll(`#${tableId} tbody tr`));
+  const rows = Array.from(
+    document.querySelectorAll(`#${tableId} tbody tr`)
+  );
   rows.forEach(colorCodeCells);
 
   return outputHTML;
