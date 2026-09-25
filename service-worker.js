@@ -1,7 +1,7 @@
 // service-worker.js
 
 const CACHE_PREFIX = 'parsepanther-';
-const CACHE_NAME = 'parsepanther-v3-dev-14';
+const CACHE_NAME = 'parsepanther-v3-dev-15';
 const LEGACY_CACHE_NAMES = new Set(['v1']);
 
 const APP_SHELL = [
