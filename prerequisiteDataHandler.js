@@ -1,22 +1,19 @@
 // prerequisiteDataHandler.js
-import { parseClassData } from './parseClassData.js'; 
+import { parseClassData } from './parseClassData.js';
+import { invalidateForDirectPrerequisitePaste } from './resetHandler.js';
 
 export function handlePrerequisiteDataPaste() {
-  // Get the prerequisite data textbox
   const prerequisiteDataTextbox = document.getElementById('prerequisiteData');
 
-  // Attach the on paste event listener
-  prerequisiteDataTextbox.addEventListener('paste', async (event) => { // Add async here
-    // Wait until after the paste event has completed before validating the pasted data
-    setTimeout(async () => { // Add async here
-      // Get the pasted data from the textbox
-      const pastedText = prerequisiteDataTextbox.value;
+  prerequisiteDataTextbox.addEventListener('paste', () => {
+    invalidateForDirectPrerequisitePaste();
 
-      // Parse and validate the pasted prerequisite data
+    // Wait until the browser has placed the pasted text in the textarea.
+    setTimeout(async () => {
       try {
-        await parseClassData(pastedText); // await the promise
+        await parseClassData();
       } catch (error) {
-        console.error("Error occurred while parsing class data:", error.message);
+        console.error('Error occurred while parsing direct prerequisite data:', error.message);
       }
     }, 100);
   });
