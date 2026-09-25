@@ -1,9 +1,12 @@
 export function colorCodeCells(row) {
   const cells = Array.from(row.getElementsByTagName('td'));
-  const totalCourses = cells.length - 2;
-  const takenCourses = cells.filter((cell) =>
+  const evaluatedCells = cells.filter((cell) =>
+    cell.classList.contains('evaluated-prerequisite')
+  );
+  const takenCourses = evaluatedCells.filter((cell) =>
     cell.classList.contains('taken')
   ).length;
+  const totalCourses = evaluatedCells.length;
 
   row.classList.remove(
     'no-courses-taken',
@@ -11,9 +14,10 @@ export function colorCodeCells(row) {
     'some-courses-taken'
   );
 
+  cells[0]?.classList.add('student-info');
+  cells[1]?.classList.add('student-info');
+
   if (totalCourses <= 0) {
-    cells[0]?.classList.add('student-info');
-    cells[1]?.classList.add('student-info');
     return;
   }
 
