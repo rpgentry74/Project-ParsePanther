@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ParsePanther v3 Parser Tests</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 60rem;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .test-result {
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: 1px solid currentColor;
+    }
+
+    [data-status="passed"] {
+      background: #e8f5e9;
+    }
+
+    [data-status="failed"] {
+      background: #ffebee;
+    }
+
+    iframe {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      border: 0;
+      clip: rect(0 0 0 0);
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>ParsePanther v3 Parser Tests</h1>
+    <p>This page runs the sanitized roster, direct prerequisite, and indirect prerequisite regression suites.</p>
+
+    <div id="rosterResult" class="test-result">Roster tests: running...</div>
+    <div id="directResult" class="test-result">Direct prerequisite tests: running...</div>
+    <div id="indirectResult" class="test-result">Indirect prerequisite tests: running...</div>
+
+    <h2 id="overallResult">Overall: running...</h2>
+
+    <iframe id="rosterFrame" src="./rosterParserTests.html" title="Roster parser tests"></iframe>
+    <iframe id="directFrame" src="./directPrerequisiteParserTests.html" title="Direct prerequisite parser tests"></iframe>
+    <iframe id="indirectFrame" src="./indirectPrerequisiteParserTests.html" title="Indirect prerequisite parser tests"></iframe>
+  </main>
+
+  <script>
+    const suites = [
+      { frame: 'rosterFrame', output: 'rosterResult', label: 'Roster tests' },
+      { frame: 'directFrame', output: 'directResult', label: 'Direct prerequisite tests' },
+      { frame: 'indirectFrame', output: 'indirectResult', label: 'Indirect prerequisite tests' },
+    ];
+
+    function readSuite(suite) {
+      const frame = document.getElementById(suite.frame);
+      const result = frame.contentDocument?.getElementById('testResults');
+
+      if (!result?.dataset.status) {
+        return null;
+      }
+
+      const output = document.getElementById(suite.output);
+      output.textContent = `${suite.label}: ${result.textContent}`;
+      output.dataset.status = result.dataset.status;
+
+      return result.dataset.status;
+    }
+
+    function updateOverall() {
+      const statuses = suites.map(readSuite);
+
+      if (statuses.some((status) => status === 'failed')) {
+        document.getElementById('overallResult').textContent = 'Overall: FAILED';
+        return;
+      }
+
+      if (statuses.every((status) => status === 'passed')) {
+        document.getElementById('overallResult').textContent = 'Overall: PASSED';
+        return;
+      }
+
+      setTimeout(updateOverall, 50);
+    }
+
+    window.addEventListener('load', updateOverall);
+  </script>
+</body>
+</html>
