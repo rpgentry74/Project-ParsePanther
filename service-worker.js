@@ -1,7 +1,7 @@
 // service-worker.js
 
 const CACHE_PREFIX = 'parsepanther-';
-const CACHE_NAME = 'parsepanther-v3-3';
+const CACHE_NAME = 'parsepanther-v3-4';
 
 const APP_SHELL = [
   './',
@@ -76,7 +76,8 @@ async function networkFirst(request) {
     await cacheResponse(request, response);
     return response;
   } catch (error) {
-    const cachedResponse = await caches.match(request, { ignoreSearch: true });
+    const cache = await caches.open(CACHE_NAME);
+    const cachedResponse = await cache.match(request, { ignoreSearch: true });
 
     if (cachedResponse) {
       return cachedResponse;
@@ -84,7 +85,7 @@ async function networkFirst(request) {
 
     if (request.mode === 'navigate') {
       const fallbackUrl = new URL('./index.html', self.registration.scope).href;
-      const fallbackResponse = await caches.match(fallbackUrl);
+      const fallbackResponse = await cache.match(fallbackUrl);
 
       if (fallbackResponse) {
         return fallbackResponse;
