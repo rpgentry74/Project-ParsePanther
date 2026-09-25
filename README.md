@@ -26,6 +26,8 @@ Version 3 detects and parses the current Faculty and Admin variants independentl
 
 Faculty and Admin are treated as separate source formats that normalize to the same application data contracts. The parsers recognize both legacy course numbers and Common Course Numbering values such as `STAT C1000`. They fail closed when an unsupported course block is detected rather than silently attaching student rows to the previous course. A recognized Direct page with no listed prerequisite courses uses an explicit user confirmation instead of being treated as a parser failure.
 
+Direct data defines the official prerequisites that are evaluated. Official former-course numbers are treated as identities of those prerequisites, including when the former-course relationship is documented on an Indirect page. Indirect completions under an official course or official former number can therefore satisfy that prerequisite. Courses that appear only in the Indirect Prerequisite Checker remain informational evidence and do not affect prerequisite status.
+
 ## Parser architecture
 
 Each data type has a dispatcher that identifies the LRCCD source variant and sends the text to a dedicated parser. Tabs and line boundaries are preserved when they carry structure.
@@ -58,6 +60,8 @@ Regression coverage includes:
 - legacy and Common Course Numbering headings such as `STAT 300` and `STAT C1000`
 - multiple former-course aliases
 - Direct-to-Indirect alias reconciliation without duplicate old/new prerequisite columns
+- official prerequisite evaluation separated from informational Indirect-only evidence
+- former-course relationships documented on Indirect pages can update the matching official prerequisite
 - legitimate empty prerequisite sections
 - fail-closed behavior for unsupported course blocks and unrecognized structures
 
