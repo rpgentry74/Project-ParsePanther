@@ -1,7 +1,8 @@
 // service-worker.js
 
 const CACHE_PREFIX = 'parsepanther-';
-const CACHE_NAME = 'parsepanther-v3-9';
+const CACHE_NAME = 'parsepanther-v3-dev-10';
+const LEGACY_CACHE_NAMES = new Set(['v1']);
 
 const APP_SHELL = [
   './',
@@ -57,8 +58,11 @@ self.addEventListener('activate', (event) => {
           cacheNames
             .filter(
               (cacheName) =>
-                cacheName.startsWith(CACHE_PREFIX) &&
-                cacheName !== CACHE_NAME
+                LEGACY_CACHE_NAMES.has(cacheName) ||
+                (
+                  cacheName.startsWith(CACHE_PREFIX) &&
+                  cacheName !== CACHE_NAME
+                )
             )
             .map((cacheName) => caches.delete(cacheName))
         )
@@ -82,7 +86,7 @@ async function cacheResponse(request, response) {
 
 async function networkFirst(request) {
   try {
-    const response = await fetch(request);
+    const response = await fetch(request, { cache: 'no-store' });
     await cacheResponse(request, response);
     return response;
   } catch (error) {
@@ -95,7 +99,7 @@ async function networkFirst(request) {
 
     if (request.mode === 'navigate') {
       const fallbackUrl = new URL('./index.html', self.registration.scope).href;
-      const fallbackResponse = await cache.match(fallbackUrl);
+      const fallbackResponse = await cache.match(fallbackUrl, { ignoreSearch: true });
 
       if (fallbackResponse) {
         return fallbackResponse;
