@@ -83,7 +83,7 @@ async function cacheReport() {
 
     return parsePantherCaches.length
       ? parsePantherCaches
-      : ['No ParsePanther cache detected'];
+      : ['No application cache detected'];
   } catch {
     return ['Unable to inspect cache'];
   }
@@ -209,7 +209,7 @@ function downloadReport() {
   const link = document.createElement('a');
 
   link.href = url;
-  link.download = 'parsepanther-support-report.txt';
+  link.download = 'student-prerequisite-analyzer-support-report.txt';
   document.body.appendChild(link);
   link.click();
   link.remove();
