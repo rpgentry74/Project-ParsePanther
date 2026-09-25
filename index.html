@@ -81,77 +81,30 @@
           </article>
         </section>
         <section id="tab3" class="tab-panel">
-          <!-- Content for Tab 3 -->
           <article>
-            <h2>Project Road Map</h2>
-            <h3>User-Requested Enhancements</h3>
+            <h2>Roadmap</h2>
+
+            <h3>Version 3 Release Readiness</h3>
             <ul>
-              <li><strong>(Complete)</strong> Implement Indirect Prerequisite Checker functionality.</li>
-              <li><strong>(Complete)</strong> Enhance the UI/UX to better facilitate the Indirect Prerequisite Checker functionality.</li>
-              <li><strong>(Complete)</strong> Improve error handling to provide clearer instructions and error messages during indirect prerequisite data processing.</li>
+              <li><strong>(In Progress)</strong> Run browser and end-to-end regression testing across the complete roster, prerequisite, indirect evidence, results, and download workflow.</li>
+              <li><strong>(In Progress)</strong> Validate Version 3 against current Faculty and Admin LRCCD source pages and add sanitized regression cases for any newly observed format variations.</li>
+              <li><strong>(In Progress)</strong> Review accessibility and usability after the Version 3 interface refresh, including keyboard navigation, dialogs, status messages, responsive layout, and results-table readability.</li>
+              <li><strong>(To Do)</strong> Complete release review and move Version 3 from the development branch to production.</li>
             </ul>
-            <h3>Basic Setup and Main Page</h3>
+
+            <h3>Future Enhancements</h3>
             <ul>
-              <li><strong>(Complete)</strong> Improve the styling and layout of the main page for better readability and accessibility.</li>
-              <li><strong>(Complete)</strong> Set up the development environment.</li>
-              <li><strong>(Complete)</strong> Create the main HTML page with the necessary input fields and a text area for pasting data. Add a new text box for the roster data.</li>
+              <li><strong>(To Do)</strong> Build a feedback form for users to report issues and suggest improvements.</li>
+              <li><strong>(Planned)</strong> Add a per-student Copy Message option for students missing official prerequisites. Indirect-only evidence will not be treated as a missing prerequisite.</li>
             </ul>
-            
-            <h3>Data Parsing Module</h3>
+
+            <h3>Ongoing Maintenance</h3>
             <ul>
-              <li><strong>(Complete)</strong> Write a JavaScript function to parse the prerequisite data.</li>
-              <li><strong>(Complete)</strong> Write a JavaScript function to parse the roster data.</li>
-              <li><strong>(Complete)</strong> Implement error handling for handling data format issues.</li>
-              <li><strong>(Complete)</strong> Compare lab and lecture information for error checking.</li>
+              <li><strong>(Continuous)</strong> Update parsers and sanitized regression fixtures when LRCCD source-page formats change.</li>
+              <li><strong>(Continuous)</strong> Refine instructions, error handling, and workflow guidance based on real use and user feedback.</li>
             </ul>
-            
-            <h3>Table Generation Module</h3>
-            <ul>
-              <li><strong>(Complete)</strong> Write a JavaScript function to generate an HTML table based on the parsed data.</li>
-              <li><strong>(Complete)</strong> Implement color-coding logic to mark cells and rows based on course completion status.</li>
-              <li><strong>(Complete)</strong> Refine the table layout and styling for improved visual presentation.</li>
-            </ul>
-            
-            <h3>Color Coding Module</h3>
-            <ul>
-              <li><strong>(Complete)</strong> Implement the color-coding logic to mark cells and rows based on the course completion status.</li>
-            </ul>
-            
-            <h3>Download Functionality Module</h3>
-            <ul>
-              <li><strong>(Complete)</strong> Implement spreadsheet downloads in XLSX, CSV, and ODS formats.</li>
-            </ul>
-            
-            <h3>User Interaction and Feedback</h3>
-            <ul>
-              <li><strong>(Not Needed)</strong> Implement a loading indicator to provide feedback during data processing.</li>
-              <li><strong>(Complete)</strong> Implement a reset button to clear the input and output.</li>
-              <li><strong>(Complete)</strong> Improve error handling with clear error messages.</li>
-              <li><strong>(To Do)</strong> Build feedback form</li>
-              <li><strong>(Continuous Revision)</strong> Update instructions and guidance for better clarity and usability.</li>
-            </ul>
-            <h3>Progressive Web App (PWA) Conversion</h3>
-            <ul>
-                <li><strong>(Complete)</strong> Added and configured the web app manifest file.</li>
-                <li><strong>(Complete)</strong> Set up the basic structure for the service worker file.</li>
-                <li><strong>(Complete)</strong> Registered the service worker in the main JavaScript file.</li>
-                <li><strong>(Complete)</strong> Implemented fetch event listeners in the service worker for offline support.</li>
-                <li><strong>(Complete)</strong> Fixed caching issues to ensure all required files are available offline.</li>
-                <li><strong>(Complete)</strong> Added PWA icons and updated the theme color in the manifest and HTML meta tag.</li>
-                <li><strong>(Complete)</strong> Conducted thorough testing to ensure PWA functionality works as expected.</li>
-            </ul>
-            <h3>Testing and Refinement</h3>
-            <ul>
-              <li><strong>(Continuous Need)</strong> Thoroughly test the application, covering different scenarios and edge cases.</li>
-              <li><strong>(Continuous Need)</strong> Gather user feedback and make necessary refinements to enhance usability and functionality.</li>
-            </ul>
-            
-            <h3>Deployment</h3>
-            <ul>
-              <li><strong>(Complete)</strong> Deploy the application to the shared server.</li>
-              <li><strong>(Complete)</strong> Perform final testing in the production environment.</li>
-            </ul>
-            <a href="#top" class="back-to-top">Back to Top</a> 
+
+            <a href="#top" class="back-to-top">Back to Top</a>
           </article>
         </section>
         <section id="tab4" class="tab-panel">
@@ -172,7 +125,9 @@
               <li>Escaped LRCCD-derived values before inserting them into generated HTML or dialog markup.</li>
               <li>Improved PWA cache isolation and development-build identification.</li>
               <li>Refreshed the interface with a wider workspace, card-based data entry, compact status badges, clearer results hierarchy, and stronger separation between prerequisites and indirect evidence.</li>
+              <li>Added an explicit per-student results status so users can quickly see whether all official prerequisites are complete or how many remain missing.</li>
               <li>When Indirect Evidence is selected but left empty, users with valid prerequisite data can explicitly continue without it. Pasted Indirect data that fails parsing still requires review.</li>
+              <li>Updated the startup system-status notice to reflect the current Version 3 development build and remaining release testing.</li>
             </ul>
             <h3>2.1.5</h3>
             <ul>
