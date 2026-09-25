@@ -1,84 +1,11 @@
 // resultsInteractions.js
 import { getState } from './state.js';
-import {
-  mergePrerequisiteData,
-  formatPrerequisiteDisplayName,
-} from './prerequisiteDataUtils.js';
+import { formatPrerequisiteDisplayName } from './prerequisiteDataUtils.js';
+import { buildResultsModel } from './resultsModel.js';
+import { buildStudentMessage } from './studentMessage.js';
 import { recordDiagnostic } from './diagnostics.js';
 
 let closeActiveStudentDetails = null;
-
-function studentFirstName(studentName) {
-  const value = String(studentName || '').trim();
-
-  if (!value) {
-    return '';
-  }
-
-  if (value.includes(',')) {
-    return value
-      .split(',')
-      .slice(1)
-      .join(',')
-      .trim()
-      .split(/\s+/)[0] || '';
-  }
-
-  return value.split(/\s+/)[0] || '';
-}
-
-function professorLastName(professorName) {
-  const value = String(professorName || '').trim();
-
-  if (!value) {
-    return '';
-  }
-
-  if (value.includes(',')) {
-    return value.split(',')[0].trim();
-  }
-
-  const parts = value.split(/\s+/);
-  return parts[parts.length - 1] || '';
-}
-
-function buildStudentMessage(
-  student,
-  rosterData,
-  missingPrerequisites,
-  courseAliases
-) {
-  const firstName = studentFirstName(student.studentName);
-  const lastName = professorLastName(rosterData.professor);
-  const greeting = firstName ? `Hello ${firstName},` : 'Hello,';
-  const courseName = rosterData.course || 'this course';
-
-  const missingList = missingPrerequisites
-    .map((courseName) =>
-      `- ${formatPrerequisiteDisplayName(
-        courseName,
-        courseAliases[courseName] || [],
-        ' '
-      )}`
-    )
-    .join('\n');
-
-  const signature = lastName
-    ? `Professor ${lastName}`
-    : 'Professor';
-
-  return [
-    greeting,
-    '',
-    `I reviewed the prerequisite information available for ${courseName}. The following prerequisite${missingPrerequisites.length === 1 ? '' : 's'} do not appear as completed in the LRCCD Prerequisite Checker:`,
-    '',
-    missingList,
-    '',
-    'If you believe this information is incorrect or you have documentation that may affect your prerequisite status, please contact me.',
-    '',
-    signature,
-  ].join('\n');
-}
 
 function describeEvidence(entries = []) {
   if (!entries.length) {
@@ -145,35 +72,26 @@ function createTextElement(tagName, className, text) {
   return element;
 }
 
-function buildOfficialPrerequisiteList(
-  studentId,
-  prerequisiteNames,
-  prerequisiteCourses,
-  courseAliases,
-  prerequisiteEvidenceSources
-) {
+function buildPrerequisiteList(prerequisites) {
   const list = document.createElement('ul');
   list.className = 'student-detail-list';
 
-  for (const prerequisite of prerequisiteNames) {
-    const completed = prerequisiteCourses[prerequisite].includes(studentId);
+  for (const prerequisite of prerequisites) {
     const item = document.createElement('li');
     const heading = createTextElement(
       'strong',
       '',
       formatPrerequisiteDisplayName(
-        prerequisite,
-        courseAliases[prerequisite] || [],
+        prerequisite.courseName,
+        prerequisite.aliases,
         ' '
       )
     );
     const detail = createTextElement(
       'span',
-      completed ? 'detail-complete' : 'detail-missing',
-      completed
-        ? describeEvidence(
-            prerequisiteEvidenceSources[prerequisite]?.[studentId] || []
-          )
+      prerequisite.completed ? 'detail-complete' : 'detail-missing',
+      prerequisite.completed
+        ? describeEvidence(prerequisite.evidence)
         : 'Missing from the available prerequisite evidence.'
     );
 
@@ -185,17 +103,8 @@ function buildOfficialPrerequisiteList(
   return list;
 }
 
-function buildIndirectEvidenceList(
-  studentId,
-  indirectEvidenceCourses,
-  indirectEvidenceAliases
-) {
-  const evidenceCourses = Object.keys(indirectEvidenceCourses)
-    .filter((courseName) =>
-      indirectEvidenceCourses[courseName].includes(studentId)
-    );
-
-  if (!evidenceCourses.length) {
+function buildIndirectEvidenceList(indirectEvidence) {
+  if (!indirectEvidence.length) {
     return createTextElement(
       'p',
       'detail-empty',
@@ -206,14 +115,14 @@ function buildIndirectEvidenceList(
   const list = document.createElement('ul');
   list.className = 'student-detail-list student-detail-list-neutral';
 
-  for (const courseName of evidenceCourses) {
+  for (const evidence of indirectEvidence) {
     const item = document.createElement('li');
     const heading = createTextElement(
       'strong',
       '',
       formatPrerequisiteDisplayName(
-        courseName,
-        indirectEvidenceAliases[courseName] || [],
+        evidence.courseName,
+        evidence.aliases,
         ' '
       )
     );
@@ -245,30 +154,26 @@ function openStudentDetails(studentId) {
     return;
   }
 
-  const student = rosterData.studentRoster.find(
-    (candidate) => String(candidate.studentID).trim() === studentId
+  const resultsModel = buildResultsModel(
+    rosterData,
+    directPrerequisiteData,
+    indirectPrerequisiteData
+  );
+  const studentModel = resultsModel?.students.find(
+    (candidate) => candidate.studentId === studentId
   );
 
-  if (!student) {
+  if (!studentModel) {
     return;
   }
 
   const {
-    prerequisiteCourses,
-    courseAliases,
-    prerequisiteEvidenceSources,
-    indirectEvidenceCourses,
-    indirectEvidenceAliases,
-  } = mergePrerequisiteData(
-    directPrerequisiteData,
-    indirectPrerequisiteData
-  );
-
-  const prerequisiteNames = Object.keys(prerequisiteCourses);
-  const missingPrerequisites = prerequisiteNames.filter(
-    (prerequisite) =>
-      !prerequisiteCourses[prerequisite].includes(studentId)
-  );
+    student,
+    prerequisites,
+    missingPrerequisites,
+    indirectEvidence,
+  } = studentModel;
+  const { courseAliases } = resultsModel;
 
   const previouslyFocused =
     document.activeElement instanceof HTMLElement
@@ -324,15 +229,9 @@ function openStudentDetails(studentId) {
     createTextElement('h3', '', 'Prerequisites')
   );
 
-  if (prerequisiteNames.length) {
+  if (prerequisites.length) {
     officialSection.appendChild(
-      buildOfficialPrerequisiteList(
-        studentId,
-        prerequisiteNames,
-        prerequisiteCourses,
-        courseAliases,
-        prerequisiteEvidenceSources
-      )
+      buildPrerequisiteList(prerequisites)
     );
   } else {
     officialSection.appendChild(
@@ -352,11 +251,7 @@ function openStudentDetails(studentId) {
     createTextElement('h3', '', 'Additional Indirect Evidence')
   );
   indirectSection.appendChild(
-    buildIndirectEvidenceList(
-      studentId,
-      indirectEvidenceCourses,
-      indirectEvidenceAliases
-    )
+    buildIndirectEvidenceList(indirectEvidence)
   );
   dialog.appendChild(indirectSection);
 
