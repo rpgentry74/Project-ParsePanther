@@ -963,3 +963,247 @@ footer a:hover {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Results insights */
+.results-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+}
+
+.summary-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 8.5rem;
+  padding: 0.55rem 0.7rem;
+  background: #f7f9fb;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.summary-stat strong {
+  color: var(--lrccd-navy);
+  font-size: 1.15rem;
+}
+
+.summary-stat span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.summary-stat-neutral {
+  background: var(--indirect-bg);
+}
+
+.results-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+
+.result-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.result-filter-button,
+.student-detail-button {
+  min-height: 2.25rem;
+  padding: 0.4rem 0.7rem;
+  color: var(--lrccd-navy);
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.result-filter-button span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.45rem;
+  min-height: 1.45rem;
+  margin-left: 0.25rem;
+  padding: 0 0.3rem;
+  background: #edf1f5;
+  border-radius: 999px;
+  font-size: 0.72rem;
+}
+
+.result-filter-button[aria-pressed="true"] {
+  color: #ffffff;
+  background: var(--lrccd-blue);
+  border-color: var(--lrccd-blue);
+}
+
+.result-filter-button[aria-pressed="true"] span {
+  color: var(--lrccd-navy);
+  background: #ffffff;
+}
+
+.result-filter-button:hover,
+.student-detail-button:hover {
+  background: #f2f5f8;
+}
+
+.result-filter-button[aria-pressed="true"]:hover {
+  background: var(--lrccd-navy);
+}
+
+.result-filter-button:focus-visible,
+.student-detail-button:focus-visible {
+  outline: 3px solid var(--lrccd-gold);
+  outline-offset: 2px;
+}
+
+.filter-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.merged-table .details-column-header {
+  background: #40556f;
+}
+
+.details-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.student-detail-button {
+  min-height: 2rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+}
+
+.student-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(20, 30, 42, 0.62);
+}
+
+.student-detail-dialog {
+  width: min(94vw, 46rem);
+  max-height: 90vh;
+  padding: 1.1rem;
+  overflow-y: auto;
+  color: var(--text);
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(20, 30, 42, 0.3);
+}
+
+.student-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.student-detail-header h2 {
+  margin-bottom: 0.2rem;
+}
+
+.student-detail-id,
+.detail-help,
+.detail-empty {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.student-detail-section {
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.student-detail-section:last-child {
+  border-bottom: 0;
+}
+
+.student-detail-list {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.55rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.student-detail-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  padding: 0.55rem 0.65rem;
+  background: #f8fafb;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.student-detail-list-neutral li {
+  background: var(--indirect-bg);
+}
+
+.detail-complete {
+  color: var(--success-text);
+  font-size: 0.82rem;
+}
+
+.detail-missing {
+  color: var(--danger-text);
+  font-size: 0.82rem;
+}
+
+.detail-neutral {
+  color: #5c6877;
+  font-size: 0.82rem;
+}
+
+.student-message-text {
+  min-height: 13rem;
+  margin-top: 0.6rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.student-message-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.copy-message-status {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 760px) {
+  .results-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .filter-status {
+    white-space: normal;
+  }
+
+  .student-detail-header {
+    flex-direction: column;
+  }
+}
