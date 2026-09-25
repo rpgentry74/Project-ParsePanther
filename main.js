@@ -13,8 +13,9 @@ import { handlePrerequisiteDataPaste } from './prerequisiteDataHandler.js';
 import { handleIndirectPrerequisiteDataPaste } from './indirectPrerequisiteDataHandler.js';
 import { restrictToPaste } from './inputValidation.js';
 import { initializePrerequisiteOptions } from './checkboxes.js';
-import './generateSpreadsheetFile.js';
+import { initializeSpreadsheetDownload } from './generateSpreadsheetFile.js';
 import { initializeDiagnostics, setDiagnosticState } from './diagnostics.js';
+import { applyBuildMetadata } from './appConfig.js';
 
 // Attach button handlers once, from the application entry point.
 document.getElementById('submit').addEventListener('click', handleFormSubmission);
@@ -22,6 +23,9 @@ document.getElementById('resetAll').addEventListener('click', handleFormReset);
 document.getElementById('resetRoster').addEventListener('click', handleRosterReset);
 document.getElementById('resetPrerequisite').addEventListener('click', handlePrerequisiteReset);
 document.getElementById('resetIndirectPrerequisite').addEventListener('click', handleIndirectPrerequisiteReset);
+
+// Apply the central build metadata before the workflow starts.
+applyBuildMetadata();
 
 // Initialize privacy-safe session diagnostics before the workflow starts.
 initializeDiagnostics();
@@ -42,6 +46,9 @@ handleIndirectPrerequisiteDataPaste();
 restrictToPaste('rosterData');
 restrictToPaste('prerequisiteData');
 restrictToPaste('indirectPrerequisiteData');
+
+// Initialize result downloads.
+initializeSpreadsheetDownload();
 
 // Register service worker.
 registerServiceWorker();
