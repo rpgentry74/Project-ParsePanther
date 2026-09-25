@@ -31,7 +31,7 @@ function buildStatus(prerequisiteNames, prerequisiteCourses, studentId) {
     return {
       key: 'neutral',
       className: 'status-neutral',
-      text: 'No official prerequisites evaluated',
+      text: 'No prerequisites evaluated',
       missingCount: 0,
     };
   }
