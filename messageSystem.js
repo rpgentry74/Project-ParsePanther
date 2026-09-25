@@ -3,16 +3,16 @@
 // Constants
 const REMIND_ME_LATER_DAYS = 7;
 const ENABLE_NOTIFICATIONS = true;
-const MESSAGE_HEADER = '<strong>System status:</strong>';
+const MESSAGE_HEADER = '<strong>Version 3 development status:</strong>';
 
 // Current messages (old ones removed)
 const messages = [
   {
-    id: '20260119.1',
+    id: '20260925.1',
     text:
-      'Prerequisite Checker update: LRCCD changed the formatting of prerequisite pages in January 2026. Direct prerequisite parsing has been updated to restore correct section headers for both faculty and admin views. If results look incorrect, please refresh the page and re-paste the data.'
+      'This is the Version 3 development build of the LRCCD Student Prerequisite Analyzer. Roster, Prerequisite Checker, and Indirect Prerequisite Checker parsing has been rebuilt for current Faculty and Admin formats, including Common Course Numbering and former course numbers. Results now separate official prerequisites from informational Indirect Evidence, and unrecognized page structures stop for review instead of being guessed. Version 3 is still undergoing browser and end-to-end release testing. If results look unexpected, stop and report the issue rather than relying on the output.'
   }
-];
+]
 
 // One-time cleanup: drop reminders for messages that no longer exist
 (function purgeLegacyReminders() {
