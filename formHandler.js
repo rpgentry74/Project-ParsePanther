@@ -2,6 +2,7 @@
 import { generateHTMLTable } from './generateHTMLTable.js';
 import { showDialog } from './dialogHandler.js';
 import { getState } from './state.js';
+import { recordDiagnostic, setDiagnosticState } from './diagnostics.js';
 
 function disableIndirectEvidence(includeIndirectPrerequisites) {
   includeIndirectPrerequisites.checked = false;
@@ -9,6 +10,8 @@ function disableIndirectEvidence(includeIndirectPrerequisites) {
 }
 
 export async function handleFormSubmission() {
+  recordDiagnostic('process-data-selected');
+
   const includeDirectPrerequisites =
     document.getElementById('includeDirectPrerequisites');
   const includeIndirectPrerequisites =
@@ -20,6 +23,9 @@ export async function handleFormSubmission() {
     !includeDirectPrerequisites.checked &&
     !includeIndirectPrerequisites.checked
   ) {
+    recordDiagnostic('process-blocked', {
+      code: 'NO_CHECK_TYPE_SELECTED',
+    });
     await showDialog(
       'Please select Prerequisites, Indirect Evidence, or both before processing.'
     );
@@ -33,6 +39,9 @@ export async function handleFormSubmission() {
   } = getState();
 
   if (!rosterData) {
+    recordDiagnostic('process-blocked', {
+      code: 'ROSTER_REQUIRED',
+    });
     await showDialog(
       'Please paste and confirm the Class Roster data before processing prerequisites.'
     );
@@ -43,6 +52,9 @@ export async function handleFormSubmission() {
     includeDirectPrerequisites.checked &&
     !directPrerequisiteData
   ) {
+    recordDiagnostic('process-blocked', {
+      code: 'DIRECT_REQUIRED',
+    });
     await showDialog(
       'Please paste and successfully process the direct Prerequisite data before continuing.'
     );
@@ -67,17 +79,25 @@ export async function handleFormSubmission() {
         );
 
         if (!continueWithoutIndirect) {
+          recordDiagnostic('indirect-empty-continue-declined');
           return;
         }
 
+        recordDiagnostic('indirect-empty-continued-without');
         disableIndirectEvidence(includeIndirectPrerequisites);
       } else {
+        recordDiagnostic('process-blocked', {
+          code: 'INDIRECT_ONLY_EMPTY',
+        });
         await showDialog(
           'Indirect Evidence is selected, but no Indirect Prerequisite Checker data has been provided.<br><br>Paste the Indirect Prerequisite Checker page, or select Prerequisites instead.'
         );
         return;
       }
     } else if (!indirectPrerequisiteData) {
+      recordDiagnostic('process-blocked', {
+        code: 'INDIRECT_PARSE_REQUIRED',
+      });
       await showDialog(
         'Indirect Prerequisite Checker data was pasted but did not process successfully.<br><br>Please review the pasted data before continuing.'
       );
@@ -86,6 +106,8 @@ export async function handleFormSubmission() {
   }
 
   generateHTMLTable();
+  setDiagnosticState({ outputGenerated: true });
+  recordDiagnostic('results-generated');
 
   document.getElementById('tableContainer').style.display = 'block';
   document
