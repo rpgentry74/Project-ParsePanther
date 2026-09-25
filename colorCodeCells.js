@@ -18,6 +18,8 @@ export function colorCodeCells(row) {
   cells[1]?.classList.add('student-info');
 
   if (totalCourses <= 0) {
+    cells[0]?.classList.remove('student-info');
+    cells[1]?.classList.remove('student-info');
     return;
   }
 
