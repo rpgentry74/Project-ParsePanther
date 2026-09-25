@@ -227,9 +227,12 @@ textarea {
   padding: 20px;
   background-color: white;
   border: 3px solid black;
-  z-index: 1000; /* Make sure dialog is above all other elements */
+  z-index: 1000;
   opacity: 0;
   animation: fade-in 0.3s forwards;
+  width: min(90vw, 42rem);
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .dialog-message {
@@ -249,6 +252,11 @@ textarea {
 .dialog-button:hover {
   background-color: #354458;
   border: 2px solid #ffffff;
+}
+
+.dialog-button:focus-visible {
+  outline: 3px solid #000000;
+  outline-offset: 2px;
 }
 
 @keyframes fade-in {
