@@ -155,6 +155,8 @@
               <li>Rebuilt roster, direct prerequisite, and indirect prerequisite parsing around separate Faculty and Admin source formats.</li>
               <li>Added fail-closed parser behavior so unrecognized LRCCD structure is not mistaken for valid empty prerequisite data.</li>
               <li>Recognized Direct Prerequisite pages with no listed courses now ask the user to confirm the valid empty result instead of blocking the workflow.</li>
+              <li>Added Common Course Numbering support, including values such as <code>STAT C1000</code>, and safer handling of unsupported prerequisite course blocks.</li>
+              <li>Current and former course numbers are preserved together in output headers, and Direct aliases reconcile legacy Indirect headings without creating duplicate columns.</li>
               <li>Added sanitized regression tests and a unified parser test dashboard.</li>
               <li>Replaced paste timing delays with direct clipboard capture.</li>
               <li>Improved keyboard and dialog accessibility.</li>
