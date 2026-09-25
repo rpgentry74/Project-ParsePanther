@@ -4,11 +4,17 @@ import {
   mergePrerequisiteData,
   formatPrerequisiteDisplayName,
 } from './prerequisiteDataUtils.js';
+import { recordDiagnostic } from './diagnostics.js';
 
 export function generateSpreadsheetFile(format) {
   if (!format) {
+    recordDiagnostic('export-blocked', {
+      code: 'FORMAT_REQUIRED',
+    });
     return;
   }
+
+  recordDiagnostic('export-selected', { format });
 
   const {
     rosterData,
@@ -17,6 +23,9 @@ export function generateSpreadsheetFile(format) {
   } = getState();
 
   if (!rosterData || (!directPrerequisiteData && !indirectPrerequisiteData)) {
+    recordDiagnostic('export-blocked', {
+      code: 'DATA_REQUIRED',
+    });
     console.error('Invalid roster data or prerequisite data.');
     return;
   }
@@ -103,6 +112,9 @@ export function generateSpreadsheetFile(format) {
       mimeType = 'application/vnd.oasis.opendocument.spreadsheet';
       break;
     default:
+      recordDiagnostic('export-blocked', {
+        code: 'INVALID_FORMAT',
+      });
       console.error('Invalid format specified.');
       return;
   }
@@ -126,6 +138,7 @@ export function generateSpreadsheetFile(format) {
     `${courseName}_LEC${lectureNumber}_LAB${labNumber}_${currentDate}.${fileExtension}`;
 
   saveAs(blob, fileName);
+  recordDiagnostic('export-generated', { format });
 }
 
 export function generateSelectedSpreadsheetFile() {
