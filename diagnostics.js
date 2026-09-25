@@ -5,7 +5,7 @@ const MAX_EVENTS = 50;
 const DEFAULT_STATE = {
   rosterAccepted: false,
   rosterVariant: null,
-  directSelected: true,
+  directSelected: false,
   directAccepted: false,
   directVariant: null,
   indirectSelected: false,
