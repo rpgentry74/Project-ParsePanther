@@ -1,6 +1,6 @@
 {
-  "short_name": "LRCCD Prereq Dev",
-  "name": "LRCCD Student Prerequisite Analyzer v3.0.0-dev",
+  "short_name": "LRCCD Prereq",
+  "name": "LRCCD Student Prerequisite Analyzer",
   "icons": [
     {
       "src": "img/icons/icons-512.png",
