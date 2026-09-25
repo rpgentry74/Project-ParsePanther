@@ -45,7 +45,7 @@ export function generateSpreadsheetFile(format) {
 
   function studentStatus(studentId) {
     if (prerequisiteNames.length === 0) {
-      return 'No official prerequisites evaluated';
+      return 'No prerequisites evaluated';
     }
 
     const completed = prerequisiteNames.filter((prerequisite) =>
