@@ -72,6 +72,17 @@ function parseMeetings(lines) {
   return { lecNum, labNum };
 }
 
+function parseAliases(aliasText) {
+  if (!aliasText) {
+    return [];
+  }
+
+  return aliasText
+    .split(',')
+    .map((alias) => cleanValue(alias).toUpperCase())
+    .filter(Boolean);
+}
+
 function parsePrerequisiteSections(lines) {
   const sectionIndex = lines.findIndex(
     (line) =>
@@ -85,7 +96,7 @@ function parsePrerequisiteSections(lines) {
   }
 
   const courseHeaderPattern =
-    /^([A-Z]{2,5}\s+\d{3}[A-Z]?)(?:\s+\(formerly\s+([A-Z]{2,5}\s+\d{3}[A-Z]?)\))?\s*:\s*$/i;
+    /^([A-Z]{2,5}\s+\d{3}[A-Z]?)(?:\s+\(formerly\s+([^)]+)\))?\s*:\s*$/i;
 
   const prerequisiteCourses = {};
   const courseAliases = {};
@@ -109,8 +120,10 @@ function parsePrerequisiteSections(lines) {
       currentCourse = cleanValue(courseMatch[1]).toUpperCase();
       prerequisiteCourses[currentCourse] = prerequisiteCourses[currentCourse] || [];
 
-      if (courseMatch[2]) {
-        courseAliases[currentCourse] = cleanValue(courseMatch[2]).toUpperCase();
+      const aliases = parseAliases(courseMatch[2]);
+
+      if (aliases.length) {
+        courseAliases[currentCourse] = aliases;
       }
 
       continue;
