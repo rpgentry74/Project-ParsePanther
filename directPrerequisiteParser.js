@@ -63,7 +63,7 @@ export function parseDirectPrerequisiteText(rawText) {
       ok: false,
       variant: 'unknown',
       code: 'EMPTY_DIRECT_PREREQUISITE',
-      message: 'No direct prerequisite data was provided.',
+      message: 'No prerequisite data was provided.',
     };
   }
 
@@ -75,7 +75,7 @@ export function parseDirectPrerequisiteText(rawText) {
       variant,
       code: 'UNKNOWN_DIRECT_PREREQUISITE_FORMAT',
       message:
-        'ParsePanther could not identify this as a supported Faculty or Admin direct prerequisite format.',
+        'The Student Prerequisite Analyzer could not identify this as a supported Faculty or Admin Prerequisite Checker format.',
     };
   }
 
