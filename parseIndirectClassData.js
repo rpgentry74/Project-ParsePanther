@@ -3,6 +3,7 @@ import { getState, setIndirectPrerequisiteData } from './state.js';
 import { showDialog } from './dialogHandler.js';
 import { updateStatusIndicator } from './statusIndicator.js';
 import { parseIndirectPrerequisiteText } from './indirectPrerequisiteParser.js';
+import { escapeHTML } from './htmlUtils.js';
 
 function cleanComparable(value) {
   return String(value || '')
@@ -58,7 +59,7 @@ export async function parseIndirectClassData() {
     );
 
     await showDialog(
-      `ParsePanther could not safely determine the indirect prerequisites from this page.<br><br><strong>Reason:</strong> ${result.message}<br><br>No prerequisite determination was made.`
+      `ParsePanther could not safely determine the indirect prerequisites from this page.<br><br><strong>Reason:</strong> ${escapeHTML(result.message)}<br><br>No prerequisite determination was made.`
     );
 
     textbox.value = '';
@@ -97,10 +98,10 @@ export async function parseIndirectClassData() {
 
     await showDialog(
       `The indirect prerequisite data does not match the confirmed Class Roster:<br>
-      <strong>Professor:</strong> ${parsed.professor || 'N/A'} vs ${rosterData.professor || 'N/A'}<br>
-      <strong>Course:</strong> ${parsed.course || 'N/A'} vs ${rosterData.course || 'N/A'}<br>
-      <strong>LEC Number:</strong> ${parsed.lecNum || 'N/A'} vs ${rosterData.lecNum || 'N/A'}<br>
-      <strong>LAB Number:</strong> ${parsed.labNum || 'N/A'} vs ${rosterData.labNum || 'N/A'}`
+      <strong>Professor:</strong> ${escapeHTML(parsed.professor || 'N/A')} vs ${escapeHTML(rosterData.professor || 'N/A')}<br>
+      <strong>Course:</strong> ${escapeHTML(parsed.course || 'N/A')} vs ${escapeHTML(rosterData.course || 'N/A')}<br>
+      <strong>LEC Number:</strong> ${escapeHTML(parsed.lecNum || 'N/A')} vs ${escapeHTML(rosterData.lecNum || 'N/A')}<br>
+      <strong>LAB Number:</strong> ${escapeHTML(parsed.labNum || 'N/A')} vs ${escapeHTML(rosterData.labNum || 'N/A')}`
     );
 
     textbox.value = '';
