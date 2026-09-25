@@ -16,7 +16,7 @@ export function detectIndirectPrerequisiteVariant(rawText) {
   const hasAdminPageTitle = /^Indirect Prerequisite Checker\s*$/im.test(source);
   const hasAdminSectionLabel = /^Indirect Prerequisites:\s*$/im.test(source);
   const hasAdminResultsHeading =
-    /^List of students who have completed the [A-Z]{2,5}\s+\d{3}[A-Z]? prerequisite courses indirectly\s*$/im.test(
+    /^List of students who have completed the [A-Z]{2,5}\s+[A-Z]?\d{3,4}[A-Z]? prerequisite courses indirectly\s*$/im.test(
       source
     );
 
