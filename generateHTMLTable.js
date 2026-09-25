@@ -1,7 +1,7 @@
 // generateHTMLTable.js
 import { getState } from './state.js';
 import { colorCodeCells } from './colorCodeCells.js';
-import { mergePrerequisiteCourses } from './prerequisiteDataUtils.js';
+import { mergePrerequisiteData } from './prerequisiteDataUtils.js';
 import { escapeHTML } from './htmlUtils.js';
 
 export function generateHTMLTable() {
@@ -20,7 +20,10 @@ export function generateHTMLTable() {
   const lecNum = escapeHTML(rosterData.lecNum || 'None');
   const labNum = escapeHTML(rosterData.labNum || 'None');
 
-  const mergedPrerequisites = mergePrerequisiteCourses(
+  const {
+    prerequisiteCourses: mergedPrerequisites,
+    courseAliases: mergedCourseAliases,
+  } = mergePrerequisiteData(
     directPrerequisiteData,
     indirectPrerequisiteData
   );
@@ -52,7 +55,14 @@ export function generateHTMLTable() {
   }
 
   const prerequisiteHeadersHTML = prerequisiteNames
-    .map((prerequisite) => `<th>${escapeHTML(prerequisite)}</th>`)
+    .map((prerequisite) => {
+      const aliases = mergedCourseAliases[prerequisite] || [];
+      const aliasHTML = aliases.length
+        ? `<br><small>(${aliases.map(escapeHTML).join(', ')})</small>`
+        : '';
+
+      return `<th>${escapeHTML(prerequisite)}${aliasHTML}</th>`;
+    })
     .join('');
 
   const rowsHTML = rosterData.studentRoster
