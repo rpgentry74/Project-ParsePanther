@@ -12,18 +12,18 @@ export function generateSpreadsheetFile(format) {
     return;
   }
 
-  const { rosterData, classData, indirectClassData } = stateData;
+  const { rosterData, directPrerequisiteData, indirectPrerequisiteData } = stateData;
 
-  if (!rosterData || (!classData && !indirectClassData)) {
+  if (!rosterData || (!directPrerequisiteData && !indirectPrerequisiteData)) {
     console.error('Invalid roster data or class data.');
     return;
   }
 
   const workbook = XLSX.utils.book_new();
 
-  // Merge classData.prerequisiteCourses and indirectClassData.prerequisiteCourses if they exist
-  const directPrerequisites = (classData && classData.prerequisiteCourses) ? classData.prerequisiteCourses : {};
-  const indirectPrerequisites = (indirectClassData && indirectClassData.prerequisiteCourses) ? indirectClassData.prerequisiteCourses : {};
+  // Merge directPrerequisiteData.prerequisiteCourses and indirectPrerequisiteData.prerequisiteCourses if they exist
+  const directPrerequisites = (directPrerequisiteData && directPrerequisiteData.prerequisiteCourses) ? directPrerequisiteData.prerequisiteCourses : {};
+  const indirectPrerequisites = (indirectPrerequisiteData && indirectPrerequisiteData.prerequisiteCourses) ? indirectPrerequisiteData.prerequisiteCourses : {};
   const allPrerequisites = { ...directPrerequisites, ...indirectPrerequisites };
 
   // Generate a list of unique prerequisites
