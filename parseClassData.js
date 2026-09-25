@@ -108,11 +108,35 @@ export async function parseClassData() {
     return null;
   }
 
+  if (parsed.requiresNoPrerequisiteConfirmation) {
+    const confirmed = await showDialog(
+      `ParsePanther found the Direct Prerequisite section for this class, but did not recognize any prerequisite courses.<br><br>If no Direct Prerequisite courses are listed on the LRCCD page, select <strong>Confirm</strong> to continue with no Direct Prerequisites.<br><br>If prerequisite courses are listed, select <strong>Close</strong>. The page format may have changed and should be reviewed.`,
+      true
+    );
+
+    if (!confirmed) {
+      setDirectPrerequisiteData(null);
+
+      updateStatusIndicator(
+        'prerequisiteStatus',
+        'Direct prerequisite page requires review.',
+        'bad'
+      );
+
+      prerequisiteTextbox.value = '';
+      return null;
+    }
+
+    parsed.confirmedNoDirectPrerequisites = true;
+  }
+
   setDirectPrerequisiteData(parsed);
 
   updateStatusIndicator(
     'prerequisiteStatus',
-    `${directVariantLabel(parsed.variant)} direct prerequisite data processed successfully.`,
+    parsed.confirmedNoDirectPrerequisites
+      ? `${directVariantLabel(parsed.variant)} direct prerequisite page processed successfully. No direct prerequisites listed (confirmed).`
+      : `${directVariantLabel(parsed.variant)} direct prerequisite data processed successfully.`,
     'good'
   );
 
