@@ -69,6 +69,37 @@ HVAC 256 (formerly MET 256):
 HVAC 351 (formerly MET 351):
 `;
 
+
+const facultyNoPrerequisitesSample = `Prerequisite Checker
+Professor:\t \tDoe, Jane
+Course:\t \tHVAC 100: Introduction to HVAC
+Meetings:\t \t
+ \t1:00 am-\t1:00 am\t \tRoom Online 000 (LEC - 12345)
+Term:\t \tFall 2026
+Prerequisite Checking Overview
+PREREQUISITE COURSES COMPLETED WITHIN LOS RIOS
+`;
+
+const adminNoPrerequisitesSample = `Admin Class List
+Prerequisite Checker
+Course:
+HVAC 100: Introduction to HVAC
+Professor:
+Doe, Jane
+Meetings:
+  \t 1:00 am - 1:00 am \t Online 000 \t LEC (12345)
+Term:
+Fall 2026
+HVAC 100 Prerequisite Courses Completed Within Los Rios
+Class rosters were last updated on Sep 25, 2026.
+`;
+
+const unknownDirectPageSample = `Prerequisite Checker
+Professor:\t \tDoe, Jane
+Course:\t \tHVAC 100: Introduction to HVAC
+This page does not contain the recognized prerequisite section.
+`;
+
 const brokenFacultyStructure = `Prerequisite Checker
 Professor:\t \tDoe, Jane
 Course:\t \tHVAC 364: Electrical Controls
@@ -178,14 +209,61 @@ function runAdminNoStudentRowsTest() {
   );
 }
 
-function runFailClosedTest() {
+
+function runFacultyNoPrerequisitesTest() {
+  const result = parseDirectPrerequisiteText(facultyNoPrerequisitesSample);
+
+  assert(result.ok, result.message || 'Faculty no-prerequisite page should parse');
+  assertEqual(
+    result.data.requiresNoPrerequisiteConfirmation,
+    true,
+    'Faculty no-prerequisite page should require confirmation'
+  );
+  assertEqual(
+    Object.keys(result.data.prerequisiteCourses).length,
+    0,
+    'Faculty no-prerequisite page should return an empty prerequisite set'
+  );
+}
+
+function runAdminNoPrerequisitesTest() {
+  const result = parseDirectPrerequisiteText(adminNoPrerequisitesSample);
+
+  assert(result.ok, result.message || 'Admin no-prerequisite page should parse');
+  assertEqual(
+    result.data.requiresNoPrerequisiteConfirmation,
+    true,
+    'Admin no-prerequisite page should require confirmation'
+  );
+  assertEqual(
+    Object.keys(result.data.prerequisiteCourses).length,
+    0,
+    'Admin no-prerequisite page should return an empty prerequisite set'
+  );
+}
+
+function runUnrecognizedHeadingConfirmationTest() {
   const result = parseDirectPrerequisiteText(brokenFacultyStructure);
 
-  assert(!result.ok, 'Unrecognized prerequisite course headings must fail closed');
+  assert(
+    result.ok,
+    result.message || 'Recognized Direct page with unrecognized headings should reach confirmation'
+  );
+  assertEqual(
+    result.data.requiresNoPrerequisiteConfirmation,
+    true,
+    'Unrecognized Direct headings should require user confirmation'
+  );
+}
+
+function runUnknownFormatFailClosedTest() {
+  const result = parseDirectPrerequisiteText(unknownDirectPageSample);
+
+  assert(!result.ok, 'A page without a recognized Direct section must still fail closed');
   assertEqual(
     result.code,
-    'DIRECT_PREREQUISITE_PARSE_FAILED',
-    'Unexpected failure code for unrecognized prerequisite headings'
+    'UNKNOWN_DIRECT_PREREQUISITE_FORMAT',
+    'Unexpected failure code for an unrecognized Direct page'
   );
 }
 
@@ -195,7 +273,10 @@ try {
   runFacultyTest();
   runAdminTest();
   runAdminNoStudentRowsTest();
-  runFailClosedTest();
+  runFacultyNoPrerequisitesTest();
+  runAdminNoPrerequisitesTest();
+  runUnrecognizedHeadingConfirmationTest();
+  runUnknownFormatFailClosedTest();
 
   output.textContent = 'All direct prerequisite parser tests passed.';
   output.dataset.status = 'passed';
