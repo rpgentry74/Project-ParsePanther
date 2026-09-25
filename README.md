@@ -24,7 +24,7 @@ Version 3 detects and parses the current Faculty and Admin variants independentl
   - Faculty
   - Admin
 
-Faculty and Admin are treated as separate source formats that normalize to the same application data contracts. The parsers recognize both legacy course numbers and Common Course Numbering values such as `STAT C1000`. They fail closed when an unsupported course block is detected rather than silently attaching student rows to the previous course. A recognized Direct page with no listed prerequisite courses uses an explicit user confirmation instead of being treated as a parser failure.
+Faculty and Admin are treated as separate source formats that normalize to the same application data contracts. This separation is deliberate: a source-format change can be repaired and regression-tested inside the affected Faculty or Admin parser without changing the other parser. The parsers recognize both legacy course numbers and Common Course Numbering values such as `STAT C1000`. They fail closed when an unsupported course block is detected rather than silently attaching student rows to the previous course. A recognized Direct page with no listed prerequisite courses uses an explicit user confirmation instead of being treated as a parser failure.
 
 Direct data defines the official prerequisites that are evaluated. Official former-course numbers are treated as identities of those prerequisites, including when the former-course relationship is documented on an Indirect page. Indirect completions under an official course or official former number can therefore satisfy that prerequisite. Courses that appear only in the Indirect Prerequisite Checker remain informational evidence and do not affect prerequisite status.
 
@@ -46,6 +46,18 @@ Key parser files include:
 - `parseFacultyIndirectPrerequisites.js`
 - `parseAdminIndirectPrerequisites.js`
 
+## Shared application model
+
+After parsing, shared application behavior is intentionally centralized:
+
+- `prerequisiteDataUtils.js` reconciles official prerequisites, former-course identities, and Indirect Evidence.
+- `resultsModel.js` creates the single per-student result model used by the results table, filters, student detail, Copy Message decisions, and spreadsheet exports.
+- `studentMessage.js` generates the editable Copy Message from missing prerequisites only.
+- `workflowRules.js` contains the submission-state decisions used by the Process Data workflow.
+- `appConfig.js` holds the runtime application version, build number, cache name, and display version.
+
+Faculty/Admin parser modules remain separate even where small helper patterns are duplicated. That isolation is intentional and limits the effect of future LRCCD format changes.
+
 ## Regression tests
 
 Sanitized regression fixtures are stored under `tests/`. They preserve LRCCD clipboard structure without committing real student information.
@@ -66,6 +78,10 @@ Regression coverage includes:
 - former-course relationships documented on Indirect pages can update the matching official prerequisite
 - legitimate empty prerequisite sections
 - fail-closed behavior for unsupported course blocks and unrecognized structures
+- shared result status, missing-prerequisite, and Indirect Evidence calculations
+- Copy Message generation
+- empty-Indirect and other submission workflow decisions
+- diagnostics privacy allowlisting
 
 When LRCCD changes a page format, add a sanitized example as a regression case before or alongside the parser fix.
 
@@ -96,6 +112,12 @@ SheetJS and FileSaver.js are included in the repository and run in the browser.
 ## Progressive Web App
 
 ParsePanther includes a service worker and web app manifest for offline support. The v3 development build uses a network-first cache strategy and development-specific cache names so stale production assets do not mask refactor changes.
+
+Runtime version and cache metadata are defined in `appConfig.js`. The service worker receives the configured cache name through its registration URL, avoiding a second hard-coded build value inside `service-worker.js`.
+
+## Release maintenance
+
+Use `RELEASE_CHECKLIST.md` for the Version 3 regression, browser, privacy, PWA, and production checks.
 
 ## Contributing
 
