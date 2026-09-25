@@ -1,104 +1,108 @@
-// Set a name for the current cache
-var cacheName = 'v1'; 
+// service-worker.js
 
-// Default files to always cache
-var cacheFiles = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/main.js',
-  // Add paths and URLs to your files here
-]
+const CACHE_NAME = 'parsepanther-v3-1';
 
+const APP_SHELL = [
+  './',
+  './index.html',
+  './styles.css',
+  './main.js',
+  './checkboxes.js',
+  './colorCodeCells.js',
+  './dialogHandler.js',
+  './formHandler.js',
+  './generateHTMLTable.js',
+  './generateSpreadsheetFile.js',
+  './indirectPrerequisiteDataHandler.js',
+  './inputValidation.js',
+  './messageSystem.js',
+  './parseClassData.js',
+  './parseIndirectClassData.js',
+  './parseRosterData.js',
+  './prerequisiteDataHandler.js',
+  './registerServiceWorker.js',
+  './resetHandler.js',
+  './rosterDataHandler.js',
+  './state.js',
+  './statusIndicator.js',
+  './manifest.json',
+  './js/FileSaver.js',
+  './js/xlsx/xlsx.full.min.js',
+];
 
-self.addEventListener('install', function(e) {
-    console.log('[ServiceWorker] Installed');
-
-    // e.waitUntil Delays the event until the Promise is resolved
-    e.waitUntil(
-
-    	// Open the cache
-	    caches.open(cacheName).then(function(cache) {
-
-	    	// Add all the default files to the cache
-			console.log('[ServiceWorker] Caching cacheFiles');
-			return cache.addAll(cacheFiles);
-	    })
-	); // end e.waitUntil
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
+  );
 });
 
-
-self.addEventListener('activate', function(e) {
-    console.log('[ServiceWorker] Activated');
-
-    e.waitUntil(
-
-    	// Get all the cache keys (cacheName)
-		caches.keys().then(function(cacheNames) {
-			return Promise.all(cacheNames.map(function(thisCacheName) {
-
-				// If a cached item is saved under a previous cacheName
-				if (thisCacheName !== cacheName) {
-
-					// Delete that cached file
-					console.log('[ServiceWorker] Removing Cached Files from Cache - ', thisCacheName);
-					return caches.delete(thisCacheName);
-				}
-			}));
-		})
-	); // end e.waitUntil
-
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((cacheNames) =>
+        Promise.all(
+          cacheNames
+            .filter((cacheName) => cacheName !== CACHE_NAME)
+            .map((cacheName) => caches.delete(cacheName))
+        )
+      )
+      .then(() => self.clients.claim())
+  );
 });
 
+async function cacheResponse(request, response) {
+  if (!response || !response.ok || response.type !== 'basic') {
+    return;
+  }
 
-self.addEventListener('fetch', function(e) {
-	console.log('[ServiceWorker] Fetch', e.request.url);
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, response.clone());
+  } catch (error) {
+    console.warn('[ServiceWorker] Unable to cache response:', request.url, error);
+  }
+}
 
-	// e.respondWidth Responds to the fetch event
-	e.respondWith(
+async function networkFirst(request) {
+  try {
+    const response = await fetch(request);
+    await cacheResponse(request, response);
+    return response;
+  } catch (error) {
+    const cachedResponse = await caches.match(request);
 
-		// Check in cache for the request being made
-		caches.match(e.request)
+    if (cachedResponse) {
+      return cachedResponse;
+    }
 
+    if (request.mode === 'navigate') {
+      const fallbackUrl = new URL('./index.html', self.registration.scope).href;
+      const fallbackResponse = await caches.match(fallbackUrl);
 
-			.then(function(response) {
+      if (fallbackResponse) {
+        return fallbackResponse;
+      }
+    }
 
-				// If the request is in the cache
-				if ( response ) {
-					console.log("[ServiceWorker] Found in Cache", e.request.url, response);
-					// Return the cached version
-					return response;
-				}
+    throw error;
+  }
+}
 
-				// If the request is NOT in the cache, fetch and cache
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
 
-				var requestClone = e.request.clone();
-				fetch(requestClone)
-					.then(function(response) {
+  if (request.method !== 'GET') {
+    return;
+  }
 
-						if ( !response ) {
-							console.log("[ServiceWorker] No response from fetch ")
-							return response;
-						}
+  const requestUrl = new URL(request.url);
+  const scopeUrl = new URL(self.registration.scope);
 
-						var responseClone = response.clone();
+  if (requestUrl.origin !== scopeUrl.origin) {
+    return;
+  }
 
-						//  Open the cache
-						caches.open(cacheName).then(function(cache) {
-
-							// Put the fetched response in the cache
-							cache.put(e.request, responseClone);
-							console.log('[ServiceWorker] New Data Cached', e.request.url);
-
-							// Return the response
-							return response;
-					
-				        }); // end caches.open
-
-					})
-					.catch(function(err) {
-						console.log('[ServiceWorker] Error Fetching & Caching New Data', err);
-					});
-			}) // end caches.match(e.request)
-	); // end e.respondWith
+  event.respondWith(networkFirst(request));
 });
