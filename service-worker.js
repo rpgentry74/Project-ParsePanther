@@ -1,7 +1,7 @@
 // service-worker.js
 
 const CACHE_PREFIX = 'parsepanther-';
-const CACHE_NAME = 'parsepanther-v3-8';
+const CACHE_NAME = 'parsepanther-v3-9';
 
 const APP_SHELL = [
   './',
@@ -26,6 +26,7 @@ const APP_SHELL = [
   './parseAdminRoster.js',
   './parseIndirectClassData.js',
   './parseFacultyIndirectPrerequisites.js',
+  './parseAdminIndirectPrerequisites.js',
   './parseRosterData.js',
   './prerequisiteDataHandler.js',
   './prerequisiteDataUtils.js',
