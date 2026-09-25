@@ -2,12 +2,8 @@
 import {
   handlePrerequisiteReset,
   handleIndirectPrerequisiteReset,
+  clearGeneratedOutput,
 } from './resetHandler.js';
-
-function invalidateOutput() {
-  document.getElementById('output').innerHTML = '';
-  document.getElementById('tableContainer').style.display = 'none';
-}
 
 export function initializePrerequisiteOptions() {
   const includeDirectPrerequisites = document.getElementById('includeDirectPrerequisites');
@@ -24,9 +20,9 @@ export function initializePrerequisiteOptions() {
 
     if (!this.checked) {
       handlePrerequisiteReset();
+    } else {
+      clearGeneratedOutput();
     }
-
-    invalidateOutput();
   });
 
   includeIndirectPrerequisites.addEventListener('change', function () {
@@ -34,8 +30,8 @@ export function initializePrerequisiteOptions() {
 
     if (!this.checked) {
       handleIndirectPrerequisiteReset();
+    } else {
+      clearGeneratedOutput();
     }
-
-    invalidateOutput();
   });
 }
