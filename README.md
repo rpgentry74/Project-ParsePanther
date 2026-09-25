@@ -24,7 +24,7 @@ Version 3 detects and parses the current Faculty and Admin variants independentl
   - Faculty
   - Admin
 
-Faculty and Admin are treated as separate source formats that normalize to the same application data contracts. The parsers fail closed when required structure is not recognized rather than interpreting an unrecognized page as a valid empty result.
+Faculty and Admin are treated as separate source formats that normalize to the same application data contracts. The parsers recognize both legacy course numbers and Common Course Numbering values such as `STAT C1000`. They fail closed when an unsupported course block is detected rather than silently attaching student rows to the previous course. A recognized Direct page with no listed prerequisite courses uses an explicit user confirmation instead of being treated as a parser failure.
 
 ## Parser architecture
 
@@ -55,10 +55,11 @@ Regression coverage includes:
 - leading-zero student IDs
 - Admin waitlist and no-waitlist roster variants
 - dropped-student exclusion
-- current and former course-number headings
+- legacy and Common Course Numbering headings such as `STAT 300` and `STAT C1000`
 - multiple former-course aliases
+- Direct-to-Indirect alias reconciliation without duplicate old/new prerequisite columns
 - legitimate empty prerequisite sections
-- fail-closed behavior for unrecognized structures
+- fail-closed behavior for unsupported course blocks and unrecognized structures
 
 When LRCCD changes a page format, add a sanitized example as a regression case before or alongside the parser fix.
 
