@@ -12,7 +12,7 @@ const messages = [
     text:
       'This is the Version 3 development build of the LRCCD Student Prerequisite Analyzer. Roster, Prerequisite Checker, and Indirect Prerequisite Checker parsing has been rebuilt for current Faculty and Admin formats, including Common Course Numbering and former course numbers. Results now separate official prerequisites from informational Indirect Evidence, and unrecognized page structures stop for review instead of being guessed. Version 3 is still undergoing browser and end-to-end release testing. If results look unexpected, stop and report the issue rather than relying on the output.'
   }
-]
+];
 
 // One-time cleanup: drop reminders for messages that no longer exist
 (function purgeLegacyReminders() {
