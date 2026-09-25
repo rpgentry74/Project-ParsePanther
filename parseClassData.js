@@ -64,12 +64,12 @@ export async function parseClassData() {
 
     updateStatusIndicator(
       'prerequisiteStatus',
-      'Unable to process direct prerequisite data.',
+      'Unable to process prerequisite data.',
       'bad'
     );
 
     await showDialog(
-      `ParsePanther could not safely determine the direct prerequisites from this page.<br><br><strong>Reason:</strong> ${escapeHTML(result.message)}<br><br>No prerequisite determination was made.`
+      `The Student Prerequisite Analyzer could not safely determine the prerequisites from this page.<br><br><strong>Reason:</strong> ${escapeHTML(result.message)}<br><br>No prerequisite determination was made.`
     );
 
     prerequisiteTextbox.value = '';
@@ -96,7 +96,7 @@ export async function parseClassData() {
     );
 
     await showDialog(
-      'Please paste and confirm the Class Roster before processing direct prerequisite data.'
+      'Please paste and confirm the Class Roster before processing prerequisite data.'
     );
 
     prerequisiteTextbox.value = '';
@@ -119,12 +119,12 @@ export async function parseClassData() {
 
     updateStatusIndicator(
       'prerequisiteStatus',
-      'Direct prerequisite data does not match the roster.',
+      'Prerequisite data does not match the roster.',
       'bad'
     );
 
     await showDialog(
-      `The direct prerequisite data does not match the confirmed Class Roster:<br>
+      `The prerequisite data does not match the confirmed Class Roster:<br>
       <strong>Professor:</strong> ${escapeHTML(parsed.professor || 'N/A')} vs ${escapeHTML(rosterData.professor || 'N/A')}<br>
       <strong>Course:</strong> ${escapeHTML(parsed.course || 'N/A')} vs ${escapeHTML(rosterData.course || 'N/A')}<br>
       <strong>LEC Number:</strong> ${escapeHTML(parsed.lecNum || 'N/A')} vs ${escapeHTML(rosterData.lecNum || 'N/A')}<br>
@@ -137,7 +137,7 @@ export async function parseClassData() {
 
   if (parsed.requiresNoPrerequisiteConfirmation) {
     const confirmed = await showDialog(
-      `ParsePanther found the Direct Prerequisite section for this class, but did not recognize any prerequisite courses.<br><br>If no Direct Prerequisite courses are listed on the LRCCD page, select <strong>Confirm</strong> to continue with no Direct Prerequisites.<br><br>If prerequisite courses are listed, select <strong>Close</strong>. The page format may have changed and should be reviewed.`,
+      `The Student Prerequisite Analyzer recognized the Prerequisite Checker page for this class, but did not find any prerequisite courses.<br><br>If no prerequisite courses are listed on the LRCCD page, select <strong>Confirm</strong> to continue with no prerequisites.<br><br>If prerequisite courses are listed, select <strong>Close</strong>. The page format may have changed and should be reviewed.`,
       true
     );
 
@@ -154,7 +154,7 @@ export async function parseClassData() {
 
       updateStatusIndicator(
         'prerequisiteStatus',
-        'Direct prerequisite page requires review.',
+        'Prerequisite page requires review.',
         'bad'
       );
 
@@ -181,8 +181,8 @@ export async function parseClassData() {
   updateStatusIndicator(
     'prerequisiteStatus',
     parsed.confirmedNoDirectPrerequisites
-      ? `${directVariantLabel(parsed.variant)} direct prerequisite page processed successfully. No direct prerequisites listed (confirmed).`
-      : `${directVariantLabel(parsed.variant)} direct prerequisite data processed successfully.`,
+      ? `${directVariantLabel(parsed.variant)} Prerequisite Checker page processed successfully. No prerequisites listed (confirmed).`
+      : `${directVariantLabel(parsed.variant)} prerequisite data processed successfully.`,
     'good'
   );
 
