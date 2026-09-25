@@ -1,50 +1,85 @@
 # LRCCD Student Prerequisite Analyzer
 
-## Overview
+ParsePanther is a client-side web application for Los Rios Community College District faculty and staff. It organizes copied Class Roster, Direct Prerequisite Checker, and Indirect Prerequisite Checker data into a single prerequisite-completion table and downloadable spreadsheet.
 
-The Los Rios Community College District (LRCCD) Student Prerequisite Analyzer is a web-based application designed to automate and streamline the process of verifying and tracking course prerequisites for students. It is built with JavaScript, HTML, and CSS, and designed to run completely client-side in the user's web browser.
+## Development status
 
-The application works by parsing roster and prerequisite data pasted in by the user, and generates a neatly organized and color-coded table that represents the prerequisite fulfillment status of each student. In addition, the application also provides an option to download this data in various formats including Excel, CSV, and ODS, enabling further analysis or archiving.
+The `v3-refactor` branch is the development build for version 3.0.0. Production remains on `main` until the v3 regression and end-to-end checks are complete.
 
-The LRCCD Student Prerequisite Analyzer is designed with a focus on privacy - no data is transmitted to any server, and all processing is done directly in the user's browser. The application also incorporates a progressive web app (PWA) architecture, which allows it to be used offline and provides a smooth, app-like experience on mobile devices.
+## Privacy
 
-## Installation
+All roster and prerequisite processing occurs in the browser. ParsePanther does not transmit pasted student data to a server.
 
-The LRCCD Student Prerequisite Analyzer is a client-side application and does not require a traditional installation process. You can use the app directly from the hosted location, or download the source code to run it locally or host it on your own server. The source code is self-contained and includes all necessary dependencies.
+## Supported LRCCD input formats
 
-### Dependencies
+Version 3 detects and parses the current Faculty and Admin variants independently:
 
-This application relies on two key JavaScript libraries:
+- Class Roster
+  - Faculty
+  - Admin
+- Direct Prerequisite Checker
+  - Faculty
+  - Admin
+- Indirect Prerequisite Checker
+  - Faculty
+  - Admin
 
-1. [xlsx.js](https://github.com/SheetJS/sheetjs) - a comprehensive, parser and writer library for various spreadsheet formats. It's used to generate and download the student data in different formats (Excel, CSV, ODS). 
+Faculty and Admin are treated as separate source formats that normalize to the same application data contracts. The parsers fail closed when required structure is not recognized rather than interpreting an unrecognized page as a valid empty result.
 
-2. [FileSaver.js](https://github.com/eligrey/FileSaver.js/) - an HTML5 `saveAs()` FileSaver implementation. It allows users to save files on the client-side, which is necessary for downloading the spreadsheet files created by xlsx.js.
+## Parser architecture
 
-These libraries are included in the source code, and no additional installation or configuration is required.
+Each data type has a dispatcher that identifies the LRCCD source variant and sends the text to a dedicated parser. Tabs and line boundaries are preserved when they carry structure.
 
-### Credit
+Key parser files include:
 
-This project wouldn't have been possible without the amazing work done by the developers of xlsx.js and FileSaver.js. We also extend our gratitude to the entire open source community for their invaluable contributions to software development.
+- `rosterParser.js`
+- `parseFacultyRoster.js`
+- `parseAdminRoster.js`
+- `directPrerequisiteParser.js`
+- `parseFacultyDirectPrerequisites.js`
+- `parseAdminDirectPrerequisites.js`
+- `indirectPrerequisiteParser.js`
+- `parseFacultyIndirectPrerequisites.js`
+- `parseAdminIndirectPrerequisites.js`
 
-## Usage
+## Regression tests
 
-1. Open the `index.html` file in your web browser. 
-2. Follow the instructions on the application for checking student prerequisites. 
-3. The application should work on all modern web browsers and doesn't require any special permissions or additional software.
+Sanitized regression fixtures are stored under `tests/`. They preserve LRCCD clipboard structure without committing real student information.
 
-Remember that all data processing occurs within the browser, and no data is transmitted or stored elsewhere, ensuring the privacy of your data.
+Open `tests/index.html` through the same web server used for the application to run all parser suites together.
+
+Regression coverage includes:
+
+- Faculty/Admin source detection
+- LEC and LAB extraction
+- leading-zero student IDs
+- Admin waitlist and no-waitlist roster variants
+- dropped-student exclusion
+- current and former course-number headings
+- multiple former-course aliases
+- legitimate empty prerequisite sections
+- fail-closed behavior for unrecognized structures
+
+When LRCCD changes a page format, add a sanitized example as a regression case before or alongside the parser fix.
+
+## Downloads
+
+Processed results can be exported as:
+
+- XLSX
+- CSV
+- ODS
+
+SheetJS and FileSaver.js are included in the repository and run in the browser.
+
+## Progressive Web App
+
+ParsePanther includes a service worker and web app manifest for offline support. The v3 development build uses a network-first cache strategy and development-specific cache names so stale production assets do not mask refactor changes.
 
 ## Contributing
 
-Due to the sensitive nature of the data parsing in the LRCCD Student Prerequisite Analyzer, any changes to this repository must be linked to the colleges of the Los Rios Community College District to ensure no disruption in functionality. 
-
-While we are cautious about changes, we appreciate your interest and welcome your feedback. If you have a feature request, bug report, or proposal for improving the app, feel free to open an issue on the GitHub repository.
-
-If you're interested in contributing directly to the code, please contact the maintainers directly to discuss the potential changes. As this project is tied closely with the colleges of the Los Rios Community College District, we want to ensure that all changes maintain the integrity and functionality of the application.
+Because the parser is tightly coupled to LRCCD source pages and handles sensitive student information in normal use, changes should be tested against sanitized LRCCD structures before release. Do not commit real student names, IDs, or roster data.
 
 ## License
 
-The LRCCD Student Prerequisite Analyzer is licensed under the [MIT License](https://opensource.org/licenses/MIT). This means you can use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, under the condition that you include the original copyright notice and disclaim the warranty. For more details, see the `LICENSE` file in the project repository.
-
-
-
+ParsePanther is licensed under the MIT License. See `LICENSE.txt`.
