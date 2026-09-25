@@ -1,6 +1,7 @@
 // service-worker.js
 
-const CACHE_NAME = 'parsepanther-v3-2';
+const CACHE_PREFIX = 'parsepanther-';
+const CACHE_NAME = 'parsepanther-v3-3';
 
 const APP_SHELL = [
   './',
@@ -44,7 +45,11 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) =>
         Promise.all(
           cacheNames
-            .filter((cacheName) => cacheName !== CACHE_NAME)
+            .filter(
+              (cacheName) =>
+                cacheName.startsWith(CACHE_PREFIX) &&
+                cacheName !== CACHE_NAME
+            )
             .map((cacheName) => caches.delete(cacheName))
         )
       )
