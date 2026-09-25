@@ -33,7 +33,7 @@ export function showDialog(
     dialog.id = dialogId;
     dialog.setAttribute('role', 'dialog');
     dialog.setAttribute('aria-modal', 'true');
-    dialog.setAttribute('aria-label', 'ParsePanther message');
+    dialog.setAttribute('aria-label', 'Student Prerequisite Analyzer message');
     dialog.setAttribute('aria-describedby', messageId);
 
     messageElement.className = 'dialog-message';
