@@ -14,7 +14,9 @@ export function detectRosterVariant(rawText) {
 
   const hasAdminCurrentStudents = /^Current Students\s*$/im.test(source);
   const hasAdminWaitList = /^Wait List\s*$/im.test(source);
-  const hasAdminNavigation = /^Admin Rosters\s*$/im.test(source);
+  const hasAdminDrops = /^Drops\s*$/im.test(source);
+  const hasAdminRostersNavigation = /^Admin Rosters\s*$/im.test(source);
+  const hasAdminClassList = /^Admin Class List\s*$/im.test(source);
   const hasAdminTitle = /^Class Rosters\s*$/im.test(source);
 
   const hasFacultyStudentHeader =
@@ -26,7 +28,9 @@ export function detectRosterVariant(rawText) {
   const adminSignals = [
     hasAdminCurrentStudents,
     hasAdminWaitList,
-    hasAdminNavigation,
+    hasAdminDrops,
+    hasAdminRostersNavigation,
+    hasAdminClassList,
     hasAdminTitle,
   ].filter(Boolean).length;
 
@@ -38,7 +42,7 @@ export function detectRosterVariant(rawText) {
 
   if (
     hasAdminCurrentStudents &&
-    hasAdminWaitList &&
+    hasAdminDrops &&
     adminSignals > facultySignals
   ) {
     return 'admin';
