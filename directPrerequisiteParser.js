@@ -39,7 +39,7 @@ export function detectDirectPrerequisiteVariant(rawText) {
 
   if (
     hasAdminSectionTitle &&
-    hasAdminStudentHeader &&
+    (hasAdminClassList || hasAdminStudentHeader) &&
     adminSignals > facultySignals
   ) {
     return 'admin';
