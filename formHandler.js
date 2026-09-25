@@ -3,7 +3,7 @@ import { generateHTMLTable } from './generateHTMLTable.js';
 import { showDialog } from './dialogHandler.js';
 import { getState } from './state.js';
 
-export async function handleFormSubmission() {
+export function handleFormSubmission() {
   const includeDirectPrerequisites = document.getElementById('includeDirectPrerequisites');
   const includeIndirectPrerequisites = document.getElementById('includeIndirectPrerequisites');
 
@@ -12,7 +12,11 @@ export async function handleFormSubmission() {
     return;
   }
 
-  const { rosterData, directPrerequisiteData, indirectPrerequisiteData } = getState();
+  const {
+    rosterData,
+    directPrerequisiteData,
+    indirectPrerequisiteData,
+  } = getState();
 
   if (!rosterData) {
     showDialog('Please paste and confirm the Class Roster data before processing prerequisites.');
@@ -29,8 +33,8 @@ export async function handleFormSubmission() {
     return;
   }
 
-  const htmlTable = await generateHTMLTable();
-  document.getElementById('output').innerHTML = htmlTable;
+  generateHTMLTable();
+
   document.getElementById('tableContainer').style.display = 'block';
   document.getElementById('downloadBtn').scrollIntoView({ behavior: 'smooth' });
 }
