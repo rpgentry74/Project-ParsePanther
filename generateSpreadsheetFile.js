@@ -1,9 +1,7 @@
 // generateSpreadsheetFile.js
 import { getState } from './state.js';
-import {
-  mergePrerequisiteData,
-  formatPrerequisiteDisplayName,
-} from './prerequisiteDataUtils.js';
+import { formatPrerequisiteDisplayName } from './prerequisiteDataUtils.js';
+import { buildResultsModel } from './resultsModel.js';
 import { recordDiagnostic } from './diagnostics.js';
 
 export function generateSpreadsheetFile(format) {
@@ -30,35 +28,19 @@ export function generateSpreadsheetFile(format) {
     return;
   }
 
-  const {
-    prerequisiteCourses,
-    courseAliases,
-    indirectEvidenceCourses,
-    indirectEvidenceAliases,
-  } = mergePrerequisiteData(
+  const resultsModel = buildResultsModel(
+    rosterData,
     directPrerequisiteData,
     indirectPrerequisiteData
   );
 
-  const prerequisiteNames = Object.keys(prerequisiteCourses);
-  const indirectEvidenceNames = Object.keys(indirectEvidenceCourses);
-
-  function studentStatus(studentId) {
-    if (prerequisiteNames.length === 0) {
-      return 'No prerequisites evaluated';
-    }
-
-    const completed = prerequisiteNames.filter((prerequisite) =>
-      prerequisiteCourses[prerequisite].includes(studentId)
-    ).length;
-    const missing = prerequisiteNames.length - completed;
-
-    if (missing === 0) {
-      return 'All prerequisites complete';
-    }
-
-    return `Missing ${missing} prerequisite${missing === 1 ? '' : 's'}`;
-  }
+  const {
+    prerequisiteNames,
+    indirectEvidenceNames,
+    courseAliases,
+    indirectEvidenceAliases,
+    students,
+  } = resultsModel;
 
   const prerequisiteHeaders = prerequisiteNames.map((prerequisite) =>
     formatPrerequisiteDisplayName(
@@ -91,23 +73,27 @@ export function generateSpreadsheetFile(format) {
     ],
   ];
 
-  rosterData.studentRoster.forEach((student) => {
-    const studentId = String(student.studentID).trim();
+  students.forEach((studentModel) => {
+    const prerequisiteResults = prerequisiteNames.map((courseName) => {
+      const prerequisite = studentModel.prerequisites.find(
+        (item) => item.courseName === courseName
+      );
+      return prerequisite?.completed ? '✓' : '';
+    });
 
-    const prerequisiteResults = prerequisiteNames.map((prerequisite) =>
-      prerequisiteCourses[prerequisite].includes(studentId) ? '✓' : ''
+    const indirectEvidenceCourseNames = new Set(
+      studentModel.indirectEvidence.map((item) => item.courseName)
     );
-
     const indirectEvidenceResults = indirectEvidenceNames.map((courseName) =>
-      indirectEvidenceCourses[courseName].includes(studentId) ? '✓' : ''
+      indirectEvidenceCourseNames.has(courseName) ? '✓' : ''
     );
 
     rows.push([
-      student.studentID,
-      student.studentName,
+      studentModel.student.studentID,
+      studentModel.student.studentName,
       ...prerequisiteResults,
       ...indirectEvidenceResults,
-      studentStatus(studentId),
+      studentModel.status.text,
     ]);
   });
 
@@ -165,9 +151,18 @@ export function generateSelectedSpreadsheetFile() {
   generateSpreadsheetFile(formatSelect.value);
 }
 
-document
-  .getElementById('downloadBtn')
-  .addEventListener('click', generateSelectedSpreadsheetFile);
+export function initializeSpreadsheetDownload() {
+  const downloadButton = document.getElementById('downloadBtn');
+
+  if (!downloadButton) {
+    return;
+  }
+
+  downloadButton.addEventListener(
+    'click',
+    generateSelectedSpreadsheetFile
+  );
+}
 
 function s2ab(s) {
   const buf = new ArrayBuffer(s.length);
