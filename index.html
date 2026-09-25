@@ -17,23 +17,31 @@
       <script type="text/javascript" src="js/FileSaver.js?v=3.0.0-dev" defer></script>
   </head>
   <body>
-    <div class="container">
-    <header>
-        <h1 id="top">LRCCD Student Prerequisite Analyzer v3.0.0-dev</h1>
-        <p>Simplify the process of checking course prerequisites with the Student Prerequisite Analyzer. This app automates the task of organizing and tracking student prerequisites, providing clear and organized data.</p>
-        <p>No data is transmitted, and all processing is handled directly in your browser for security.</p>
-        <p><strong>Development build:</strong> v3-refactor / 3.0.0-dev. This is not the production build.</p>
-    </header>
-    <nav class="tabbed-links">
-      <!-- Links To Los Rios Info -->
-    </nav>
-    <section class="tabBar" aria-label="Page navigation">
-      <button class="tab-link active" data-tab="tab1" aria-pressed="true">Instructions</button>
-      <button class="tab-link" data-tab="tab2" aria-pressed="false">Feedback</button>
-      <button class="tab-link" data-tab="tab3" aria-pressed="false">Roadmap</button>
-      <button class="tab-link" data-tab="tab4" aria-pressed="false">Version</button>
-    </section>
-    <main>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="brand-block">
+          <div class="brand-mark-wrap" aria-hidden="true">
+            <img class="brand-mark" src="img/icons/icons-512.png" alt="">
+          </div>
+          <div class="brand-copy">
+            <p class="eyebrow">Faculty and staff utility</p>
+            <h1 id="top">LRCCD Student Prerequisite Analyzer</h1>
+            <p class="app-subtitle">Organize roster, prerequisite, and indirect checker data into one clear student completion view.</p>
+          </div>
+        </div>
+        <div class="header-meta">
+          <span class="build-badge">v3.0 Development</span>
+          <p class="privacy-note"><strong>Local processing.</strong> Pasted student data stays in your browser.</p>
+        </div>
+      </header>
+
+      <section class="tabBar" aria-label="Application information">
+        <button class="tab-link" data-tab="tab1" aria-controls="tab1" aria-pressed="false">Instructions</button>
+        <button class="tab-link" data-tab="tab2" aria-controls="tab2" aria-pressed="false">Feedback</button>
+        <button class="tab-link" data-tab="tab3" aria-controls="tab3" aria-pressed="false">Roadmap</button>
+        <button class="tab-link" data-tab="tab4" aria-controls="tab4" aria-pressed="false">Version</button>
+      </section>
+      <main>
       <div class="tab-content">
         <section id="tab1" class="tab-panel active">
           <!-- Content for Tab 1 -->
