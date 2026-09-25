@@ -128,6 +128,54 @@ function runIndirectOnlyEvidenceTest() {
   );
 }
 
+function runEvidenceSourceTest() {
+  const merged = mergePrerequisiteData(directData, indirectData);
+
+  const directEvidence =
+    merged.prerequisiteEvidenceSources['PSYC C1000']['0123456'];
+  assert(
+    directEvidence.some(
+      (entry) =>
+        entry.source === 'direct' &&
+        entry.course === 'PSYC C1000'
+    ),
+    'Direct evidence source should be retained for student detail'
+  );
+
+  const formerIndirectEvidence =
+    merged.prerequisiteEvidenceSources['PSYC C1000']['5234567'];
+  assert(
+    formerIndirectEvidence.some(
+      (entry) =>
+        entry.source === 'indirect' &&
+        entry.course === 'PSYC 300'
+    ),
+    'Indirect evidence under an official former number should retain the source course'
+  );
+
+  const exactIndirectEvidence =
+    merged.prerequisiteEvidenceSources['PSYC 330']['7234567'];
+  assert(
+    exactIndirectEvidence.some(
+      (entry) =>
+        entry.source === 'indirect' &&
+        entry.course === 'PSYC 330'
+    ),
+    'Exact-course Indirect evidence source should be retained'
+  );
+
+  const indirectDocumentedAliasEvidence =
+    merged.prerequisiteEvidenceSources['MATH C1000']['9234567'];
+  assert(
+    indirectDocumentedAliasEvidence.some(
+      (entry) =>
+        entry.source === 'indirect' &&
+        entry.course === 'MATH 300'
+    ),
+    'Indirect-documented former-number evidence should retain its source course'
+  );
+}
+
 function runDisplayLabelTest() {
   assertEqual(
     formatPrerequisiteDisplayName('STAT C1000', ['STAT 300']),
@@ -148,6 +196,7 @@ try {
   runOfficialPrerequisiteMergeTest();
   runFormerAliasFromIndirectTest();
   runIndirectOnlyEvidenceTest();
+  runEvidenceSourceTest();
   runDisplayLabelTest();
 
   output.textContent = 'All prerequisite merge/display tests passed.';
