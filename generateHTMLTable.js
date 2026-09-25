@@ -5,20 +5,20 @@ import { colorCodeCells } from './colorCodeCells.js';
 // Define the generateHTMLTable function
 export async function generateHTMLTable() {
   // Retrieve data from the state
-  let { rosterData, classData, indirectClassData } = getState();
+  let { rosterData, directPrerequisiteData, indirectPrerequisiteData } = getState();
 
-  // Ensure classData is resolved
-  if (classData instanceof Promise) {
-    classData = await classData;
+  // Ensure directPrerequisiteData is resolved
+  if (directPrerequisiteData instanceof Promise) {
+    directPrerequisiteData = await directPrerequisiteData;
   }
 
-  // Ensure indirectClassData is resolved
-  if (indirectClassData instanceof Promise) {
-    indirectClassData = await indirectClassData;
+  // Ensure indirectPrerequisiteData is resolved
+  if (indirectPrerequisiteData instanceof Promise) {
+    indirectPrerequisiteData = await indirectPrerequisiteData;
   }
 
   // Ensure there is valid data to work with
-  if (!rosterData || (!classData && !indirectClassData)) {
+  if (!rosterData || (!directPrerequisiteData && !indirectPrerequisiteData)) {
     return "<p>Error: Invalid roster data or class data.</p>";
   }
 
@@ -28,9 +28,9 @@ export async function generateHTMLTable() {
   const lecNum = rosterData.lecNum || 'None';
   const labNum = rosterData.labNum || 'None';
 
-  // Merge classData.prerequisiteCourses and indirectClassData.prerequisiteCourses if they exist
-  const directPrerequisites = (classData && classData.prerequisiteCourses) ? classData.prerequisiteCourses : {};
-  const indirectPrerequisites = (indirectClassData && indirectClassData.prerequisiteCourses) ? indirectClassData.prerequisiteCourses : {};
+  // Merge directPrerequisiteData.prerequisiteCourses and indirectPrerequisiteData.prerequisiteCourses if they exist
+  const directPrerequisites = (directPrerequisiteData && directPrerequisiteData.prerequisiteCourses) ? directPrerequisiteData.prerequisiteCourses : {};
+  const indirectPrerequisites = (indirectPrerequisiteData && indirectPrerequisiteData.prerequisiteCourses) ? indirectPrerequisiteData.prerequisiteCourses : {};
   const allPrerequisites = { ...directPrerequisites, ...indirectPrerequisites };
 
   // Generate a list of unique prerequisites
