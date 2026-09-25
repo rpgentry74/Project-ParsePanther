@@ -59,6 +59,40 @@ Student ID
 Permission Numbers
 `;
 
+
+const adminRosterNoWaitlistSample = `Skip to main content
+Sacramento City College Logo
+Admin Class List
+Services
+Class Rosters
+Instructor Jane Doe
+Course:
+HVAC 364:  Electrical Controls
+Professor:
+Doe, Jane
+Meetings:
+  \t 1:00 am - 1:00 am \t Online 000 \t LEC (18489)
+ Th \t 6:00 pm - 9:05 pm \t Lab 116 \t LAB (18490)
+Term:
+Fall 2026
+Current Students
+Student Name
+Student ID
+
+1. Alpha, Alex
+0123456
+
+2. Beta, Bailey
+2234567
+
+Drops
+Student Name
+Student ID
+1. Dropped, Dana
+4234567
+Permission Numbers
+`;
+
 function assertEqual(actual, expected, message) {
   if (actual !== expected) {
     throw new Error(`${message}: expected "${expected}", received "${actual}"`);
@@ -141,11 +175,39 @@ function runAdminTest() {
   );
 }
 
+
+function runAdminNoWaitlistTest() {
+  assertEqual(
+    detectRosterVariant(adminRosterNoWaitlistSample),
+    'admin',
+    'Admin roster without waitlist detection failed'
+  );
+
+  const result = parseRosterText(adminRosterNoWaitlistSample);
+
+  assert(result.ok, result.message || 'Admin roster without waitlist parsing failed');
+  assertEqual(
+    result.data.studentRoster.length,
+    2,
+    'Admin roster without waitlist active student count failed'
+  );
+  assertEqual(
+    result.data.studentRoster[0].studentID,
+    '0123456',
+    'Admin roster without waitlist leading-zero ID was not preserved'
+  );
+  assert(
+    !result.data.studentRoster.some((student) => student.studentName === 'Dropped, Dana'),
+    'Dropped student was incorrectly included when Admin roster has no waitlist'
+  );
+}
+
 const output = document.getElementById('testResults');
 
 try {
   runFacultyTest();
   runAdminTest();
+  runAdminNoWaitlistTest();
   output.textContent = 'All roster parser tests passed.';
   output.dataset.status = 'passed';
   console.log('All roster parser tests passed.');
