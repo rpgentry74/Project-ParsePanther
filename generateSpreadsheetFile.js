@@ -1,57 +1,61 @@
+// generateSpreadsheetFile.js
 import { getState } from './state.js';
 import { mergePrerequisiteCourses } from './prerequisiteDataUtils.js';
 
-let stateData = null;
-
 export function generateSpreadsheetFile(format) {
-  // Store state data globally
-  stateData = getState();
-
-  // Check if the format has been provided
   if (!format) {
-    // If not, just store the data and don't generate a file yet
     return;
   }
 
-  const { rosterData, directPrerequisiteData, indirectPrerequisiteData } = stateData;
+  const {
+    rosterData,
+    directPrerequisiteData,
+    indirectPrerequisiteData,
+  } = getState();
 
   if (!rosterData || (!directPrerequisiteData && !indirectPrerequisiteData)) {
-    console.error('Invalid roster data or class data.');
+    console.error('Invalid roster data or prerequisite data.');
     return;
   }
+
+  const mergedPrerequisites = mergePrerequisiteCourses(
+    directPrerequisiteData,
+    indirectPrerequisiteData
+  );
+
+  const prerequisiteNames = Object.keys(mergedPrerequisites);
 
   const workbook = XLSX.utils.book_new();
 
-  // Merge directPrerequisiteData.prerequisiteCourses and indirectPrerequisiteData.prerequisiteCourses if they exist
-  const directPrerequisites = (directPrerequisiteData && directPrerequisiteData.prerequisiteCourses) ? directPrerequisiteData.prerequisiteCourses : {};
-  const indirectPrerequisites = (indirectPrerequisiteData && indirectPrerequisiteData.prerequisiteCourses) ? indirectPrerequisiteData.prerequisiteCourses : {};
-  const allPrerequisites = { ...directPrerequisites, ...indirectPrerequisites };
-
-  // Generate a list of unique prerequisites
-  const uniquePrerequisites = [...new Set(Object.keys(allPrerequisites))];
-
-  // Generate headers for the spreadsheet
-  const headers = [
+  const rows = [
     ['Course:', rosterData.course],
     ['Professor:', rosterData.professor],
     ['LEC Number:', rosterData.lecNum],
     ['LAB Number:', rosterData.labNum],
-    ['', '', '', ''], // Blank line
-    ['Student ID', 'Student Name', ...uniquePrerequisites]
+    ['', '', '', ''],
+    ['Student ID', 'Student Name', ...prerequisiteNames],
   ];
 
   rosterData.studentRoster.forEach((student) => {
-    const rowData = uniquePrerequisites.map((prerequisite) =>
-      mergedPrerequisites[prerequisite].includes(String(student.studentID).trim()) ? '✓' : ''
+    const studentId = String(student.studentID).trim();
+
+    const prerequisiteResults = prerequisiteNames.map((prerequisite) =>
+      mergedPrerequisites[prerequisite].includes(studentId) ? '✓' : ''
     );
-    headers.push([student.studentID, student.studentName, ...rowData]);
+
+    rows.push([
+      student.studentID,
+      student.studentName,
+      ...prerequisiteResults,
+    ]);
   });
 
-  const worksheet = XLSX.utils.aoa_to_sheet(headers);
-
+  const worksheet = XLSX.utils.aoa_to_sheet(rows);
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Roster');
 
-  let fileExtension, mimeType;
+  let fileExtension;
+  let mimeType;
+
   switch (format) {
     case 'xlsx':
       fileExtension = 'xlsx';
@@ -66,42 +70,47 @@ export function generateSpreadsheetFile(format) {
       mimeType = 'application/vnd.oasis.opendocument.spreadsheet';
       break;
     default:
-    console.error('Invalid format specified.');
-    return;
+      console.error('Invalid format specified.');
+      return;
   }
 
-  const fileData = XLSX.write(workbook, { type: 'binary', bookType: fileExtension });
+  const fileData = XLSX.write(workbook, {
+    type: 'binary',
+    bookType: fileExtension,
+  });
+
   const blob = new Blob([s2ab(fileData)], { type: mimeType });
-  
-  // Generate the file name
+
   const courseName = rosterData.course.replace(/[^a-zA-Z0-9]/g, '_');
   const lectureNumber = rosterData.lecNum || 'N/A';
   const labNumber = rosterData.labNum || 'N/A';
-  const currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const currentDate = new Date()
+    .toISOString()
+    .slice(0, 10)
+    .replace(/-/g, '');
 
-  const fileName = `${courseName}_LEC${lectureNumber}_LAB${labNumber}_${currentDate}.${fileExtension}`;
+  const fileName =
+    `${courseName}_LEC${lectureNumber}_LAB${labNumber}_${currentDate}.${fileExtension}`;
 
   saveAs(blob, fileName);
 }
 
 export function generateSelectedSpreadsheetFile() {
-  // Get the selected format
   const formatSelect = document.getElementById('formatSelect');
-  const selectedFormat = formatSelect.value;
-
-  // Call the main function with the selected format
-  generateSpreadsheetFile(selectedFormat);
+  generateSpreadsheetFile(formatSelect.value);
 }
 
-// Add an event listener to the download button
-const downloadBtn = document.getElementById('downloadBtn');
-downloadBtn.addEventListener('click', generateSelectedSpreadsheetFile);
+document
+  .getElementById('downloadBtn')
+  .addEventListener('click', generateSelectedSpreadsheetFile);
 
 function s2ab(s) {
   const buf = new ArrayBuffer(s.length);
   const view = new Uint8Array(buf);
+
   for (let i = 0; i < s.length; i++) {
     view[i] = s.charCodeAt(i) & 0xff;
   }
+
   return buf;
 }
