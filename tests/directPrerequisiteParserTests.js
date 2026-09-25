@@ -54,6 +54,21 @@ Alpha\tAlex\t0123456\tFall 2025\t@ SCC
 Class rosters were last updated on Sep 25, 2026.
 `;
 
+
+const adminNoStudentRowsSample = `Admin Class List
+Prerequisite Checker
+Course:
+HVAC 364: Electrical Controls
+Professor:
+Doe, Jane
+Meetings:
+  \t 1:00 am - 1:00 am \t Online 000 \t LEC (18489)
+ Th \t 6:00 pm - 9:05 pm \t Lab 116 \t LAB (18490)
+HVAC 364 Prerequisite Courses Completed Within Los Rios
+HVAC 256 (formerly MET 256):
+HVAC 351 (formerly MET 351):
+`;
+
 const brokenFacultyStructure = `Prerequisite Checker
 Professor:\t \tDoe, Jane
 Course:\t \tHVAC 364: Electrical Controls
@@ -140,6 +155,29 @@ function runAdminTest() {
   );
 }
 
+
+function runAdminNoStudentRowsTest() {
+  assertEqual(
+    detectDirectPrerequisiteVariant(adminNoStudentRowsSample),
+    'admin',
+    'Admin zero-row prerequisite detection failed'
+  );
+
+  const result = parseDirectPrerequisiteText(adminNoStudentRowsSample);
+
+  assert(result.ok, result.message || 'Admin zero-row prerequisite parsing failed');
+  assertEqual(
+    result.data.prerequisiteCourses['HVAC 256'].length,
+    0,
+    'Admin zero-row prerequisite should preserve an empty course list'
+  );
+  assertEqual(
+    result.data.prerequisiteCourses['HVAC 351'].length,
+    0,
+    'Admin zero-row second prerequisite should preserve an empty course list'
+  );
+}
+
 function runFailClosedTest() {
   const result = parseDirectPrerequisiteText(brokenFacultyStructure);
 
@@ -156,6 +194,7 @@ const output = document.getElementById('testResults');
 try {
   runFacultyTest();
   runAdminTest();
+  runAdminNoStudentRowsTest();
   runFailClosedTest();
 
   output.textContent = 'All direct prerequisite parser tests passed.';
