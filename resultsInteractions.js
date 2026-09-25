@@ -70,7 +70,7 @@ function buildStudentMessage(
   return [
     greeting,
     '',
-    `I reviewed the prerequisite information available for ${courseName}. The following official prerequisite${missingPrerequisites.length === 1 ? '' : 's'} do not appear as completed in the LRCCD Prerequisite Checker:`,
+    `I reviewed the prerequisite information available for ${courseName}. The following prerequisite${missingPrerequisites.length === 1 ? '' : 's'} do not appear as completed in the LRCCD Prerequisite Checker:`,
     '',
     missingList,
     '',
@@ -321,7 +321,7 @@ function openStudentDetails(studentId) {
   const officialSection = document.createElement('section');
   officialSection.className = 'student-detail-section';
   officialSection.appendChild(
-    createTextElement('h3', '', 'Official Prerequisites')
+    createTextElement('h3', '', 'Prerequisites')
   );
 
   if (prerequisiteNames.length) {
@@ -339,7 +339,7 @@ function openStudentDetails(studentId) {
       createTextElement(
         'p',
         'detail-empty',
-        'No official prerequisites were evaluated.'
+        'No prerequisites were evaluated.'
       )
     );
   }
