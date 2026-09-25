@@ -39,17 +39,19 @@
 <body>
   <main>
     <h1>ParsePanther v3 Parser Tests</h1>
-    <p>This page runs the sanitized roster, direct prerequisite, and indirect prerequisite regression suites.</p>
+    <p>This page runs the sanitized roster, direct prerequisite, indirect prerequisite, and prerequisite merge regression suites.</p>
 
     <div id="rosterResult" class="test-result">Roster tests: running...</div>
     <div id="directResult" class="test-result">Direct prerequisite tests: running...</div>
     <div id="indirectResult" class="test-result">Indirect prerequisite tests: running...</div>
+    <div id="mergeResult" class="test-result">Prerequisite merge tests: running...</div>
 
     <h2 id="overallResult">Overall: running...</h2>
 
     <iframe id="rosterFrame" src="./rosterParserTests.html" title="Roster parser tests"></iframe>
     <iframe id="directFrame" src="./directPrerequisiteParserTests.html" title="Direct prerequisite parser tests"></iframe>
     <iframe id="indirectFrame" src="./indirectPrerequisiteParserTests.html" title="Indirect prerequisite parser tests"></iframe>
+    <iframe id="mergeFrame" src="./prerequisiteDataUtilsTests.html" title="Prerequisite merge tests"></iframe>
   </main>
 
   <script>
@@ -57,6 +59,7 @@
       { frame: 'rosterFrame', output: 'rosterResult', label: 'Roster tests' },
       { frame: 'directFrame', output: 'directResult', label: 'Direct prerequisite tests' },
       { frame: 'indirectFrame', output: 'indirectResult', label: 'Indirect prerequisite tests' },
+      { frame: 'mergeFrame', output: 'mergeResult', label: 'Prerequisite merge tests' },
     ];
 
     function readSuite(suite) {
