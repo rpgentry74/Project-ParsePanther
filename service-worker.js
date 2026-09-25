@@ -1,7 +1,11 @@
 // service-worker.js
 
 const CACHE_PREFIX = 'parsepanther-';
-const CACHE_NAME = 'parsepanther-v3-dev-24';
+const workerUrl = new URL(self.location.href);
+const requestedCacheName = workerUrl.searchParams.get('cache') || '';
+const CACHE_NAME = /^parsepanther-[a-z0-9.-]+$/i.test(requestedCacheName)
+  ? requestedCacheName
+  : 'parsepanther-v3-fallback';
 const LEGACY_CACHE_NAMES = new Set(['v1']);
 
 const APP_SHELL = [
@@ -9,6 +13,7 @@ const APP_SHELL = [
   './index.html',
   './styles.css',
   './main.js',
+  './appConfig.js',
   './checkboxes.js',
   './colorCodeCells.js',
   './dialogHandler.js',
@@ -32,6 +37,9 @@ const APP_SHELL = [
   './parseRosterData.js',
   './prerequisiteDataHandler.js',
   './prerequisiteDataUtils.js',
+  './resultsModel.js',
+  './studentMessage.js',
+  './workflowRules.js',
   './resultsInteractions.js',
   './diagnostics.js',
   './registerServiceWorker.js',
