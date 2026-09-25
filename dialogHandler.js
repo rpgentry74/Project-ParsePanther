@@ -3,16 +3,16 @@
 let closeActiveDialog = null;
 let dialogSequence = 0;
 
-export function showDialog(
+export function showChoiceDialog(
   message,
-  withConfirmation = false,
+  choices,
   {
-    closeLabel = 'Close',
-    confirmLabel = 'Confirm',
+    ariaLabel = 'Student Prerequisite Analyzer message',
+    escapeValue = null,
   } = {}
 ) {
   if (closeActiveDialog) {
-    closeActiveDialog(false);
+    closeActiveDialog();
   }
 
   return new Promise((resolve) => {
@@ -23,72 +23,36 @@ export function showDialog(
 
     const dialog = document.createElement('div');
     const messageElement = document.createElement('p');
-    const closeButton = document.createElement('button');
-    let confirmButton = null;
-
-    const dialogId = `parsepanther-dialog-${++dialogSequence}`;
+    const dialogId = `student-prerequisite-dialog-${++dialogSequence}`;
     const messageId = `${dialogId}-message`;
 
     dialog.className = 'dialog';
     dialog.id = dialogId;
     dialog.setAttribute('role', 'dialog');
     dialog.setAttribute('aria-modal', 'true');
-    dialog.setAttribute('aria-label', 'Student Prerequisite Analyzer message');
+    dialog.setAttribute('aria-label', ariaLabel);
     dialog.setAttribute('aria-describedby', messageId);
 
     messageElement.className = 'dialog-message';
     messageElement.id = messageId;
 
-    // Dialog markup is created by ParsePanther. Any values derived from
-    // pasted LRCCD data must be escaped by the caller before interpolation.
+    // Dialog markup is application controlled. Any LRCCD-derived values must
+    // be escaped by the caller before interpolation.
     messageElement.innerHTML = message;
-
-    closeButton.type = 'button';
-    closeButton.textContent = closeLabel;
-    closeButton.className = 'dialog-button';
-
-    if (withConfirmation) {
-      confirmButton = document.createElement('button');
-      confirmButton.type = 'button';
-      confirmButton.textContent = confirmLabel;
-      confirmButton.className = 'dialog-button confirm';
-    }
-
     dialog.appendChild(messageElement);
-    dialog.appendChild(closeButton);
 
-    if (confirmButton) {
-      dialog.appendChild(confirmButton);
-    }
+    const buttons = choices.map((choice) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = choice.label;
+      button.className = choice.className || 'dialog-button';
+      dialog.appendChild(button);
+      return { button, value: choice.value };
+    });
 
     document.body.appendChild(dialog);
 
-    const focusableButtons = [closeButton, confirmButton].filter(Boolean);
-
-    function handleKeydown(event) {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        closeDialog(false);
-        return;
-      }
-
-      if (event.key !== 'Tab' || focusableButtons.length === 0) {
-        return;
-      }
-
-      const first = focusableButtons[0];
-      const last = focusableButtons[focusableButtons.length - 1];
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
-
-    function closeDialog(confirmed) {
+    function closeDialog(value = escapeValue) {
       if (!dialog.isConnected) {
         return;
       }
@@ -104,18 +68,67 @@ export function showDialog(
         previouslyFocused.focus();
       }
 
-      resolve(confirmed);
+      resolve(value);
+    }
+
+    function handleKeydown(event) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeDialog(escapeValue);
+        return;
+      }
+
+      if (event.key !== 'Tab' || buttons.length === 0) {
+        return;
+      }
+
+      const first = buttons[0].button;
+      const last = buttons[buttons.length - 1].button;
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    for (const { button, value } of buttons) {
+      button.addEventListener('click', () => closeDialog(value));
     }
 
     closeActiveDialog = closeDialog;
-
-    closeButton.addEventListener('click', () => closeDialog(false));
-
-    if (confirmButton) {
-      confirmButton.addEventListener('click', () => closeDialog(true));
-    }
-
     document.addEventListener('keydown', handleKeydown);
-    closeButton.focus();
+    buttons[0]?.button.focus();
+  });
+}
+
+export function showDialog(
+  message,
+  withConfirmation = false,
+  {
+    closeLabel = 'Close',
+    confirmLabel = 'Confirm',
+  } = {}
+) {
+  const choices = [
+    {
+      label: closeLabel,
+      value: false,
+      className: 'dialog-button',
+    },
+  ];
+
+  if (withConfirmation) {
+    choices.push({
+      label: confirmLabel,
+      value: true,
+      className: 'dialog-button confirm',
+    });
+  }
+
+  return showChoiceDialog(message, choices, {
+    escapeValue: false,
   });
 }
