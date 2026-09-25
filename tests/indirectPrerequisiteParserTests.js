@@ -65,6 +65,40 @@ Beta\tBailey\t2234567\tSpring 2026\t@ SCC
 Class rosters were last updated on Sep 25, 2026.
 `;
 
+
+const adminUnsupportedCourseBlockSample = `Admin Class List
+Indirect Prerequisite Checker
+Course:
+PSYC 335: Research Methods in Psychology
+Professor:
+Doe, Jane
+Meetings:
+  \t 1:00 am - 1:00 am \t Online 000 \t LEC (11679)
+Indirect Prerequisites:
+List of students who have completed the PSYC 335 prerequisite courses indirectly
+PSYC 300:
+Last Name\tFirst Name\tStudent ID\tTerm Completed\tCollege
+Alpha\tAlex\t0123456\tFall 2025\t@ ARC
+STAT X-1000:
+Last Name\tFirst Name\tStudent ID\tTerm Completed\tCollege
+Beta\tBailey\t2234567\tSpring 2026\t@ FLC
+`;
+
+const adminCcnTargetSample = `Admin Class List
+Indirect Prerequisite Checker
+Course:
+STAT C1000: Introduction to Statistics
+Professor:
+Doe, Jane
+Meetings:
+  \t 1:00 am - 1:00 am \t Online 000 \t LEC (12345)
+Indirect Prerequisites:
+List of students who have completed the STAT C1000 prerequisite courses indirectly
+MATH 300:
+Last Name\tFirst Name\tStudent ID\tTerm Completed\tCollege
+Alpha\tAlex\t0123456\tFall 2025\t@ ARC
+`;
+
 const brokenFacultyStructure = `Indirect Prerequisite Checker [Experimental Service]
 Professor:\t \tDoe, Jane
 Course:\t \tHVAC 364: Electrical Controls
@@ -174,6 +208,35 @@ function runAdminTest() {
   );
 }
 
+
+function runAdminCcnTargetTest() {
+  assertEqual(
+    detectIndirectPrerequisiteVariant(adminCcnTargetSample),
+    'admin',
+    'Admin CCN target-course detection failed'
+  );
+
+  const result = parseIndirectPrerequisiteText(adminCcnTargetSample);
+
+  assert(result.ok, result.message || 'Admin CCN target-course parsing failed');
+  assertEqual(
+    result.data.course,
+    'STAT C1000: Introduction to Statistics',
+    'Admin CCN target course was not preserved'
+  );
+}
+
+function runUnsupportedIndirectCourseBlockFailClosedTest() {
+  const result = parseIndirectPrerequisiteText(adminUnsupportedCourseBlockSample);
+
+  assert(!result.ok, 'Unsupported Indirect course blocks with student rows must fail closed');
+  assertEqual(
+    result.code,
+    'INDIRECT_PREREQUISITE_PARSE_FAILED',
+    'Unexpected failure code for an unsupported Indirect course block'
+  );
+}
+
 function runFailClosedTest() {
   const result = parseIndirectPrerequisiteText(brokenFacultyStructure);
 
@@ -190,6 +253,8 @@ const output = document.getElementById('testResults');
 try {
   runFacultyTest();
   runAdminTest();
+  runAdminCcnTargetTest();
+  runUnsupportedIndirectCourseBlockFailClosedTest();
   runFailClosedTest();
 
   output.textContent = 'All indirect prerequisite parser tests passed.';
