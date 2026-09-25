@@ -140,7 +140,7 @@ function buildFilterHTML(
   const indirectFilter = indirectCount > 0
     ? `
       <button type="button" class="result-filter-button" data-filter="indirect" aria-pressed="false">
-        Indirect Evidence <span>${indirectCount}</span>
+        Has Indirect Evidence <span>${indirectCount}</span>
       </button>
     `
     : '';
