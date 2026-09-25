@@ -4,6 +4,7 @@ import {
   mergePrerequisiteData,
   formatPrerequisiteDisplayName,
 } from './prerequisiteDataUtils.js';
+import { recordDiagnostic } from './diagnostics.js';
 
 let closeActiveStudentDetails = null;
 
@@ -232,6 +233,7 @@ function buildIndirectEvidenceList(
 
 function openStudentDetails(studentId) {
   closeExistingStudentDetails();
+  recordDiagnostic('student-detail-opened');
 
   const {
     rosterData,
@@ -407,6 +409,7 @@ function openStudentDetails(studentId) {
     copyButton.addEventListener('click', async () => {
       try {
         await copyText(message.value);
+        recordDiagnostic('student-message-copied');
         copyStatus.textContent = 'Message copied.';
       } catch {
         copyStatus.textContent =
@@ -506,6 +509,10 @@ function initializeFilters() {
 
   function applyFilter(filter) {
     let visibleCount = 0;
+
+    recordDiagnostic('results-filter-applied', {
+      status: filter,
+    });
 
     for (const row of rows) {
       const matches =
