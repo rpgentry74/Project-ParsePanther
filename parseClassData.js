@@ -75,7 +75,7 @@ export function parseClassData() {
         const hasSections = courseKeys.length > 0;
         const totalRows = courseKeys.reduce((sum, k) => sum + (prerequisiteCourses[k]?.length || 0), 0);
 
-        setState({ prerequisiteData: parsed });
+        setState({ classData: parsed });
 
         if (!hasSections) {
           // Case A: NO SECTIONS (likely no direct prereqs defined in LRCCD)
@@ -120,7 +120,7 @@ export function parseClassData() {
           true
         ).then(() => {
           document.getElementById('prerequisiteData').value = '';
-          setState({ prerequisiteData: null });
+          setState({ classData: null });
           prerequisiteStatus.innerText = 'Prerequisite data processing cancelled by user.';
           prerequisiteStatus.classList.remove('status-good', 'status-default');
           prerequisiteStatus.classList.add('status-bad');
