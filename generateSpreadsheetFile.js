@@ -1,4 +1,5 @@
 import { getState } from './state.js';
+import { mergePrerequisiteCourses } from './prerequisiteDataUtils.js';
 
 let stateData = null;
 
@@ -41,7 +42,7 @@ export function generateSpreadsheetFile(format) {
 
   rosterData.studentRoster.forEach((student) => {
     const rowData = uniquePrerequisites.map((prerequisite) =>
-      (directPrerequisites[prerequisite] || indirectPrerequisites[prerequisite]).includes(student.studentID) ? '✓' : ''
+      mergedPrerequisites[prerequisite].includes(String(student.studentID).trim()) ? '✓' : ''
     );
     headers.push([student.studentID, student.studentName, ...rowData]);
   });
