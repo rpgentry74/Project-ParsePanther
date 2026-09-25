@@ -6,6 +6,7 @@ import { recordDiagnostic, setDiagnosticState } from './diagnostics.js';
 export function clearGeneratedOutput() {
   document.getElementById('output').innerHTML = '';
   document.getElementById('tableContainer').style.display = 'none';
+  setDiagnosticState({ outputGenerated: false });
 }
 
 function resetAllStatuses() {
