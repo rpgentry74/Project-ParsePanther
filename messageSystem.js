@@ -8,9 +8,9 @@ const MESSAGE_HEADER = '<strong>Version 3 development status:</strong>';
 // Current messages (old ones removed)
 const messages = [
   {
-    id: '20260925.1',
+    id: '20260925.2',
     text:
-      'This is the Version 3 development build of the LRCCD Student Prerequisite Analyzer. Roster, Prerequisite Checker, and Indirect Prerequisite Checker parsing has been rebuilt for current Faculty and Admin formats, including Common Course Numbering and former course numbers. Results now separate official prerequisites from informational Indirect Evidence, and unrecognized page structures stop for review instead of being guessed. Version 3 is still undergoing browser and end-to-end release testing. If results look unexpected, stop and report the issue rather than relying on the output.'
+      'This is the Version 3 development build of the LRCCD Student Prerequisite Analyzer. Version 3 rebuilds Faculty and Admin parsing, adds Common Course Numbering and former-course reconciliation, clearly separates official prerequisites from informational Indirect Evidence, and adds class summaries, filters, student detail, editable Copy Message tools, and privacy-safe Support Diagnostics. Unrecognized page structures still stop for review instead of being guessed. Final browser and release testing is underway. If results look unexpected, stop and use Support Diagnostics when contacting support rather than relying on the output.'
   }
 ];
 
