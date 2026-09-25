@@ -1,6 +1,6 @@
 // generateSpreadsheetFile.js
 import { getState } from './state.js';
-import { mergePrerequisiteCourses } from './prerequisiteDataUtils.js';
+import { mergePrerequisiteData, formatPrerequisiteDisplayName } from './prerequisiteDataUtils.js';
 
 export function generateSpreadsheetFile(format) {
   if (!format) {
@@ -18,12 +18,21 @@ export function generateSpreadsheetFile(format) {
     return;
   }
 
-  const mergedPrerequisites = mergePrerequisiteCourses(
+  const {
+    prerequisiteCourses: mergedPrerequisites,
+    courseAliases: mergedCourseAliases,
+  } = mergePrerequisiteData(
     directPrerequisiteData,
     indirectPrerequisiteData
   );
 
   const prerequisiteNames = Object.keys(mergedPrerequisites);
+  const prerequisiteHeaders = prerequisiteNames.map((prerequisite) =>
+    formatPrerequisiteDisplayName(
+      prerequisite,
+      mergedCourseAliases[prerequisite] || []
+    )
+  );
 
   const workbook = XLSX.utils.book_new();
 
@@ -33,7 +42,7 @@ export function generateSpreadsheetFile(format) {
     ['LEC Number:', rosterData.lecNum],
     ['LAB Number:', rosterData.labNum],
     ['', '', '', ''],
-    ['Student ID', 'Student Name', ...prerequisiteNames],
+    ['Student ID', 'Student Name', ...prerequisiteHeaders],
   ];
 
   rosterData.studentRoster.forEach((student) => {
