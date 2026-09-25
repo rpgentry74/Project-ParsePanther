@@ -1,63 +1,36 @@
 // formHandler.js
-import { parseClassData } from './parseClassData.js';
-import { parseIndirectClassData } from './parseIndirectClassData.js';
 import { generateHTMLTable } from './generateHTMLTable.js';
 import { showDialog } from './dialogHandler.js';
-import { getState, setState } from './state.js';
+import { getState } from './state.js';
 
 export async function handleFormSubmission() {
-    // Get checkboxes
-    const includeDirectPrerequisites = document.getElementById('includeDirectPrerequisites');
-    const includeIndirectPrerequisites = document.getElementById('includeIndirectPrerequisites');
+  const includeDirectPrerequisites = document.getElementById('includeDirectPrerequisites');
+  const includeIndirectPrerequisites = document.getElementById('includeIndirectPrerequisites');
 
-    // Check if at least one checkbox is checked
-    if (!includeDirectPrerequisites.checked && !includeIndirectPrerequisites.checked) {
-        showDialog('Please select at least one type of prerequisite to include.');
-        return;
-    }
+  if (!includeDirectPrerequisites.checked && !includeIndirectPrerequisites.checked) {
+    showDialog('Please select at least one type of prerequisite to include.');
+    return;
+  }
 
-    // Clear previous class data
-    setState({
-        classData: null,
-        indirectClassData: null
-    });
+  const { rosterData, classData, indirectClassData } = getState();
 
-    // Get the already parsed roster data from state
-    const rosterData = getState().rosterData;
-    console.log('Roster data from state: ', rosterData);
+  if (!rosterData) {
+    showDialog('Please paste and confirm the Class Roster data before processing prerequisites.');
+    return;
+  }
 
-    // Parse the prerequisite data
-    let classData = null;
-    let indirectClassData = null;
-    if (includeDirectPrerequisites.checked) {
-        classData = await parseClassData();
-        console.log('Parsed class data: ', classData);
-    }
+  if (includeDirectPrerequisites.checked && !classData) {
+    showDialog('Please paste and successfully process the direct Prerequisite data before continuing.');
+    return;
+  }
 
-    if (includeIndirectPrerequisites.checked) {
-        indirectClassData = await parseIndirectClassData();
-        console.log('Parsed indirect class data: ', indirectClassData);
-    }
+  if (includeIndirectPrerequisites.checked && !indirectClassData) {
+    showDialog('Please paste and successfully process the Indirect Prerequisite data before continuing.');
+    return;
+  }
 
-    // Set the parsed data into state
-    setState({
-        rosterData,
-        classData,
-        indirectClassData
-    });
-
-    console.log('Updated state after parsing: ', getState());
-
-    // Generate the HTML table and display it in the output div
-    if (rosterData && (classData || indirectClassData)) {
-        const htmlTable = await generateHTMLTable(rosterData, classData, indirectClassData);
-        document.getElementById('output').innerHTML = htmlTable;
-
-        // Make the output section and download button visible
-        // document.getElementById('output').style.display = 'block';
-        document.getElementById('tableContainer').style.display = 'block';
-
-        // Scroll the page to the download button
-        document.getElementById('downloadBtn').scrollIntoView({ behavior: 'smooth' });
-    }
+  const htmlTable = await generateHTMLTable();
+  document.getElementById('output').innerHTML = htmlTable;
+  document.getElementById('tableContainer').style.display = 'block';
+  document.getElementById('downloadBtn').scrollIntoView({ behavior: 'smooth' });
 }
