@@ -3,7 +3,11 @@ import {
   clearDiagnostics,
   getDiagnostics,
 } from './diagnostics.js';
-import { APP_VERSION, CACHE_NAME } from './appConfig.js';
+import {
+  APP_VERSION,
+  CACHE_NAME,
+  DISPLAY_VERSION,
+} from './appConfig.js';
 
 function yesNo(value) {
   return value ? 'Yes' : 'No';
@@ -224,6 +228,12 @@ async function clearReportDiagnostics() {
   await refreshReport();
   document.getElementById('supportActionStatus').textContent =
     'Session diagnostics cleared.';
+}
+
+const buildBadge = document.getElementById('buildBadge');
+
+if (buildBadge) {
+  buildBadge.textContent = DISPLAY_VERSION;
 }
 
 document
