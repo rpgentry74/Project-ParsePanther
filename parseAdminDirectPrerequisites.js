@@ -1,0 +1,181 @@
+// parseAdminDirectPrerequisites.js
+
+function cleanValue(value) {
+  return String(value || '')
+    .replace(/\t/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function nextNonEmptyLine(lines, startIndex) {
+  for (let i = startIndex + 1; i < lines.length; i++) {
+    const value = cleanValue(lines[i]);
+
+    if (value) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+function extractLabeledValue(lines, label) {
+  const labelLower = label.toLowerCase();
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trimStart();
+
+    if (!trimmed.toLowerCase().startsWith(labelLower)) {
+      continue;
+    }
+
+    const sameLineValue = cleanValue(trimmed.slice(label.length));
+
+    if (sameLineValue) {
+      return sameLineValue;
+    }
+
+    return nextNonEmptyLine(lines, i);
+  }
+
+  return null;
+}
+
+function parseMeetings(lines) {
+  const startIndex = lines.findIndex((line) => /^Meetings:\s*$/i.test(line.trim()));
+  const endIndex = lines.findIndex((line) => /^Term:\s*$/i.test(line.trim()));
+
+  const meetingLines =
+    startIndex >= 0
+      ? lines.slice(startIndex + 1, endIndex > startIndex ? endIndex : undefined)
+      : lines;
+
+  let lecNum = null;
+  let labNum = null;
+
+  for (const line of meetingLines) {
+    const match = line.match(/\b(LEC|LAB)\s*\(\s*(\d{5})\s*\)/i);
+
+    if (!match) {
+      continue;
+    }
+
+    if (match[1].toUpperCase() === 'LEC' && !lecNum) {
+      lecNum = match[2];
+    }
+
+    if (match[1].toUpperCase() === 'LAB' && !labNum) {
+      labNum = match[2];
+    }
+  }
+
+  return { lecNum, labNum };
+}
+
+function parsePrerequisiteSections(lines) {
+  const sectionIndex = lines.findIndex(
+    (line) =>
+      /\bPrerequisite Courses Completed Within Los Rios\s*$/i.test(
+        cleanValue(line)
+      )
+  );
+
+  if (sectionIndex < 0) {
+    throw new Error('Direct prerequisite section heading was not found.');
+  }
+
+  const courseHeaderPattern =
+    /^([A-Z]{2,5}\s+\d{3}[A-Z]?)(?:\s+\(formerly\s+([A-Z]{2,5}\s+\d{3}[A-Z]?)\))?\s*:\s*$/i;
+
+  const prerequisiteCourses = {};
+  const courseAliases = {};
+  let currentCourse = null;
+
+  for (let i = sectionIndex + 1; i < lines.length; i++) {
+    const rawLine = lines[i];
+    const trimmed = rawLine.trim();
+
+    if (!trimmed) {
+      continue;
+    }
+
+    if (/^Class rosters were last updated/i.test(trimmed)) {
+      break;
+    }
+
+    const courseMatch = trimmed.match(courseHeaderPattern);
+
+    if (courseMatch) {
+      currentCourse = cleanValue(courseMatch[1]).toUpperCase();
+      prerequisiteCourses[currentCourse] = prerequisiteCourses[currentCourse] || [];
+
+      if (courseMatch[2]) {
+        courseAliases[currentCourse] = cleanValue(courseMatch[2]).toUpperCase();
+      }
+
+      continue;
+    }
+
+    if (
+      /^Last Name\tFirst Name\tStudent ID\tTerm Completed\tCollege$/i.test(
+        rawLine.trim()
+      )
+    ) {
+      continue;
+    }
+
+    if (!currentCourse || !rawLine.includes('\t')) {
+      continue;
+    }
+
+    const columns = rawLine.split('\t').map((column) => column.trim());
+
+    if (columns.length < 3) {
+      continue;
+    }
+
+    const studentID = columns[2];
+
+    if (/^\d{6,8}$/.test(studentID)) {
+      prerequisiteCourses[currentCourse].push(studentID);
+    }
+  }
+
+  if (!Object.keys(prerequisiteCourses).length) {
+    throw new Error(
+      'The direct prerequisite section was found, but no prerequisite course headings were recognized.'
+    );
+  }
+
+  return {
+    prerequisiteCourses,
+    courseAliases,
+  };
+}
+
+export function parseAdminDirectPrerequisites(source) {
+  const lines = source.split('\n');
+
+  const professor = extractLabeledValue(lines, 'Professor:');
+  const course = extractLabeledValue(lines, 'Course:');
+
+  if (!professor) {
+    throw new Error('Professor information was not found in the Admin prerequisite page.');
+  }
+
+  if (!course) {
+    throw new Error('Course information was not found in the Admin prerequisite page.');
+  }
+
+  const { lecNum, labNum } = parseMeetings(lines);
+  const { prerequisiteCourses, courseAliases } = parsePrerequisiteSections(lines);
+
+  return {
+    professor,
+    course,
+    lecNum,
+    labNum,
+    prerequisiteCourses,
+    courseAliases,
+  };
+}
