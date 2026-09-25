@@ -71,7 +71,15 @@ When LRCCD changes a page format, add a sanitized example as a regression case b
 
 ## Interface
 
-Version 3 refreshes the visual design while keeping the application a practical faculty/staff utility. The interface uses the existing LRCCD-inspired navy, blue, and gold palette, a wider card-based workflow, compact processing-status badges, collapsible information tabs, and a clearer results table. Official prerequisites, indirect evidence, and per-student status are visually separated so the table remains easy to scan.
+Version 3 refreshes the visual design while keeping the application a practical faculty/staff utility. The interface uses the existing LRCCD-inspired navy, blue, and gold palette, a wider card-based workflow, compact processing-status badges, collapsible information tabs, and a clearer results table.
+
+The results view now includes a compact class summary and filters for complete students, students missing official prerequisites, and students with Indirect Evidence. Each student has a detail view that shows official prerequisite status, whether completion is supported by Direct or Indirect evidence, and any additional indirect-only evidence. Students missing official prerequisites also have an editable Copy Message tool that lists only missing official prerequisites.
+
+## Support Diagnostics
+
+Version 3 includes a privacy-safe `support.html` diagnostics page for remote troubleshooting. It reports browser, viewport, PWA/service-worker, cache, application-state, and recent workflow-event information stored only for the current browser session. The diagnostics system deliberately excludes pasted LRCCD text, student names, student IDs, course and professor information, prerequisite records, and result-table contents.
+
+Questions, suggestions, and problem reports are handled through email rather than a separate feedback form. When a problem cannot be reproduced locally, the user can copy or download the Support Diagnostics report and include it with the email.
 
 ## Downloads
 
@@ -80,6 +88,8 @@ Processed results can be exported as:
 - XLSX
 - CSV
 - ODS
+
+Exports include the official prerequisite status shown in the browser results.
 
 SheetJS and FileSaver.js are included in the repository and run in the browser.
 
