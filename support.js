@@ -3,8 +3,7 @@ import {
   clearDiagnostics,
   getDiagnostics,
 } from './diagnostics.js';
-
-const APP_VERSION = '3.0.0-dev';
+import { APP_VERSION, CACHE_NAME } from './appConfig.js';
 
 function yesNo(value) {
   return value ? 'Yes' : 'No';
@@ -150,6 +149,7 @@ async function buildReport() {
     `Service worker registered: ${yesNo(sw.registered)}`,
     `Service worker state: ${sw.activeState}`,
     `Controller present: ${yesNo(sw.controller)}`,
+    `Expected cache: ${CACHE_NAME}`,
     `Detected caches: ${cacheNames.join(', ')}`,
     '',
     'Application State',
