@@ -28,6 +28,8 @@ Faculty and Admin are treated as separate source formats that normalize to the s
 
 Direct data defines the official prerequisites that are evaluated. Official former-course numbers are treated as identities of those prerequisites, including when the former-course relationship is documented on an Indirect page. Indirect completions under an official course or official former number can therefore satisfy that prerequisite. Courses that appear only in the Indirect Prerequisite Checker remain informational evidence and do not affect prerequisite status.
 
+If Indirect Evidence is selected but no Indirect Prerequisite Checker data was pasted, a user who already has valid Direct prerequisite data may explicitly continue without Indirect Evidence. This exception applies only to an empty Indirect field. Pasted Indirect data that fails parsing remains fail-closed and must be reviewed.
+
 ## Parser architecture
 
 Each data type has a dispatcher that identifies the LRCCD source variant and sends the text to a dedicated parser. Tabs and line boundaries are preserved when they carry structure.
