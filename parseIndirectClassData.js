@@ -1,193 +1,243 @@
-import { getState, setState } from './state.js';
+import { getState, setIndirectPrerequisiteData } from './state.js';
 import { showDialog } from './dialogHandler.js';
+import { updateStatusIndicator } from './statusIndicator.js';
 
-function cleanString(str) {
-  return str.replace(/\s+/g, ' ').trim();
+function cleanComparable(value) {
+  return String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
 }
 
-export function parseIndirectClassData() {
-  return new Promise((resolve) => {
-    const prerequisiteData = document.getElementById('indirectPrerequisiteData').value;
-    const indirectPrerequisiteStatus = document.getElementById('indirectPrerequisiteStatus');
-    
-    if (/Indirect Prerequisite Checker.*(Professor|Instructor)/is.test(prerequisiteData)) {
-      const parsedIndirectClassData = parseIndirectPrerequisiteData(prerequisiteData);
+function sectionNumbersMatch(parsedValue, rosterValue) {
+  const parsed = cleanComparable(parsedValue);
+  const roster = cleanComparable(rosterValue);
 
-      const { professor, course, lecNum, labNum } = parsedIndirectClassData;
+  if (!parsed && !roster) {
+    return true;
+  }
 
-      const rosterData = getState().rosterData;
+  return parsed === roster;
+}
 
-      const parsedLecNum = lecNum ? lecNum.trim().toLowerCase() : null;
-      const parsedLabNum = labNum ? labNum.trim().toLowerCase() : null;
+function classContextMatches(parsed, rosterData) {
+  return (
+    cleanComparable(parsed.professor) === cleanComparable(rosterData.professor) &&
+    cleanComparable(parsed.course) === cleanComparable(rosterData.course) &&
+    sectionNumbersMatch(parsed.lecNum, rosterData.lecNum) &&
+    sectionNumbersMatch(parsed.labNum, rosterData.labNum)
+  );
+}
 
-      const rosterLecNum = rosterData.lecNum ? rosterData.lecNum.trim().toLowerCase() : null;
-      const rosterLabNum = rosterData.labNum ? rosterData.labNum.trim().toLowerCase() : null;
+export async function parseIndirectClassData() {
+  const textbox = document.getElementById('indirectPrerequisiteData');
+  const prerequisiteData = textbox.value;
 
-      for (let i = 0; i < Math.max(parsedIndirectClassData.course.length, rosterData.course.length); i++) {
-        if (parsedIndirectClassData.course[i] !== rosterData.course[i]) {
-          console.log(`Mismatch at index ${i}: parsed is '${parsedIndirectClassData.course[i]}', roster is '${rosterData.course[i]}'`);
-          break;
-        }
-      }
+  const parsedIndirectClassData = parseIndirectPrerequisiteData(prerequisiteData);
 
-      if (
-        parsedIndirectClassData.professor.trim().toLowerCase() === rosterData.professor.trim().toLowerCase() &&
-        parsedIndirectClassData.course.trim().toLowerCase() === rosterData.course.trim().toLowerCase() &&
-        parsedLecNum === rosterLecNum &&
-        parsedLabNum === rosterLabNum
-      ) {
-        setState({ indirectPrerequisiteData: parsedIndirectClassData });
-        indirectPrerequisiteStatus.innerText = 'Indirect class data processed successfully.';
-        indirectPrerequisiteStatus.classList.remove('status-bad', 'status-default');
-        indirectPrerequisiteStatus.classList.add('status-good');
-        resolve(parsedIndirectClassData);
-      } else {
-        showDialog(`The class data doesn't match the roster data: <br>
-          <strong>Professor:</strong> ${parsedIndirectClassData.professor} vs ${rosterData.professor} <br>
-          <strong>Course:</strong> ${parsedIndirectClassData.course} vs ${rosterData.course}<br>
-          <strong>LEC Number:</strong> ${lecNum ? lecNum : 'N/A'} vs ${rosterData.lecNum ? rosterData.lecNum : 'N/A'}<br>
-          <strong>LAB Number:</strong> ${labNum ? labNum : 'N/A'} vs ${rosterData.labNum ? rosterData.labNum : 'N/A'}`);
-        document.getElementById('indirectPrerequisiteData').value = '';
-        setState({ indirectPrerequisiteData: null });
-        resolve(null);
-      }
-    } else {
+  if (!parsedIndirectClassData) {
+    setIndirectPrerequisiteData(null);
 
-      // Identify which checker is present
-      let checkerType;
-      if (/Class Roster.*(Professor|Instructor)/is.test(prerequisiteData)) {
-        checkerType = 'Class Roster';
-      } else if (/Prerequisite Checker(?! Indirect).*(Professor|Instructor)/is.test(prerequisiteData)) {
-        checkerType = 'Prerequisite';
-      }
+    updateStatusIndicator(
+      'indirectPrerequisiteStatus',
+      'Unable to process indirect prerequisite data.',
+      'bad'
+    );
 
-      if (checkerType) {
-        // Update the status indicator with failure
-        indirectPrerequisiteStatus.innerText = 'Invalid data provided. Please paste the Indirect Prerequisite data.';
-        indirectPrerequisiteStatus.classList.remove('status-good', 'status-default');
-        indirectPrerequisiteStatus.classList.add('status-bad');
-        // The user is trying to paste incorrect data, show an error dialog
-        showDialog(`It looks like you are trying to paste ${checkerType} data into the Indirect Prerequisite field.`)
-        .then(() => {
-          // After user has interacted with the dialog, clear the textbox
-          document.getElementById('indirectPrerequisiteData').value = '';
-          resolve(null); // Resolve the promise with null as no indirect prerequisite data was parsed
-        });
-      } else {
-        // The data doesn't match any known headers, remind the user to select all
-        // Update the status indicator with failure
-        indirectPrerequisiteStatus.innerText = 'No recognizable data found. Please ensure you have copied the full page.';
-        indirectPrerequisiteStatus.classList.remove('status-good', 'status-default');
-        indirectPrerequisiteStatus.classList.add('status-bad');
-        showDialog('Please ensure you have copied the full page by using Ctrl+A (or Cmd+A on Mac).')
-        .then(() => {
-          // After user has interacted with the dialog, clear the textbox
-          document.getElementById('indirectPrerequisiteData').value = '';
-          resolve(null); // Resolve the promise with null as no roster data was parsed
-        });
-      }
-    }
-  });
+    textbox.value = '';
+    return null;
+  }
+
+  const rosterData = getState().rosterData;
+
+  if (!rosterData) {
+    setIndirectPrerequisiteData(null);
+
+    updateStatusIndicator(
+      'indirectPrerequisiteStatus',
+      'Class Roster data is required first.',
+      'bad'
+    );
+
+    await showDialog(
+      'Please paste and confirm the Class Roster before processing indirect prerequisite data.'
+    );
+
+    textbox.value = '';
+    return null;
+  }
+
+  if (!classContextMatches(parsedIndirectClassData, rosterData)) {
+    setIndirectPrerequisiteData(null);
+
+    updateStatusIndicator(
+      'indirectPrerequisiteStatus',
+      'Indirect prerequisite data does not match the roster.',
+      'bad'
+    );
+
+    await showDialog(
+      `The indirect prerequisite data does not match the confirmed Class Roster:<br>
+      <strong>Professor:</strong> ${parsedIndirectClassData.professor || 'N/A'} vs ${rosterData.professor || 'N/A'}<br>
+      <strong>Course:</strong> ${parsedIndirectClassData.course || 'N/A'} vs ${rosterData.course || 'N/A'}<br>
+      <strong>LEC Number:</strong> ${parsedIndirectClassData.lecNum || 'N/A'} vs ${rosterData.lecNum || 'N/A'}<br>
+      <strong>LAB Number:</strong> ${parsedIndirectClassData.labNum || 'N/A'} vs ${rosterData.labNum || 'N/A'}`
+    );
+
+    textbox.value = '';
+    return null;
+  }
+
+  setIndirectPrerequisiteData(parsedIndirectClassData);
+
+  updateStatusIndicator(
+    'indirectPrerequisiteStatus',
+    'Indirect prerequisite data processed successfully.',
+    'good'
+  );
+
+  return parsedIndirectClassData;
 }
 
 function parseIndirectPrerequisiteData(prerequisiteData) {
   try {
+    const source = String(prerequisiteData || '')
+      .replace(/\u00A0/g, ' ')
+      .replace(/\r\n?/g, '\n')
+      .trim();
 
-       // Initialize the variables
-       let professor, course;
-       let lecNum = null;
-       let labNum = null;
-       const prerequisiteCourses = {};
-       let currentPrerequisite = "";
+    if (!source) {
+      throw new Error('No indirect prerequisite data was provided.');
+    }
 
-      // Extract professor's name    
-      const professorMatch = prerequisiteData.match(/Professor:\s+(.+)/);
-      if (professorMatch) {
-        professor = professorMatch[1];
-        console.log("Parsed professor:", professor);  // Log the parsed professor
-      } else {
-        throw new Error("Professor information not found.");
+    if (!/Indirect Prerequisite Checker/i.test(source)) {
+      throw new Error('This does not appear to be an Indirect Prerequisite Checker page.');
+    }
+
+    let professor = null;
+    let course = null;
+    let lecNum = null;
+    let labNum = null;
+
+    const professorMatch = source.match(/Professor:\s+([^\n]+)/i);
+    if (professorMatch) {
+      professor = professorMatch[1].replace(/\s+/g, ' ').trim();
+    }
+
+    if (!professor) {
+      throw new Error('Professor information not found.');
+    }
+
+    const courseMatch = source.match(/Course:\s+([^\n]+)/i);
+    if (courseMatch) {
+      course = courseMatch[1].replace(/\s+/g, ' ').trim();
+    }
+
+    if (!course) {
+      throw new Error('Course information not found.');
+    }
+
+    const meetingMatches = source.matchAll(
+      /(LEC|LAB)\s*(?:-\s*|\(\s*)(\d{5})/gi
+    );
+
+    for (const match of meetingMatches) {
+      const type = match[1].toUpperCase();
+
+      if (type === 'LEC' && !lecNum) {
+        lecNum = match[2];
       }
 
-       // Extract course information
-       const courseMatch = prerequisiteData.match(/Course:\s+(.+)/);
-       if (courseMatch) {
-        course = courseMatch[1].replace(/\s+/g, ' ').trim(); 
-       } else {
-         throw new Error("Course information not found.");
-       }
+      if (type === 'LAB' && !labNum) {
+        labNum = match[2];
+      }
+    }
 
-       // Extract LEC and LAB numbers
-       const meetingsMatch = prerequisiteData.match(/(LEC|LAB)\s*-\s*(\d{5})|(LEC|LAB)\s*\((\d{5})\)/gi);
-       if (meetingsMatch) {
-         meetingsMatch.forEach((match) => {
-           const innerMatch = match.match(/(LEC|LAB)\s*(?:-\s*|\()\s*(\d{5})/i);
-           if (innerMatch) {
-             if (innerMatch[1].toUpperCase() === 'LEC') {
-               lecNum = innerMatch[2] || null;
-             } else if (innerMatch[1].toUpperCase() === 'LAB') {
-               labNum = innerMatch[2] || null;
-             }
-           }
-         });
-       } else {
-         throw new Error("Meeting information not found.");
-       }
+    const sectionMatch = source.match(
+      /LIST OF STUDENTS WHO HAVE COMPLETED THE PREREQUISITE COURSES INDIRECTLY([\s\S]+)$/i
+    );
 
-       // Extract indirect prerequisite course line and students
-       let prerequisiteSectionMatch = prerequisiteData.match(/PREREQUISITE COURSES INDIRECTLY([\s\S]+)$/i);
-       if (prerequisiteSectionMatch) {
-         let prerequisiteSection = prerequisiteSectionMatch[1];
-         let prerequisiteMatches = prerequisiteSection.match(/([A-Z]+\s\d+:)?\n([\s\S]+?)(?=\n[A-Z]+\s\d+:|$)/gi);
-       
-         if (prerequisiteMatches) {
-           let shouldStopProcessing = false;
-           for (let match of prerequisiteMatches) {
-             let prerequisiteCourseMatch = match.match(/([A-Z]+\s\d+:)/i);
-             let studentLines = match.replace(prerequisiteCourseMatch[0], "").trim().split('\n');
-       
-             if (prerequisiteCourseMatch) {
-               currentPrerequisite = prerequisiteCourseMatch[0].trim();
-             }
-       
-             for (let line of studentLines) {
-               if (line.startsWith('Class rosters were last updated')) {
-                 shouldStopProcessing = true;
-                 break;
-               }
-       
-               prerequisiteCourses[currentPrerequisite] = prerequisiteCourses[currentPrerequisite] || [];
-       
-               if (line.trim() === '' || !line.includes('\t')) {
-                 continue;
-               }
-       
-               let [, , studentID] = line.split('\t');
-               prerequisiteCourses[currentPrerequisite].push(studentID.trim());
-             }
-       
-             if (shouldStopProcessing) {
-               break;
-             }
-           }
-         } else {
-           throw new Error("No prerequisite course information found.");
-         }
-       } else {
-         throw new Error("Prerequisite section not found.");
-       }
-       return {
-         professor,
-         course,
-         lecNum,
-         labNum,
-         prerequisiteCourses,
-       };
-       
+    const legacySectionMatch = source.match(
+      /PREREQUISITE COURSES INDIRECTLY([\s\S]+)$/i
+    );
 
+    const prerequisiteSection =
+      sectionMatch?.[1] ||
+      legacySectionMatch?.[1] ||
+      null;
+
+    if (!prerequisiteSection) {
+      throw new Error(
+        'The indirect prerequisite results section was not recognized.'
+      );
+    }
+
+    const prerequisiteCourses = {};
+    const courseHeaderPattern =
+      /^([A-Z]{2,5}\s+\d{3}[A-Z]?)(?:\s+\(formerly\s+[^)]+\))?\s*:\s*$/i;
+
+    let currentPrerequisite = null;
+
+    for (const rawLine of prerequisiteSection.split('\n')) {
+      const line = rawLine.trim();
+
+      if (!line) {
+        continue;
+      }
+
+      if (/^Class rosters were last updated/i.test(line)) {
+        break;
+      }
+
+      const courseHeaderMatch = line.match(courseHeaderPattern);
+
+      if (courseHeaderMatch) {
+        currentPrerequisite = courseHeaderMatch[1]
+          .replace(/\s+/g, ' ')
+          .trim()
+          .toUpperCase();
+
+        prerequisiteCourses[currentPrerequisite] =
+          prerequisiteCourses[currentPrerequisite] || [];
+
+        continue;
+      }
+
+      if (!currentPrerequisite || !rawLine.includes('\t')) {
+        continue;
+      }
+
+      const columns = rawLine.split('\t').map((column) => column.trim());
+      const studentID = columns[2] || '';
+
+      if (/^\d{6,8}$/.test(studentID)) {
+        prerequisiteCourses[currentPrerequisite].push(studentID);
+      }
+    }
+
+    if (!Object.keys(prerequisiteCourses).length) {
+      throw new Error(
+        'The indirect prerequisite section was found, but no prerequisite course headings were recognized.'
+      );
+    }
+
+    return {
+      professor,
+      course,
+      lecNum,
+      labNum,
+      prerequisiteCourses,
+    };
   } catch (error) {
-    console.error("Error occurred while parsing indirect class data:", error.message);
-    showDialog(`Error occurred while parsing indirect class data: ${error.message}`);
+    console.error(
+      'Error occurred while parsing indirect prerequisite data:',
+      error.message
+    );
+
+    showDialog(
+      `ParsePanther could not safely determine the indirect prerequisites from this page.<br><br><strong>Reason:</strong> ${error.message}<br><br>No prerequisite determination was made.`
+    );
+
     return null;
   }
 }
