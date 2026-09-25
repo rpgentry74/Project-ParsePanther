@@ -26,7 +26,7 @@
           <div class="brand-copy">
             <p class="eyebrow">Faculty and staff utility</p>
             <h1 id="top">LRCCD Student Prerequisite Analyzer</h1>
-            <p class="app-subtitle">Organize roster, prerequisite, and indirect checker data into one clear student completion view.</p>
+            <p class="app-subtitle">Organize roster and prerequisite checker data into one clear view of student prerequisite completion.</p>
           </div>
         </div>
         <div class="header-meta">
@@ -57,7 +57,7 @@
             </ol>
             <p class="workflow-note"><strong>Start with the roster.</strong> Roster Data must be accepted before prerequisite or indirect checker data can be processed.</p>
             <ol start="7">
-              <li>Choose whether you want to check official prerequisites, indirect evidence, or both.</li>
+              <li>Choose whether you want to check Prerequisites, Indirect Evidence, or both.</li>
               <li>Back in the LRCCD roster, click on the <strong>Prereq Checker</strong> link.</li>
               <li>Activate the page and copy its contents (Ctrl + A, Ctrl + C on Windows or Cmd + A, Cmd + C on Mac).</li>
               <li>Paste the copied data (Ctrl + V on Windows or Cmd + V on Mac) into the <strong>Prerequisite Data</strong> textbox.</li>
@@ -65,8 +65,8 @@
               <li>Activate the page and copy its contents (Ctrl + A, Ctrl + C on Windows or Cmd + A, Cmd + C on Mac).</li>
               <li>Paste the copied data (Ctrl + V on Windows or Cmd + V on Mac) into the <strong>Indirect Evidence Data</strong> textbox.</li>
               <li>Click <strong>Process Data</strong> to view your organized student data.</li>
-              <li>Use the class summary and filters to focus on students who are complete, missing official prerequisites, or have Indirect Evidence.</li>
-              <li>Select <strong>View</strong> for a student to see how each prerequisite was satisfied and any additional Indirect Evidence. Students missing official prerequisites also have an editable <strong>Copy Message</strong> option.</li>
+              <li>Use the class summary and filters to focus on students who are complete, missing prerequisites, or have Indirect Evidence.</li>
+              <li>Select <strong>View</strong> for a student to see how each prerequisite was satisfied and any additional Indirect Evidence. Students missing prerequisites also have an editable <strong>Copy Message</strong> option.</li>
               <li>If you would like to save your data for later, scroll down to the <strong>Download</strong> section.</li>
               <li>Select your preferred file format from the dropdown menu.</li>
               <li>Click <strong>Download</strong> to save your processed data.</li>
@@ -108,9 +108,9 @@
             <h2>Version</h2>
             <h3>3.0.0-dev</h3>
             <ul>
-              <li>Rebuilt roster, direct prerequisite, and indirect prerequisite parsing around separate Faculty and Admin source formats.</li>
+              <li>Rebuilt roster, Prerequisite Checker, and Indirect Prerequisite Checker parsing around separate Faculty and Admin source formats.</li>
               <li>Added fail-closed parser behavior so unrecognized LRCCD structure is not mistaken for valid empty prerequisite data.</li>
-              <li>Recognized Direct Prerequisite pages with no listed courses now ask the user to confirm the valid empty result instead of blocking the workflow.</li>
+              <li>Recognized Prerequisite Checker pages with no listed courses now ask the user to confirm the valid empty result instead of blocking the workflow.</li>
               <li>Added Common Course Numbering support, including values such as <code>STAT C1000</code>, and safer handling of unsupported prerequisite course blocks.</li>
               <li>Current and former course numbers are preserved together in output headers, and official former numbers reconcile legacy Indirect headings without creating duplicate prerequisite columns.</li>
               <li>Only official prerequisite columns affect student status. Indirect-only courses are labeled as Indirect Evidence, remain informational, and do not count for or against the student.</li>
@@ -122,7 +122,7 @@
               <li>Refreshed the interface with a wider workspace, card-based data entry, compact status badges, clearer results hierarchy, and stronger separation between prerequisites and indirect evidence.</li>
               <li>Added an explicit per-student results status so users can quickly see whether all official prerequisites are complete or how many remain missing.</li>
               <li>Added a compact class summary and filters for All, Complete, Missing Prerequisites, and students with Indirect Evidence.</li>
-              <li>Added per-student detail views showing each official prerequisite, whether it is missing or complete, and whether completion is supported by Direct or Indirect evidence.</li>
+              <li>Added per-student detail views showing each prerequisite, whether it is missing or complete, and whether completion is listed in the Prerequisite Checker or supported by Indirect Prerequisite Checker evidence.</li>
               <li>Added an editable per-student Copy Message for students missing official prerequisites. Indirect-only evidence is never presented as a missing prerequisite.</li>
               <li>Added a privacy-safe Support Diagnostics page that captures browser, PWA/cache, application-state, and recent event information without including student or pasted LRCCD data.</li>
               <li>Streamlined support and feedback to email, with Support Diagnostics available when a problem cannot be reproduced locally.</li>
@@ -375,7 +375,7 @@
                         <input type="checkbox" id="includeIndirectPrerequisites">
                         <span>
                           <strong>Include Indirect Evidence</strong>
-                          <small>Show evidence from the LRCCD Indirect Prerequisite Checker.</small>
+                          <small>Use LRCCD Indirect Prerequisite Checker evidence to better understand prerequisite completion.</small>
                         </span>
                       </label>
                     </div>
@@ -405,7 +405,7 @@
                         </div>
                         <span id="indirectPrerequisiteStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
                       </div>
-                      <p class="card-help">Paste the LRCCD Indirect Prerequisite Checker page. Indirect-only courses do not count for or against prerequisite status.</p>
+                      <p class="card-help">Paste the LRCCD Indirect Prerequisite Checker page. Evidence that matches a prerequisite or its official former course number can satisfy that prerequisite. Other indirect-only courses are shown for context and do not affect status.</p>
                       <textarea id="indirectPrerequisiteData" rows="12" placeholder="Paste indirect checker data here"></textarea>
                       <div class="card-actions">
                         <button id="resetIndirectPrerequisite" type="button" class="buttonSecondary">Reset Indirect Evidence</button>
