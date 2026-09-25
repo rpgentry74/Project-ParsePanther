@@ -2,6 +2,7 @@
 import { getState } from './state.js';
 import { colorCodeCells } from './colorCodeCells.js';
 import { mergePrerequisiteCourses } from './prerequisiteDataUtils.js';
+import { escapeHTML } from './htmlUtils.js';
 
 export function generateHTMLTable() {
   const {
@@ -14,10 +15,10 @@ export function generateHTMLTable() {
     return '<p>Error: Invalid roster data or prerequisite data.</p>';
   }
 
-  const professorName = rosterData.professor || 'Unknown';
-  const courseName = rosterData.course || 'Unknown';
-  const lecNum = rosterData.lecNum || 'None';
-  const labNum = rosterData.labNum || 'None';
+  const professorName = escapeHTML(rosterData.professor || 'Unknown');
+  const courseName = escapeHTML(rosterData.course || 'Unknown');
+  const lecNum = escapeHTML(rosterData.lecNum || 'None');
+  const labNum = escapeHTML(rosterData.labNum || 'None');
 
   const mergedPrerequisites = mergePrerequisiteCourses(
     directPrerequisiteData,
@@ -27,7 +28,7 @@ export function generateHTMLTable() {
   const prerequisiteNames = Object.keys(mergedPrerequisites);
 
   const prerequisiteHeadersHTML = prerequisiteNames
-    .map((prerequisite) => `<th>${prerequisite}</th>`)
+    .map((prerequisite) => `<th>${escapeHTML(prerequisite)}</th>`)
     .join('');
 
   const rowsHTML = rosterData.studentRoster
@@ -47,8 +48,8 @@ export function generateHTMLTable() {
 
       return `
         <tr>
-          <td class="center student-info">${student.studentID}</td>
-          <td class="left student-info">${student.studentName}</td>
+          <td class="center student-info">${escapeHTML(student.studentID)}</td>
+          <td class="left student-info">${escapeHTML(student.studentName)}</td>
           ${courseCompletionHTML}
         </tr>
       `;
