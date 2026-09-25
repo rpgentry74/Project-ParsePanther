@@ -4,7 +4,6 @@ let stateData = null;
 
 export function generateSpreadsheetFile(format) {
   // Store state data globally
-  console.log('Download button clicked!'); 
   stateData = getState();
 
   // Check if the format has been provided

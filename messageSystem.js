@@ -1,38 +1,48 @@
 // messageSystem.js
 
 // Constants
-// REMIND_ME_LATER_DAYS sets the number of days after which a "remind me later" message should reappear.
 const REMIND_ME_LATER_DAYS = 7;
-
-// ENABLE_NOTIFICATIONS enables or disables the notification system. Set this to false to disable notifications.
 const ENABLE_NOTIFICATIONS = true;
+const MESSAGE_HEADER = '<strong>System status:</strong>';
 
-// MESSAGE_HEADER sets the header for the notification messages. Adjust the header text here.
-const MESSAGE_HEADER = '<strong>Important system updates:</strong>';
-
-// This is the array of messages that can be displayed to the user.
-// Each message is an object with an id and a text property. The id is used to uniquely identify each message.
-// The text property contains the message that will be displayed to the user.
-// You can add more messages to this array as needed.
+// Current messages (old ones removed)
 const messages = [
-  { id: '20230723.1', text: 'Downloading your table to a spreadsheet should now work, again! =) <br> Please notify me if you have any continued issues.' },
-  { id: '20230729.1', text: 'A problem with parsing rosters with pronouns is fixed.' },
+  {
+    id: '20260119.1',
+    text:
+      'Prerequisite Checker update: LRCCD changed the formatting of prerequisite pages in January 2026. Direct prerequisite parsing has been updated to restore correct section headers for both faculty and admin views. If results look incorrect, please refresh the page and re-paste the data.'
+  }
 ];
 
-// Custom dialog function for the message system
-// This function creates a dialog box with the provided messages and buttons to close the dialog or set a reminder.
+// One-time cleanup: drop reminders for messages that no longer exist
+(function purgeLegacyReminders() {
+  try {
+    const reminders = JSON.parse(localStorage.getItem('reminders')) || {};
+    const valid = new Set(messages.map(m => m.id));
+    let changed = false;
+    for (const key of Object.keys(reminders)) {
+      if (!valid.has(key)) {
+        delete reminders[key];
+        changed = true;
+      }
+    }
+    if (changed) localStorage.setItem('reminders', JSON.stringify(reminders));
+  } catch {
+    // ignore JSON or storage errors
+  }
+})();
+
+// Dialog
 function showDialog(message, messageId) {
   return new Promise((resolve) => {
-    // Remove any existing dialog
     const existingDialog = document.querySelector('.message-system-dialog');
     if (existingDialog) existingDialog.remove();
 
-    // Create dialog elements
     const dialog = document.createElement('div');
-    dialog.className = 'message-system-dialog dialog'; // Set class for styling
-    dialog.setAttribute('role', 'dialog'); // Set role for accessibility
+    dialog.className = 'message-system-dialog dialog';
+    dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-modal', 'true');
 
-    // Create buttons with attached event listeners
     const dontShowAgainButton = document.createElement('button');
     dontShowAgainButton.textContent = 'Don\'t show again';
     dontShowAgainButton.className = 'dialog-button';
@@ -49,58 +59,61 @@ function showDialog(message, messageId) {
       dialog.remove();
     });
 
-    // Set dialog content
     dialog.innerHTML = `<p>${message}</p>`;
     dialog.appendChild(dontShowAgainButton);
     dialog.appendChild(remindMeLaterButton);
 
-    // Append dialog to body
+    // basic ESC close for UX
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        resolve('close');
+        dialog.remove();
+        document.removeEventListener('keydown', onKey);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+
     document.body.appendChild(dialog);
+    dontShowAgainButton.focus();
   });
 }
 
-// This function retrieves the reminder status for a given message id.
-// If a reminder exists and hasn't expired, or if the message text has changed since the reminder was set, it returns true.
-// Otherwise, it returns false.
+// Reminder helpers
 function getReminderStatus(messageId) {
   const reminders = JSON.parse(localStorage.getItem('reminders')) || {};
   const reminder = reminders[messageId];
-  if (!reminder || reminder.date <= Date.now() || reminder.version !== messages.find(msg => msg.id === messageId).text) {
-    return true;
-  }
-  return false;
+  const current = messages.find(msg => msg.id === messageId);
+  if (!current) return false; // unknown id, skip
+  if (!reminder) return true; // never seen
+  if (reminder.date <= Date.now()) return true; // expired
+  if (reminder.version !== current.text) return true; // text changed
+  return false; // still suppressed
 }
 
-// This function sets the reminder status for a given message id.
-// If the user has chosen to be reminded later, it sets the reminder to the current date + the number of days specified in REMIND_ME_LATER_DAYS.
-// If the user has chosen not to see the message again, it sets the reminder to a far future date.
 function setReminderStatus(messageId, messageText, remindLater) {
   const reminders = JSON.parse(localStorage.getItem('reminders')) || {};
-  const currentDate = new Date();
-  const reminderDate = new Date(currentDate.setDate(currentDate.getDate() + (remindLater ? REMIND_ME_LATER_DAYS : 10000)));
+  const now = new Date();
+  const reminderDate = new Date(
+    now.setDate(
+      now.getDate() + (remindLater ? REMIND_ME_LATER_DAYS : 10000)
+    )
+  );
   reminders[messageId] = { date: reminderDate.getTime(), version: messageText };
   localStorage.setItem('reminders', JSON.stringify(reminders));
 }
 
-// This function displays new messages to the user.
-// If notifications are enabled, it first filters out the messages that the user has chosen not to see again.
-// It then checks each message to see if it needs to be shown, based on whether the user has seen it before and chosen to be reminded later, and whether the reminder has expired.
-// If there are any new messages, it displays them in a dialog box.
-// When the user closes the dialog box, it sets a reminder for each new message based on the user's choice.
+// Public API
 export async function showNewMessages() {
-  if (!ENABLE_NOTIFICATIONS) {
-    return; // Return early if notifications are disabled
-  }
+  if (!ENABLE_NOTIFICATIONS) return;
 
   const newMessages = messages.filter(({ id }) => getReminderStatus(id));
+  if (newMessages.length === 0) return;
 
-  if (newMessages.length > 0) {
-    const messageList = newMessages.map(({ text }) => `<li>${text}</li>`).join('');
-    const newMessagesText = `${MESSAGE_HEADER}<ol>${messageList}</ol>`;
-    const remindLater = await showDialog(newMessagesText, 'system-message');
+  const messageList = newMessages.map(({ text }) => `<li>${text}</li>`).join('');
+  const newMessagesText = `${MESSAGE_HEADER}<ol>${messageList}</ol>`;
+  const remindLater = await showDialog(newMessagesText, 'system-message');
 
-    newMessages.forEach(({ id, text }) => {
-      setReminderStatus(id, text, remindLater === 'later');
-    });
-  }
+  newMessages.forEach(({ id, text }) => {
+    setReminderStatus(id, text, remindLater === 'later');
+  });
 }

@@ -3,10 +3,10 @@ var cacheName = 'v1';
 
 // Default files to always cache
 var cacheFiles = [
-  './',
-  './index.html',
-  './css/style.css',
-  './js/main.js',
+  '/',
+  '/index.html',
+  '/styles.css',
+  '/main.js',
   // Add paths and URLs to your files here
 ]
 
