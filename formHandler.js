@@ -8,7 +8,7 @@ export function handleFormSubmission() {
   const includeIndirectPrerequisites = document.getElementById('includeIndirectPrerequisites');
 
   if (!includeDirectPrerequisites.checked && !includeIndirectPrerequisites.checked) {
-    showDialog('Please select at least one type of prerequisite to include.');
+    showDialog('Please select Prerequisites, Indirect Evidence, or both before processing.');
     return;
   }
 
@@ -29,12 +29,12 @@ export function handleFormSubmission() {
   }
 
   if (includeIndirectPrerequisites.checked && !indirectPrerequisiteData) {
-    showDialog('Please paste and successfully process the Indirect Prerequisite data before continuing.');
+    showDialog('Please paste and successfully process the Indirect Prerequisite Checker data before continuing.');
     return;
   }
 
   generateHTMLTable();
 
   document.getElementById('tableContainer').style.display = 'block';
-  document.getElementById('downloadBtn').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('tableContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
