@@ -4,7 +4,12 @@ import { colorCodeCells } from './colorCodeCells.js';
 import { mergePrerequisiteData } from './prerequisiteDataUtils.js';
 import { escapeHTML } from './htmlUtils.js';
 
-function buildCourseHeader(courseName, aliases = [], label = '') {
+function buildCourseHeader(
+  courseName,
+  aliases = [],
+  label = '',
+  className = ''
+) {
   const aliasHTML = aliases.length
     ? `<br><small>(${aliases.map(escapeHTML).join(', ')})</small>`
     : '';
@@ -13,7 +18,37 @@ function buildCourseHeader(courseName, aliases = [], label = '') {
     ? `<br><small>${escapeHTML(label)}</small>`
     : '';
 
-  return `<th>${escapeHTML(courseName)}${aliasHTML}${labelHTML}</th>`;
+  const classAttribute = className
+    ? ` class="${className}"`
+    : '';
+
+  return `<th scope="col"${classAttribute}>${escapeHTML(courseName)}${aliasHTML}${labelHTML}</th>`;
+}
+
+function buildStatus(prerequisiteNames, prerequisiteCourses, studentId) {
+  if (prerequisiteNames.length === 0) {
+    return {
+      className: 'status-neutral',
+      text: 'No official prerequisites evaluated',
+    };
+  }
+
+  const completed = prerequisiteNames.filter((prerequisite) =>
+    prerequisiteCourses[prerequisite].includes(studentId)
+  ).length;
+  const missing = prerequisiteNames.length - completed;
+
+  if (missing === 0) {
+    return {
+      className: 'status-complete',
+      text: 'All prerequisites complete',
+    };
+  }
+
+  return {
+    className: 'status-missing',
+    text: `Missing ${missing} prerequisite${missing === 1 ? '' : 's'}`,
+  };
 }
 
 export function generateHTMLTable() {
@@ -46,15 +81,16 @@ export function generateHTMLTable() {
   const indirectEvidenceNames = Object.keys(indirectEvidenceCourses);
   const totalDisplayColumns =
     prerequisiteNames.length + indirectEvidenceNames.length;
+  const studentCount = rosterData.studentRoster.length;
 
   const headerHTML = `
     <div class="outputHeader">
-      <header class="header">
+      <div>
+        <p class="result-eyebrow">Results</p>
         <h2>${courseName}</h2>
-        <h3>${professorName}</h3>
-        <h4>LEC Number: ${lecNum}</h4>
-        <h4>LAB Number: ${labNum}</h4>
-      </header>
+        <p class="result-meta">${professorName} &bull; LEC ${lecNum} &bull; LAB ${labNum}</p>
+      </div>
+      <div class="result-count">${studentCount} student${studentCount === 1 ? '' : 's'}</div>
     </div>
   `;
 
@@ -62,7 +98,7 @@ export function generateHTMLTable() {
     const outputHTML = `
       ${headerHTML}
       <div class="outputTable">
-        <p>No prerequisite courses or indirect evidence were listed for the selected checks.</p>
+        <p class="empty-results">No prerequisite courses or indirect evidence were listed for the selected checks.</p>
       </div>
     `;
 
@@ -85,7 +121,8 @@ export function generateHTMLTable() {
       buildCourseHeader(
         courseName,
         indirectEvidenceAliases[courseName] || [],
-        'Indirect'
+        'Indirect',
+        'indirect-column-header'
       )
     )
     .join('');
@@ -99,8 +136,8 @@ export function generateHTMLTable() {
           const hasTakenCourse =
             prerequisiteCourses[prerequisite].includes(studentId);
           const checkmarkHTML = hasTakenCourse
-            ? '<span class="checkmark">&#x2713;</span>'
-            : '';
+            ? '<span class="checkmark" aria-label="Completed">&#x2713;</span>'
+            : '<span class="not-complete" aria-label="Not completed">&mdash;</span>';
 
           return `<td class="evaluated-prerequisite ${hasTakenCourse ? 'taken' : 'not-taken'}">${checkmarkHTML}</td>`;
         })
@@ -111,12 +148,18 @@ export function generateHTMLTable() {
           const hasEvidence =
             indirectEvidenceCourses[courseName].includes(studentId);
           const checkmarkHTML = hasEvidence
-            ? '<span class="checkmark">&#x2713;</span>'
-            : '';
+            ? '<span class="checkmark" aria-label="Indirect evidence present">&#x2713;</span>'
+            : '<span class="not-complete" aria-label="No indirect evidence">&mdash;</span>';
 
           return `<td class="indirect-evidence">${checkmarkHTML}</td>`;
         })
         .join('');
+
+      const status = buildStatus(
+        prerequisiteNames,
+        prerequisiteCourses,
+        studentId
+      );
 
       return `
         <tr>
@@ -124,17 +167,18 @@ export function generateHTMLTable() {
           <td class="left student-info">${escapeHTML(student.studentName)}</td>
           ${prerequisiteCompletionHTML}
           ${indirectEvidenceHTML}
+          <td class="status-cell ${status.className}">${escapeHTML(status.text)}</td>
         </tr>
       `;
     })
     .join('');
 
   const prerequisiteGroupHeader = prerequisiteNames.length
-    ? `<th colspan="${prerequisiteNames.length}">Prerequisites</th>`
+    ? `<th scope="colgroup" class="prerequisite-group-header" colspan="${prerequisiteNames.length}">Prerequisites</th>`
     : '';
 
   const indirectGroupHeader = indirectEvidenceNames.length
-    ? `<th colspan="${indirectEvidenceNames.length}">Indirect Evidence</th>`
+    ? `<th scope="colgroup" class="indirect-group-header" colspan="${indirectEvidenceNames.length}">Indirect Evidence</th>`
     : '';
 
   const tableId = 'mergedTable';
@@ -142,13 +186,14 @@ export function generateHTMLTable() {
     <table class="merged-table" id="${tableId}">
       <thead>
         <tr>
-          <th colspan="2">Student Info</th>
+          <th scope="colgroup" class="student-group-header" colspan="2">Student Info</th>
           ${prerequisiteGroupHeader}
           ${indirectGroupHeader}
+          <th scope="col" class="status-column-header" rowspan="2">Status</th>
         </tr>
         <tr>
-          <th class="center">Student ID</th>
-          <th class="left">Student Name</th>
+          <th scope="col" class="center">Student ID</th>
+          <th scope="col" class="left">Student Name</th>
           ${prerequisiteHeadersHTML}
           ${indirectEvidenceHeadersHTML}
         </tr>
