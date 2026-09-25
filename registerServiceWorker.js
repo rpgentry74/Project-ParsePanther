@@ -1,7 +1,6 @@
 // registerServiceWorker.js
 import { recordDiagnostic } from './diagnostics.js';
-
-const DEVELOPMENT_BUILD = '3.0.0-dev';
+import { APP_VERSION, CACHE_NAME } from './appConfig.js';
 
 export function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) {
@@ -13,8 +12,11 @@ export function registerServiceWorker() {
 
   window.addEventListener('load', async () => {
     try {
+      const serviceWorkerUrl =
+        `./service-worker.js?v=${encodeURIComponent(APP_VERSION)}&cache=${encodeURIComponent(CACHE_NAME)}`;
+
       const registration = await navigator.serviceWorker.register(
-        `./service-worker.js?v=${DEVELOPMENT_BUILD}`,
+        serviceWorkerUrl,
         { updateViaCache: 'none' }
       );
 
@@ -25,7 +27,7 @@ export function registerServiceWorker() {
       });
 
       console.log(
-        `ParsePanther ${DEVELOPMENT_BUILD} service worker active with scope:`,
+        `Student Prerequisite Analyzer ${APP_VERSION} service worker active with scope:`,
         registration.scope
       );
     } catch (error) {
