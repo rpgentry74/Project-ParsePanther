@@ -12,19 +12,19 @@ export async function handleFormSubmission() {
     return;
   }
 
-  const { rosterData, classData, indirectClassData } = getState();
+  const { rosterData, directPrerequisiteData, indirectPrerequisiteData } = getState();
 
   if (!rosterData) {
     showDialog('Please paste and confirm the Class Roster data before processing prerequisites.');
     return;
   }
 
-  if (includeDirectPrerequisites.checked && !classData) {
+  if (includeDirectPrerequisites.checked && !directPrerequisiteData) {
     showDialog('Please paste and successfully process the direct Prerequisite data before continuing.');
     return;
   }
 
-  if (includeIndirectPrerequisites.checked && !indirectClassData) {
+  if (includeIndirectPrerequisites.checked && !indirectPrerequisiteData) {
     showDialog('Please paste and successfully process the Indirect Prerequisite data before continuing.');
     return;
   }
