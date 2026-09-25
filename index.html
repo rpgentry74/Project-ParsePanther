@@ -366,95 +366,170 @@
           </article>
         </section>
       </div>
-        <hr>
-        <section>
+        <section class="workspace" aria-labelledby="workspaceHeading">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Workflow</p>
+              <h2 id="workspaceHeading">Course Data</h2>
+              <p>Paste each LRCCD page into the matching card. All processing happens locally in your browser.</p>
+            </div>
+          </div>
+
           <form>
-            <fieldset>
-              <legend>Enter Course Data Below</legend>
-              <section id="rosterDataSection">
-                <label for="rosterData"><h3>Roster Data</h3></label>  
-                <textarea id="rosterData" rows="20" cols="60%" placeholder="Paste roster data here"></textarea>
-                <span id="rosterStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
-                <button id="resetRoster" type="button" class="buttonPrimary">Reset Roster</button>
-              </section>
-              <hr>
-              <div id="prerequisiteContainer">
-                <div id="disableUntilRosterAccepted" class="disabled">
-                  <div id="overlayMessage">Please complete the Roster Data section first</div>
+            <fieldset class="data-fieldset">
+              <legend class="sr-only">Course data inputs</legend>
+
+              <div class="data-grid">
+                <section id="rosterDataSection" class="data-card">
+                  <div class="card-title-row">
+                    <div>
+                      <p class="card-kicker">Step 1</p>
+                      <label for="rosterData"><h3>Roster Data</h3></label>
+                    </div>
+                    <span id="rosterStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
+                  </div>
+                  <p class="card-help">Paste the copied LRCCD Class Roster page.</p>
+                  <textarea id="rosterData" rows="12" placeholder="Paste roster data here" aria-describedby="rosterHelp"></textarea>
+                  <p id="rosterHelp" class="input-note">Roster data is processed when pasted.</p>
+                  <div class="card-actions">
+                    <button id="resetRoster" type="button" class="buttonSecondary">Reset Roster</button>
+                  </div>
+                </section>
+
+                <div id="prerequisiteContainer" class="prerequisite-shell">
+                  <div id="disableUntilRosterAccepted" class="disabled">
+                    <div id="overlayMessage">Complete the Roster Data step first</div>
+                  </div>
+
+                  <section id="prerequisiteOptionsSection" class="options-card" aria-labelledby="checkingOptionsHeading">
+                    <div>
+                      <p class="card-kicker">Step 2</p>
+                      <h3 id="checkingOptionsHeading">Checking Options</h3>
+                    </div>
+                    <div class="option-list">
+                      <label class="option-control" for="includeDirectPrerequisites">
+                        <input type="checkbox" id="includeDirectPrerequisites" checked>
+                        <span>
+                          <strong>Include Prerequisites</strong>
+                          <small>Evaluate official prerequisite completion.</small>
+                        </span>
+                      </label>
+                      <label class="option-control" for="includeIndirectPrerequisites">
+                        <input type="checkbox" id="includeIndirectPrerequisites">
+                        <span>
+                          <strong>Include Indirect Evidence</strong>
+                          <small>Show evidence from the LRCCD Indirect Prerequisite Checker.</small>
+                        </span>
+                      </label>
+                    </div>
+                  </section>
+
+                  <div class="prerequisite-grid">
+                    <section id="prerequisiteDataGroup" class="data-card tb_hidden">
+                      <div class="card-title-row">
+                        <div>
+                          <p class="card-kicker">Official</p>
+                          <label for="prerequisiteData"><h3>Prerequisite Data</h3></label>
+                        </div>
+                        <span id="prerequisiteStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
+                      </div>
+                      <p class="card-help">Paste the LRCCD Prerequisite Checker page.</p>
+                      <textarea id="prerequisiteData" rows="12" placeholder="Paste prerequisite data here"></textarea>
+                      <div class="card-actions">
+                        <button id="resetPrerequisite" type="button" class="buttonSecondary">Reset Prerequisite</button>
+                      </div>
+                    </section>
+
+                    <section id="indirectPrerequisiteDataGroup" class="data-card tb_hidden">
+                      <div class="card-title-row">
+                        <div>
+                          <p class="card-kicker">Informational</p>
+                          <label for="indirectPrerequisiteData"><h3>Indirect Evidence Data</h3></label>
+                        </div>
+                        <span id="indirectPrerequisiteStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
+                      </div>
+                      <p class="card-help">Paste the LRCCD Indirect Prerequisite Checker page. Indirect-only courses do not count for or against prerequisite status.</p>
+                      <textarea id="indirectPrerequisiteData" rows="12" placeholder="Paste indirect checker data here"></textarea>
+                      <div class="card-actions">
+                        <button id="resetIndirectPrerequisite" type="button" class="buttonSecondary">Reset Indirect Evidence</button>
+                      </div>
+                    </section>
+                  </div>
                 </div>
-                <section id="prerequisiteOptionsSection">
-                  <label for="includeDirectPrerequisites"><input type="checkbox" id="includeDirectPrerequisites" checked>Include Prerequisites (Common)</label>
-                  <br>
-                  <label for="includeIndirectPrerequisites"><input type="checkbox" id="includeIndirectPrerequisites">Include Indirect Prerequisites (Less Common)</label>
-                </section>
-                <section id="prerequisiteDataGroup" class="tb_hidden">
-                  <label for="prerequisiteData"><h3>Prerequisite Data</h3></label>
-                  <textarea id="prerequisiteData" rows="20" cols="60%" placeholder="Paste prerequisite data here"></textarea>
-                  <span id="prerequisiteStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
-                  <button id="resetPrerequisite" type="button" class="buttonPrimary">Reset Prerequisite</button>
-                </section>
-                <section id="indirectPrerequisiteDataGroup" class="tb_hidden">
-                  <label for="indirectPrerequisiteData"><h3>Indirect Prerequisite</h3></label>
-                  <textarea id="indirectPrerequisiteData" rows="20" cols="60%" placeholder="Paste indirect prerequisite data here"></textarea>
-                  <span id="indirectPrerequisiteStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
-                  <button id="resetIndirectPrerequisite" type="button" class="buttonPrimary">Reset Indirect Prerequisite</button>
-                </section>
               </div>
             </fieldset>
           </form>
-          <br>
-          <button id="submit" type="button" class="buttonPrimary">Process Data</button>
-          <button id="resetAll" type="button" class="buttonPrimary">Reset All Fields</button>
+
+          <div class="action-bar">
+            <div>
+              <p class="card-kicker">Step 3</p>
+              <h3>Process Results</h3>
+              <p>Build the student prerequisite matrix from the accepted data above.</p>
+            </div>
+            <div class="action-buttons">
+              <button id="submit" type="button" class="buttonPrimary">Process Data</button>
+              <button id="resetAll" type="button" class="buttonSecondary">Reset All Fields</button>
+            </div>
+          </div>
         </section>
-      </div>
-      <div id="tableContainer">
-        <section id="output">
-          <!-- Parsed data will appear here -->
+
+        <section id="tableContainer" class="results-card" aria-label="Processed prerequisite results">
+          <section id="output">
+            <!-- Parsed data will appear here -->
+          </section>
+          <div id="spreadsheetControls" class="download-bar">
+            <div>
+              <p class="card-kicker">Export</p>
+              <h3>Download Results</h3>
+            </div>
+            <div class="download-controls">
+              <label class="sr-only" for="formatSelect">Select spreadsheet format</label>
+              <select id="formatSelect">
+                <option value="">Pick a format</option>
+                <option value="xlsx">XLSX</option>
+                <option value="csv">CSV</option>
+                <option value="ods">ODS</option>
+              </select>
+              <button id="downloadBtn" type="button" class="buttonPrimary">Download</button>
+            </div>
+          </div>
         </section>
-        <div id="spreadsheetControls">
-          <label for="formatSelect">Select Format:</label>
-          <select id="formatSelect">
-            <option>Pick one</option>
-            <option value="xlsx">XLSX</option>
-            <option value="csv">CSV</option>
-            <option value="ods">ODS</option>
-          </select>
-          <button id="downloadBtn" type="button" class="buttonPrimary">Download</button>
-        </div>
-      </div>
-    </main>
-    <div class="container">
-    <footer>
+      </main>
+
+      <footer>
         <a href="#top" class="back-to-top">Back to Top</a>
         <p>&copy; 2023–2026 Richard Gentry. This website is licensed under the <a href="LICENSE.txt">MIT License</a>.</p>
-        <p>Web app designed and developed by Richard Gentry and the Mechanical-Electrical Technology Department</p>
-    </footer>
+        <p>Web app designed and developed by Richard Gentry and the Mechanical-Electrical Technology Department.</p>
+      </footer>
     </div>
-<script type="module" src="main.js?v=3.0.0-dev" defer></script>
+
+    <script type="module" src="main.js?v=3.0.0-dev" defer></script>
     <script>
-      // Get all tab links
       const tabLinks = document.querySelectorAll('.tab-link');
+      const tabPanels = document.querySelectorAll('.tab-panel');
 
-      // Attach click event handlers to each tab link
-      tabLinks.forEach(link => {
-          link.addEventListener('click', e => {
-              e.preventDefault();
+      tabLinks.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
 
-              // Remove 'active' class from all tab links and panels
-              tabLinks.forEach(tabLink => {
-                  tabLink.classList.remove('active');
-                  tabLink.setAttribute('aria-pressed', 'false');
-              });
-              const tabPanels = document.querySelectorAll('.tab-panel');
-              tabPanels.forEach(panel => panel.classList.remove('active'));
+          const wasActive = link.classList.contains('active');
 
-              // Add 'active' class to the clicked tab link and its corresponding panel
-              const tabId = link.getAttribute('data-tab');
-              const activeTabPanel = document.getElementById(tabId);
-              link.classList.add('active');
-              link.setAttribute('aria-pressed', 'true');
-              activeTabPanel.classList.add('active');
+          tabLinks.forEach((tabLink) => {
+            tabLink.classList.remove('active');
+            tabLink.setAttribute('aria-pressed', 'false');
           });
+
+          tabPanels.forEach((panel) => panel.classList.remove('active'));
+
+          if (!wasActive) {
+            const tabId = link.getAttribute('data-tab');
+            const activeTabPanel = document.getElementById(tabId);
+
+            link.classList.add('active');
+            link.setAttribute('aria-pressed', 'true');
+            activeTabPanel.classList.add('active');
+          }
+        });
       });
     </script>
   </body>
