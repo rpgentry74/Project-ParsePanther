@@ -4,6 +4,7 @@ import { showDialog } from './dialogHandler.js';
 import { updateStatusIndicator } from './statusIndicator.js';
 import { parseRosterText } from './rosterParser.js';
 import { escapeHTML } from './htmlUtils.js';
+import { recordDiagnostic, setDiagnosticState } from './diagnostics.js';
 
 function rosterVariantLabel(variant) {
   if (variant === 'faculty') {
@@ -24,6 +25,15 @@ export async function parseRosterData() {
 
   if (!result.ok) {
     setRosterData(null);
+    setDiagnosticState({
+      rosterAccepted: false,
+      rosterVariant: null,
+      outputGenerated: false,
+    });
+    recordDiagnostic('roster-parse-failed', {
+      variant: result.variant,
+      code: result.code,
+    });
     updateStatusIndicator(
       'rosterStatus',
       'Unable to process roster data.',
@@ -59,6 +69,14 @@ export async function parseRosterData() {
   if (!confirmed) {
     rosterTextbox.value = '';
     setRosterData(null);
+    setDiagnosticState({
+      rosterAccepted: false,
+      rosterVariant: null,
+      outputGenerated: false,
+    });
+    recordDiagnostic('roster-confirmation-cancelled', {
+      variant,
+    });
 
     updateStatusIndicator(
       'rosterStatus',
@@ -70,6 +88,16 @@ export async function parseRosterData() {
   }
 
   setRosterData(result.data);
+  setDiagnosticState({
+    rosterAccepted: true,
+    rosterVariant: variant,
+    directAccepted: false,
+    directVariant: null,
+    indirectAccepted: false,
+    indirectVariant: null,
+    outputGenerated: false,
+  });
+  recordDiagnostic('roster-accepted', { variant });
 
   const overlay = document.getElementById('disableUntilRosterAccepted');
 
