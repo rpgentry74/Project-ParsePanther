@@ -43,6 +43,23 @@ export function generateSpreadsheetFile(format) {
   const prerequisiteNames = Object.keys(prerequisiteCourses);
   const indirectEvidenceNames = Object.keys(indirectEvidenceCourses);
 
+  function studentStatus(studentId) {
+    if (prerequisiteNames.length === 0) {
+      return 'No official prerequisites evaluated';
+    }
+
+    const completed = prerequisiteNames.filter((prerequisite) =>
+      prerequisiteCourses[prerequisite].includes(studentId)
+    ).length;
+    const missing = prerequisiteNames.length - completed;
+
+    if (missing === 0) {
+      return 'All prerequisites complete';
+    }
+
+    return `Missing ${missing} prerequisite${missing === 1 ? '' : 's'}`;
+  }
+
   const prerequisiteHeaders = prerequisiteNames.map((prerequisite) =>
     formatPrerequisiteDisplayName(
       prerequisite,
@@ -70,6 +87,7 @@ export function generateSpreadsheetFile(format) {
       'Student Name',
       ...prerequisiteHeaders,
       ...indirectEvidenceHeaders,
+      'Status',
     ],
   ];
 
@@ -89,6 +107,7 @@ export function generateSpreadsheetFile(format) {
       student.studentName,
       ...prerequisiteResults,
       ...indirectEvidenceResults,
+      studentStatus(studentId),
     ]);
   });
 
