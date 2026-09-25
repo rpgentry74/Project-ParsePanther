@@ -118,7 +118,7 @@ function runFacultyTest() {
     'Faculty leading-zero student ID was not preserved'
   );
   assertEqual(
-    result.data.courseAliases['HVAC 256'],
+    result.data.courseAliases['HVAC 256'][0],
     'MET 256',
     'Faculty former-course alias was not captured'
   );
@@ -149,7 +149,7 @@ function runAdminTest() {
     'Admin leading-zero student ID was not preserved'
   );
   assertEqual(
-    result.data.courseAliases['HVAC 256'],
+    result.data.courseAliases['HVAC 256'][0],
     'MET 256',
     'Admin former-course alias was not captured'
   );
