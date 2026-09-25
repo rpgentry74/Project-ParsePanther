@@ -11,7 +11,7 @@ import { registerServiceWorker } from './registerServiceWorker.js';
 import { handleRosterDataPaste } from './rosterDataHandler.js';
 import { handlePrerequisiteDataPaste } from './prerequisiteDataHandler.js';
 import { handleIndirectPrerequisiteDataPaste } from './indirectPrerequisiteDataHandler.js';
-import { allowOnlyPaste } from './inputValidation.js';
+import { restrictToPaste } from './inputValidation.js';
 import { initializePrerequisiteOptions } from './checkboxes.js';
 import './generateSpreadsheetFile.js';
 
@@ -31,9 +31,9 @@ handlePrerequisiteDataPaste();
 handleIndirectPrerequisiteDataPaste();
 
 // Prevent manual data entry for the roster and prerequisite data textareas.
-allowOnlyPaste('rosterData');
-allowOnlyPaste('prerequisiteData');
-allowOnlyPaste('indirectPrerequisiteData');
+restrictToPaste('rosterData');
+restrictToPaste('prerequisiteData');
+restrictToPaste('indirectPrerequisiteData');
 
 // Register service worker.
 registerServiceWorker();
