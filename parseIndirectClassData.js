@@ -4,6 +4,7 @@ import { showDialog } from './dialogHandler.js';
 import { updateStatusIndicator } from './statusIndicator.js';
 import { parseIndirectPrerequisiteText } from './indirectPrerequisiteParser.js';
 import { escapeHTML } from './htmlUtils.js';
+import { recordDiagnostic, setDiagnosticState } from './diagnostics.js';
 
 function cleanComparable(value) {
   return String(value || '')
@@ -51,6 +52,15 @@ export async function parseIndirectClassData() {
 
   if (!result.ok) {
     setIndirectPrerequisiteData(null);
+    setDiagnosticState({
+      indirectAccepted: false,
+      indirectVariant: null,
+      outputGenerated: false,
+    });
+    recordDiagnostic('indirect-parse-failed', {
+      variant: result.variant,
+      code: result.code,
+    });
 
     updateStatusIndicator(
       'indirectPrerequisiteStatus',
@@ -70,6 +80,14 @@ export async function parseIndirectClassData() {
 
   if (!rosterData) {
     setIndirectPrerequisiteData(null);
+    setDiagnosticState({
+      indirectAccepted: false,
+      indirectVariant: null,
+      outputGenerated: false,
+    });
+    recordDiagnostic('indirect-blocked-no-roster', {
+      code: 'ROSTER_REQUIRED',
+    });
 
     updateStatusIndicator(
       'indirectPrerequisiteStatus',
@@ -89,6 +107,15 @@ export async function parseIndirectClassData() {
 
   if (!classContextMatches(parsed, rosterData)) {
     setIndirectPrerequisiteData(null);
+    setDiagnosticState({
+      indirectAccepted: false,
+      indirectVariant: null,
+      outputGenerated: false,
+    });
+    recordDiagnostic('indirect-context-mismatch', {
+      variant: parsed.variant,
+      code: 'CLASS_CONTEXT_MISMATCH',
+    });
 
     updateStatusIndicator(
       'indirectPrerequisiteStatus',
@@ -109,6 +136,14 @@ export async function parseIndirectClassData() {
   }
 
   setIndirectPrerequisiteData(parsed);
+  setDiagnosticState({
+    indirectAccepted: true,
+    indirectVariant: parsed.variant,
+    outputGenerated: false,
+  });
+  recordDiagnostic('indirect-accepted', {
+    variant: parsed.variant,
+  });
 
   updateStatusIndicator(
     'indirectPrerequisiteStatus',
