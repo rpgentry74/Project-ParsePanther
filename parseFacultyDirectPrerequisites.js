@@ -127,15 +127,11 @@ function parsePrerequisiteSections(lines) {
     }
   }
 
-  if (!Object.keys(prerequisiteCourses).length) {
-    throw new Error(
-      'The direct prerequisite section was found, but no prerequisite course headings were recognized.'
-    );
-  }
-
   return {
     prerequisiteCourses,
     courseAliases,
+    requiresNoPrerequisiteConfirmation:
+      Object.keys(prerequisiteCourses).length === 0,
   };
 }
 
@@ -154,7 +150,11 @@ export function parseFacultyDirectPrerequisites(source) {
   }
 
   const { lecNum, labNum } = parseMeetings(lines);
-  const { prerequisiteCourses, courseAliases } = parsePrerequisiteSections(lines);
+  const {
+    prerequisiteCourses,
+    courseAliases,
+    requiresNoPrerequisiteConfirmation,
+  } = parsePrerequisiteSections(lines);
 
   return {
     professor,
@@ -163,5 +163,6 @@ export function parseFacultyDirectPrerequisites(source) {
     labNum,
     prerequisiteCourses,
     courseAliases,
+    requiresNoPrerequisiteConfirmation,
   };
 }
