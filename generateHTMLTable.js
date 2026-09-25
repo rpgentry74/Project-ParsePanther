@@ -1,6 +1,7 @@
 // Import necessary modules
 import { getState } from './state.js';
 import { colorCodeCells } from './colorCodeCells.js';
+import { mergePrerequisiteCourses } from './prerequisiteDataUtils.js';
 
 // Define the generateHTMLTable function
 export async function generateHTMLTable() {
@@ -46,7 +47,7 @@ export async function generateHTMLTable() {
     .map((student) => {
       const courseCompletionHTML = uniquePrerequisites
         .map((prerequisite) => {
-          const hasTakenCourse = (directPrerequisites[prerequisite] || indirectPrerequisites[prerequisite]).includes(student.studentID);
+          const hasTakenCourse = mergedPrerequisites[prerequisite].includes(String(student.studentID).trim());
           const checkmarkHTML = hasTakenCourse ? `<span class="checkmark">&#x2713;</span>` : '';
           return `<td class="${hasTakenCourse ? 'taken' : 'not-taken'}">${checkmarkHTML}</td>`;
         })
