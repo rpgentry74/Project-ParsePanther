@@ -22,58 +22,41 @@ function normalizeAliases(rawAliases) {
     .filter(Boolean);
 }
 
-function collectDirectCanonicalNames(directPrerequisiteData) {
-  return new Set(
-    Object.keys(directPrerequisiteData?.prerequisiteCourses || {})
-      .map(normalizePrerequisiteName)
-      .filter(Boolean)
-  );
-}
-
-function collectAliasTargets(sources, directCanonicalNames) {
-  const aliasTargets = new Map();
-
-  for (const source of sources) {
-    const courseAliases = source?.courseAliases;
-
-    if (!courseAliases || typeof courseAliases !== 'object') {
-      continue;
-    }
-
-    for (const [rawCanonicalName, rawAliases] of Object.entries(courseAliases)) {
-      const canonicalName = normalizePrerequisiteName(rawCanonicalName);
-
-      if (!canonicalName) {
-        continue;
-      }
-
-      for (const alias of normalizeAliases(rawAliases)) {
-        if (!alias || alias === canonicalName) {
-          continue;
-        }
-
-        // If Direct explicitly lists the alias as its own prerequisite course,
-        // do not reinterpret it as another course.
-        if (
-          directCanonicalNames.has(alias) &&
-          alias !== canonicalName
-        ) {
-          continue;
-        }
-
-        if (!aliasTargets.has(alias)) {
-          aliasTargets.set(alias, new Set());
-        }
-
-        aliasTargets.get(alias).add(canonicalName);
-      }
-    }
+function addStudentIds(targetSet, rawStudentIds) {
+  if (!Array.isArray(rawStudentIds)) {
+    return;
   }
 
-  return aliasTargets;
+  for (const rawStudentId of rawStudentIds) {
+    const studentId = normalizeStudentId(rawStudentId);
+
+    if (studentId) {
+      targetSet.add(studentId);
+    }
+  }
 }
 
-function resolveCanonicalName(courseName, directCanonicalNames, aliasTargets) {
+function addAliasTarget(aliasTargets, alias, canonicalName, directCanonicalNames) {
+  if (!alias || alias === canonicalName) {
+    return;
+  }
+
+  // Never reinterpret one official Direct prerequisite as another.
+  if (
+    directCanonicalNames.has(alias) &&
+    alias !== canonicalName
+  ) {
+    return;
+  }
+
+  if (!aliasTargets.has(alias)) {
+    aliasTargets.set(alias, new Set());
+  }
+
+  aliasTargets.get(alias).add(canonicalName);
+}
+
+function resolveOfficialCourse(courseName, directCanonicalNames, aliasTargets) {
   if (directCanonicalNames.has(courseName)) {
     return courseName;
   }
@@ -81,119 +64,200 @@ function resolveCanonicalName(courseName, directCanonicalNames, aliasTargets) {
   const targets = aliasTargets.get(courseName);
 
   if (!targets || targets.size !== 1) {
-    return courseName;
+    return null;
   }
 
   return Array.from(targets)[0];
+}
+
+function collectOfficialAliases(
+  directPrerequisiteData,
+  indirectPrerequisiteData,
+  directCanonicalNames
+) {
+  const aliasTargets = new Map();
+  const officialAliases = new Map();
+
+  for (const canonicalName of directCanonicalNames) {
+    officialAliases.set(canonicalName, new Set());
+  }
+
+  const directAliases = directPrerequisiteData?.courseAliases || {};
+
+  for (const [rawCanonicalName, rawAliases] of Object.entries(directAliases)) {
+    const canonicalName = normalizePrerequisiteName(rawCanonicalName);
+
+    if (!directCanonicalNames.has(canonicalName)) {
+      continue;
+    }
+
+    for (const alias of normalizeAliases(rawAliases)) {
+      addAliasTarget(
+        aliasTargets,
+        alias,
+        canonicalName,
+        directCanonicalNames
+      );
+
+      if (
+        alias &&
+        alias !== canonicalName &&
+        !directCanonicalNames.has(alias)
+      ) {
+        officialAliases.get(canonicalName).add(alias);
+      }
+    }
+  }
+
+  // A "formerly" relationship shown on the Indirect page is still official
+  // course identity information. Use it only when that Indirect heading is
+  // already the official Direct course or a uniquely known former alias.
+  const indirectAliases = indirectPrerequisiteData?.courseAliases || {};
+
+  for (const [rawCourseName, rawAliases] of Object.entries(indirectAliases)) {
+    const courseName = normalizePrerequisiteName(rawCourseName);
+    const canonicalName = resolveOfficialCourse(
+      courseName,
+      directCanonicalNames,
+      aliasTargets
+    );
+
+    if (!canonicalName) {
+      continue;
+    }
+
+    for (const alias of normalizeAliases(rawAliases)) {
+      addAliasTarget(
+        aliasTargets,
+        alias,
+        canonicalName,
+        directCanonicalNames
+      );
+
+      if (
+        alias &&
+        alias !== canonicalName &&
+        !directCanonicalNames.has(alias)
+      ) {
+        officialAliases.get(canonicalName).add(alias);
+      }
+    }
+  }
+
+  return {
+    aliasTargets,
+    officialAliases,
+  };
 }
 
 export function mergePrerequisiteData(
   directPrerequisiteData,
   indirectPrerequisiteData
 ) {
-  const sources = [directPrerequisiteData, indirectPrerequisiteData];
-  const directCanonicalNames =
-    collectDirectCanonicalNames(directPrerequisiteData);
-  const aliasTargets =
-    collectAliasTargets(sources, directCanonicalNames);
+  const directCourses = directPrerequisiteData?.prerequisiteCourses || {};
+  const indirectCourses = indirectPrerequisiteData?.prerequisiteCourses || {};
 
-  const mergedCourses = new Map();
-  const mergedAliases = new Map();
+  const directCanonicalNames = new Set(
+    Object.keys(directCourses)
+      .map(normalizePrerequisiteName)
+      .filter(Boolean)
+  );
 
-  for (const source of sources) {
-    const prerequisiteCourses = source?.prerequisiteCourses;
+  const {
+    aliasTargets,
+    officialAliases,
+  } = collectOfficialAliases(
+    directPrerequisiteData,
+    indirectPrerequisiteData,
+    directCanonicalNames
+  );
 
-    if (!prerequisiteCourses || typeof prerequisiteCourses !== 'object') {
-      continue;
-    }
+  const evaluatedPrerequisites = new Map();
 
-    for (const [rawCourseName, rawStudentIds] of Object.entries(prerequisiteCourses)) {
-      const courseName = normalizePrerequisiteName(rawCourseName);
-
-      if (!courseName) {
-        continue;
-      }
-
-      const canonicalName = resolveCanonicalName(
-        courseName,
-        directCanonicalNames,
-        aliasTargets
-      );
-
-      if (!mergedCourses.has(canonicalName)) {
-        mergedCourses.set(canonicalName, new Set());
-      }
-
-      if (!Array.isArray(rawStudentIds)) {
-        continue;
-      }
-
-      const studentIds = mergedCourses.get(canonicalName);
-
-      for (const rawStudentId of rawStudentIds) {
-        const studentId = normalizeStudentId(rawStudentId);
-
-        if (studentId) {
-          studentIds.add(studentId);
-        }
-      }
-    }
+  for (const canonicalName of directCanonicalNames) {
+    evaluatedPrerequisites.set(canonicalName, new Set());
   }
 
-  for (const source of sources) {
-    const courseAliases = source?.courseAliases;
+  for (const [rawCourseName, rawStudentIds] of Object.entries(directCourses)) {
+    const courseName = normalizePrerequisiteName(rawCourseName);
 
-    if (!courseAliases || typeof courseAliases !== 'object') {
+    if (!evaluatedPrerequisites.has(courseName)) {
       continue;
     }
 
-    for (const [rawCanonicalName, rawAliases] of Object.entries(courseAliases)) {
-      const sourceCanonicalName = normalizePrerequisiteName(rawCanonicalName);
+    addStudentIds(
+      evaluatedPrerequisites.get(courseName),
+      rawStudentIds
+    );
+  }
 
-      if (!sourceCanonicalName) {
-        continue;
-      }
+  const indirectEvidenceCourses = new Map();
+  const indirectEvidenceAliases = new Map();
+  const rawIndirectAliases = indirectPrerequisiteData?.courseAliases || {};
 
-      const canonicalName = resolveCanonicalName(
-        sourceCanonicalName,
-        directCanonicalNames,
-        aliasTargets
+  for (const [rawCourseName, rawStudentIds] of Object.entries(indirectCourses)) {
+    const courseName = normalizePrerequisiteName(rawCourseName);
+
+    if (!courseName) {
+      continue;
+    }
+
+    const officialCourse = resolveOfficialCourse(
+      courseName,
+      directCanonicalNames,
+      aliasTargets
+    );
+
+    if (officialCourse) {
+      addStudentIds(
+        evaluatedPrerequisites.get(officialCourse),
+        rawStudentIds
       );
+      continue;
+    }
 
-      if (!mergedCourses.has(canonicalName)) {
-        continue;
-      }
+    if (!indirectEvidenceCourses.has(courseName)) {
+      indirectEvidenceCourses.set(courseName, new Set());
+    }
 
-      if (!mergedAliases.has(canonicalName)) {
-        mergedAliases.set(canonicalName, new Set());
-      }
+    addStudentIds(
+      indirectEvidenceCourses.get(courseName),
+      rawStudentIds
+    );
 
-      const aliases = mergedAliases.get(canonicalName);
+    const aliases = normalizeAliases(rawIndirectAliases[rawCourseName]);
 
-      for (const alias of normalizeAliases(rawAliases)) {
-        if (
-          alias &&
-          alias !== canonicalName &&
-          !(
-            directCanonicalNames.has(alias) &&
-            alias !== canonicalName
-          )
-        ) {
-          aliases.add(alias);
-        }
-      }
+    if (aliases.length) {
+      indirectEvidenceAliases.set(
+        courseName,
+        new Set(
+          aliases.filter((alias) => alias !== courseName)
+        )
+      );
     }
   }
 
   return {
     prerequisiteCourses: Object.fromEntries(
-      Array.from(mergedCourses, ([courseName, studentIds]) => [
+      Array.from(evaluatedPrerequisites, ([courseName, studentIds]) => [
         courseName,
         Array.from(studentIds),
       ])
     ),
     courseAliases: Object.fromEntries(
-      Array.from(mergedAliases, ([courseName, aliases]) => [
+      Array.from(officialAliases, ([courseName, aliases]) => [
+        courseName,
+        Array.from(aliases),
+      ])
+    ),
+    indirectEvidenceCourses: Object.fromEntries(
+      Array.from(indirectEvidenceCourses, ([courseName, studentIds]) => [
+        courseName,
+        Array.from(studentIds),
+      ])
+    ),
+    indirectEvidenceAliases: Object.fromEntries(
+      Array.from(indirectEvidenceAliases, ([courseName, aliases]) => [
         courseName,
         Array.from(aliases),
       ])
