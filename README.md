@@ -67,6 +67,10 @@ Regression coverage includes:
 
 When LRCCD changes a page format, add a sanitized example as a regression case before or alongside the parser fix.
 
+## Interface
+
+Version 3 refreshes the visual design while keeping the application a practical faculty/staff utility. The interface uses the existing LRCCD-inspired navy, blue, and gold palette, a wider card-based workflow, compact processing-status badges, collapsible information tabs, and a clearer results table. Official prerequisites, indirect evidence, and per-student status are visually separated so the table remains easy to scan.
+
 ## Downloads
 
 Processed results can be exported as:
