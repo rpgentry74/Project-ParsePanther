@@ -150,7 +150,17 @@
           <!-- Content for Tab 4 -->
           <article>
             <h2>Version</h2>
-             <h3>2.1.5</h3>
+            <h3>3.0.0-dev</h3>
+            <ul>
+              <li>Rebuilt roster, direct prerequisite, and indirect prerequisite parsing around separate Faculty and Admin source formats.</li>
+              <li>Added fail-closed parser behavior so unrecognized LRCCD structure is not mistaken for valid empty prerequisite data.</li>
+              <li>Added sanitized regression tests and a unified parser test dashboard.</li>
+              <li>Replaced paste timing delays with direct clipboard capture.</li>
+              <li>Improved keyboard and dialog accessibility.</li>
+              <li>Escaped LRCCD-derived values before inserting them into generated HTML or dialog markup.</li>
+              <li>Improved PWA cache isolation and development-build identification.</li>
+            </ul>
+            <h3>2.1.5</h3>
             <ul>
               <li>Stabilized Class Roster parsing after recent LRCCD formatting changes affected both faculty and admin roster outputs.</li>
               <li>Corrected roster section scanning to reliably stop before Dropped Students and Permission Numbers, preventing non-student data from being misinterpreted.</li>
