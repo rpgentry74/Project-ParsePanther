@@ -14,6 +14,7 @@ import { handleIndirectPrerequisiteDataPaste } from './indirectPrerequisiteDataH
 import { restrictToPaste } from './inputValidation.js';
 import { initializePrerequisiteOptions } from './checkboxes.js';
 import './generateSpreadsheetFile.js';
+import { initializeDiagnostics, setDiagnosticState } from './diagnostics.js';
 
 // Attach button handlers once, from the application entry point.
 document.getElementById('submit').addEventListener('click', handleFormSubmission);
@@ -22,8 +23,15 @@ document.getElementById('resetRoster').addEventListener('click', handleRosterRes
 document.getElementById('resetPrerequisite').addEventListener('click', handlePrerequisiteReset);
 document.getElementById('resetIndirectPrerequisite').addEventListener('click', handleIndirectPrerequisiteReset);
 
+// Initialize privacy-safe session diagnostics before the workflow starts.
+initializeDiagnostics();
+
 // Initialize prerequisite option controls.
 initializePrerequisiteOptions();
+setDiagnosticState({
+  directSelected: document.getElementById('includeDirectPrerequisites').checked,
+  indirectSelected: document.getElementById('includeIndirectPrerequisites').checked,
+});
 
 // Handle pasted data.
 handleRosterDataPaste();
