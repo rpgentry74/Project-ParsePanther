@@ -1,6 +1,9 @@
 // generateSpreadsheetFile.js
 import { getState } from './state.js';
-import { mergePrerequisiteData, formatPrerequisiteDisplayName } from './prerequisiteDataUtils.js';
+import {
+  mergePrerequisiteData,
+  formatPrerequisiteDisplayName,
+} from './prerequisiteDataUtils.js';
 
 export function generateSpreadsheetFile(format) {
   if (!format) {
@@ -19,19 +22,30 @@ export function generateSpreadsheetFile(format) {
   }
 
   const {
-    prerequisiteCourses: mergedPrerequisites,
-    courseAliases: mergedCourseAliases,
+    prerequisiteCourses,
+    courseAliases,
+    indirectEvidenceCourses,
+    indirectEvidenceAliases,
   } = mergePrerequisiteData(
     directPrerequisiteData,
     indirectPrerequisiteData
   );
 
-  const prerequisiteNames = Object.keys(mergedPrerequisites);
+  const prerequisiteNames = Object.keys(prerequisiteCourses);
+  const indirectEvidenceNames = Object.keys(indirectEvidenceCourses);
+
   const prerequisiteHeaders = prerequisiteNames.map((prerequisite) =>
     formatPrerequisiteDisplayName(
       prerequisite,
-      mergedCourseAliases[prerequisite] || []
+      courseAliases[prerequisite] || []
     )
+  );
+
+  const indirectEvidenceHeaders = indirectEvidenceNames.map((courseName) =>
+    `${formatPrerequisiteDisplayName(
+      courseName,
+      indirectEvidenceAliases[courseName] || []
+    )}\n(Indirect)`
   );
 
   const workbook = XLSX.utils.book_new();
@@ -42,20 +56,30 @@ export function generateSpreadsheetFile(format) {
     ['LEC Number:', rosterData.lecNum],
     ['LAB Number:', rosterData.labNum],
     ['', '', '', ''],
-    ['Student ID', 'Student Name', ...prerequisiteHeaders],
+    [
+      'Student ID',
+      'Student Name',
+      ...prerequisiteHeaders,
+      ...indirectEvidenceHeaders,
+    ],
   ];
 
   rosterData.studentRoster.forEach((student) => {
     const studentId = String(student.studentID).trim();
 
     const prerequisiteResults = prerequisiteNames.map((prerequisite) =>
-      mergedPrerequisites[prerequisite].includes(studentId) ? '✓' : ''
+      prerequisiteCourses[prerequisite].includes(studentId) ? '✓' : ''
+    );
+
+    const indirectEvidenceResults = indirectEvidenceNames.map((courseName) =>
+      indirectEvidenceCourses[courseName].includes(studentId) ? '✓' : ''
     );
 
     rows.push([
       student.studentID,
       student.studentName,
       ...prerequisiteResults,
+      ...indirectEvidenceResults,
     ]);
   });
 
