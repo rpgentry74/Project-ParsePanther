@@ -77,7 +77,7 @@ export function parseRosterText(rawText) {
       variant,
       code: 'UNKNOWN_ROSTER_FORMAT',
       message:
-        'ParsePanther could not identify this as a supported Faculty or Admin roster format.',
+        'The Student Prerequisite Analyzer could not identify this as a supported Faculty or Admin roster format.',
     };
   }
 
