@@ -3,7 +3,14 @@
 let closeActiveDialog = null;
 let dialogSequence = 0;
 
-export function showDialog(message, withConfirmation = false) {
+export function showDialog(
+  message,
+  withConfirmation = false,
+  {
+    closeLabel = 'Close',
+    confirmLabel = 'Confirm',
+  } = {}
+) {
   if (closeActiveDialog) {
     closeActiveDialog(false);
   }
@@ -37,13 +44,13 @@ export function showDialog(message, withConfirmation = false) {
     messageElement.innerHTML = message;
 
     closeButton.type = 'button';
-    closeButton.textContent = 'Close';
+    closeButton.textContent = closeLabel;
     closeButton.className = 'dialog-button';
 
     if (withConfirmation) {
       confirmButton = document.createElement('button');
       confirmButton.type = 'button';
-      confirmButton.textContent = 'Confirm';
+      confirmButton.textContent = confirmLabel;
       confirmButton.className = 'dialog-button confirm';
     }
 
