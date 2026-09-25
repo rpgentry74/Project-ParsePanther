@@ -4,6 +4,7 @@ import { showDialog } from './dialogHandler.js';
 import { updateStatusIndicator } from './statusIndicator.js';
 import { parseDirectPrerequisiteText } from './directPrerequisiteParser.js';
 import { escapeHTML } from './htmlUtils.js';
+import { recordDiagnostic, setDiagnosticState } from './diagnostics.js';
 
 function cleanComparable(value) {
   return String(value || '')
@@ -51,6 +52,15 @@ export async function parseClassData() {
 
   if (!result.ok) {
     setDirectPrerequisiteData(null);
+    setDiagnosticState({
+      directAccepted: false,
+      directVariant: null,
+      outputGenerated: false,
+    });
+    recordDiagnostic('direct-parse-failed', {
+      variant: result.variant,
+      code: result.code,
+    });
 
     updateStatusIndicator(
       'prerequisiteStatus',
@@ -70,6 +80,14 @@ export async function parseClassData() {
 
   if (!rosterData) {
     setDirectPrerequisiteData(null);
+    setDiagnosticState({
+      directAccepted: false,
+      directVariant: null,
+      outputGenerated: false,
+    });
+    recordDiagnostic('direct-blocked-no-roster', {
+      code: 'ROSTER_REQUIRED',
+    });
 
     updateStatusIndicator(
       'prerequisiteStatus',
@@ -89,6 +107,15 @@ export async function parseClassData() {
 
   if (!classContextMatches(parsed, rosterData)) {
     setDirectPrerequisiteData(null);
+    setDiagnosticState({
+      directAccepted: false,
+      directVariant: null,
+      outputGenerated: false,
+    });
+    recordDiagnostic('direct-context-mismatch', {
+      variant: parsed.variant,
+      code: 'CLASS_CONTEXT_MISMATCH',
+    });
 
     updateStatusIndicator(
       'prerequisiteStatus',
@@ -116,6 +143,14 @@ export async function parseClassData() {
 
     if (!confirmed) {
       setDirectPrerequisiteData(null);
+      setDiagnosticState({
+        directAccepted: false,
+        directVariant: null,
+        outputGenerated: false,
+      });
+      recordDiagnostic('direct-empty-confirmation-declined', {
+        variant: parsed.variant,
+      });
 
       updateStatusIndicator(
         'prerequisiteStatus',
@@ -128,9 +163,20 @@ export async function parseClassData() {
     }
 
     parsed.confirmedNoDirectPrerequisites = true;
+    recordDiagnostic('direct-empty-confirmed', {
+      variant: parsed.variant,
+    });
   }
 
   setDirectPrerequisiteData(parsed);
+  setDiagnosticState({
+    directAccepted: true,
+    directVariant: parsed.variant,
+    outputGenerated: false,
+  });
+  recordDiagnostic('direct-accepted', {
+    variant: parsed.variant,
+  });
 
   updateStatusIndicator(
     'prerequisiteStatus',
