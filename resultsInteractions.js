@@ -89,11 +89,11 @@ function describeEvidence(entries = []) {
   const indirectEntries = entries.filter((entry) => entry.source === 'indirect');
 
   if (hasDirect && indirectEntries.length) {
-    return 'Completed. Direct and Indirect evidence are present.';
+    return 'Listed in the Prerequisite Checker and also supported by the Indirect Prerequisite Checker.';
   }
 
   if (hasDirect) {
-    return 'Completed. Listed in the Direct Prerequisite Checker.';
+    return 'Listed in the Prerequisite Checker.';
   }
 
   if (indirectEntries.length) {
@@ -102,10 +102,10 @@ function describeEvidence(entries = []) {
     );
 
     if (courses.length) {
-      return `Completed through Indirect evidence (${courses.join(', ')}).`;
+      return `Satisfied by Indirect Prerequisite Checker evidence for ${courses.join(', ')}.`;
     }
 
-    return 'Completed through Indirect evidence.';
+    return 'Satisfied by Indirect Prerequisite Checker evidence.';
   }
 
   return 'Completed';
@@ -220,7 +220,7 @@ function buildIndirectEvidenceList(
     const detail = createTextElement(
       'span',
       'detail-neutral',
-      'Informational Indirect Evidence. This course does not affect prerequisite status.'
+      'Additional information from the Indirect Prerequisite Checker. This course does not affect prerequisite status.'
     );
 
     item.appendChild(heading);
