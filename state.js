@@ -1,36 +1,34 @@
-let state = {
+// state.js
+function createInitialState() {
+  return {
     rosterData: null,
-    classData: null,
-    indirectClassData: null,
-};
+    directPrerequisiteData: null,
+    indirectPrerequisiteData: null,
+  };
+}
+
+let state = createInitialState();
 
 export function resetState() {
-    state = {
-        rosterData: null,
-        classData: null,
-        indirectClassData: null,
-    };
+  state = createInitialState();
 }
 
 export function getState() {
-    return { ...state };
+  return { ...state };
 }
 
 export function setState(newState) {
-    state = { ...state, ...newState };
+  state = { ...state, ...newState };
 }
 
 export function setRosterData(data) {
-    state.rosterData = data;
-    console.log(state);
+  state.rosterData = data;
 }
 
-export function setClassData(data) {
-    state.classData = data;
-    console.log(state);
+export function setDirectPrerequisiteData(data) {
+  state.directPrerequisiteData = data;
 }
 
-export function setIndirectClassData(data) {
-    state.indirectClassData = data;
-    console.log(state);
+export function setIndirectPrerequisiteData(data) {
+  state.indirectPrerequisiteData = data;
 }
