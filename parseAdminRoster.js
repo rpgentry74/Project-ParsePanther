@@ -78,7 +78,21 @@ function parseMeetings(lines) {
   return { lecNum, labNum };
 }
 
-function parseStudentSection(lines, startLabel, endLabel) {
+function findSectionEndIndex(lines, startIndex, endLabels) {
+  const normalizedLabels = endLabels.map((label) => label.toLowerCase());
+
+  for (let i = startIndex + 1; i < lines.length; i++) {
+    const value = cleanValue(lines[i]).toLowerCase();
+
+    if (normalizedLabels.includes(value)) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+
+function parseStudentSection(lines, startLabel, endLabels) {
   const startIndex = lines.findIndex(
     (line) => cleanValue(line).toLowerCase() === startLabel.toLowerCase()
   );
@@ -87,18 +101,17 @@ function parseStudentSection(lines, startLabel, endLabel) {
     return [];
   }
 
-  const endIndex = lines.findIndex(
-    (line, index) =>
-      index > startIndex &&
-      cleanValue(line).toLowerCase() === endLabel.toLowerCase()
-  );
-
+  const endIndex = findSectionEndIndex(lines, startIndex, endLabels);
   const sectionLines = lines.slice(
     startIndex + 1,
     endIndex > startIndex ? endIndex : undefined
   );
 
-  if (sectionLines.some((line) => /^No Waitlist Students$/i.test(cleanValue(line)))) {
+  if (
+    sectionLines.some((line) =>
+      /^No Waitlist Students$/i.test(cleanValue(line))
+    )
+  ) {
     return [];
   }
 
@@ -119,7 +132,11 @@ function parseStudentSection(lines, startLabel, endLabel) {
 
     let studentID = null;
 
-    for (let offset = 1; offset <= 3 && i + offset < sectionLines.length; offset++) {
+    for (
+      let offset = 1;
+      offset <= 3 && i + offset < sectionLines.length;
+      offset++
+    ) {
       const candidate = cleanValue(sectionLines[i + offset]);
 
       if (!candidate) {
@@ -178,8 +195,18 @@ export function parseAdminRoster(source) {
 
   const { lecNum, labNum } = parseMeetings(lines);
 
-  const currentStudents = parseStudentSection(lines, 'Current Students', 'Wait List');
-  const waitlistStudents = parseStudentSection(lines, 'Wait List', 'Drops');
+  const currentStudents = parseStudentSection(
+    lines,
+    'Current Students',
+    ['Wait List', 'Drops']
+  );
+
+  const waitlistStudents = parseStudentSection(
+    lines,
+    'Wait List',
+    ['Drops']
+  );
+
   const studentRoster = deduplicateStudents([
     ...currentStudents,
     ...waitlistStudents,
