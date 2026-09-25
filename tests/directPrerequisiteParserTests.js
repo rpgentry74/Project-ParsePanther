@@ -94,6 +94,47 @@ HVAC 100 Prerequisite Courses Completed Within Los Rios
 Class rosters were last updated on Sep 25, 2026.
 `;
 
+
+const adminCcnSample = `Admin Class List
+Prerequisite Checker
+Course:
+PSYC 335: Research Methods in Psychology
+Professor:
+Doe, Jane
+Meetings:
+  \t 1:00 am - 1:00 am \t Online 000 \t LEC (11679)
+Term:
+Fall 2026
+PSYC 335 Prerequisite Courses Completed Within Los Rios
+PSYC C1000 (formerly PSYC 300):
+Last Name\tFirst Name\tStudent ID\tTerm Completed\tCollege
+Alpha\tAlex\t0123456\tFall 2025\t@ ARC
+PSYC 330:
+Last Name\tFirst Name\tStudent ID\tTerm Completed\tCollege
+Beta\tBailey\t2234567\tSpring 2026\t@ ARC
+STAT C1000 (formerly STAT 300):
+Last Name\tFirst Name\tStudent ID\tTerm Completed\tCollege
+Gamma\tCasey\t3234567\tSpring 2026\t@ FLC
+Class rosters were last updated on Sep 25, 2026.
+`;
+
+const adminUnsupportedCourseBlockSample = `Admin Class List
+Prerequisite Checker
+Course:
+PSYC 335: Research Methods in Psychology
+Professor:
+Doe, Jane
+Meetings:
+  \t 1:00 am - 1:00 am \t Online 000 \t LEC (11679)
+PSYC 335 Prerequisite Courses Completed Within Los Rios
+PSYC 330:
+Last Name\tFirst Name\tStudent ID\tTerm Completed\tCollege
+Alpha\tAlex\t0123456\tFall 2025\t@ ARC
+STAT X-1000:
+Last Name\tFirst Name\tStudent ID\tTerm Completed\tCollege
+Beta\tBailey\t2234567\tSpring 2026\t@ FLC
+`;
+
 const unknownDirectPageSample = `Prerequisite Checker
 Professor:\t \tDoe, Jane
 Course:\t \tHVAC 100: Introduction to HVAC
@@ -210,6 +251,55 @@ function runAdminNoStudentRowsTest() {
 }
 
 
+
+function runAdminCcnTest() {
+  assertEqual(
+    detectDirectPrerequisiteVariant(adminCcnSample),
+    'admin',
+    'Admin CCN direct prerequisite detection failed'
+  );
+
+  const result = parseDirectPrerequisiteText(adminCcnSample);
+
+  assert(result.ok, result.message || 'Admin CCN direct prerequisite parsing failed');
+  assertEqual(
+    result.data.prerequisiteCourses['PSYC C1000'][0],
+    '0123456',
+    'CCN PSYC course was not parsed'
+  );
+  assertEqual(
+    result.data.courseAliases['PSYC C1000'][0],
+    'PSYC 300',
+    'CCN PSYC former-course alias was not captured'
+  );
+  assertEqual(
+    result.data.prerequisiteCourses['PSYC 330'][0],
+    '2234567',
+    'Legacy PSYC prerequisite was not preserved'
+  );
+  assertEqual(
+    result.data.prerequisiteCourses['STAT C1000'][0],
+    '3234567',
+    'CCN STAT course was not parsed'
+  );
+  assertEqual(
+    result.data.courseAliases['STAT C1000'][0],
+    'STAT 300',
+    'CCN STAT former-course alias was not captured'
+  );
+}
+
+function runUnsupportedCourseBlockFailClosedTest() {
+  const result = parseDirectPrerequisiteText(adminUnsupportedCourseBlockSample);
+
+  assert(!result.ok, 'Unsupported course blocks with student rows must fail closed');
+  assertEqual(
+    result.code,
+    'DIRECT_PREREQUISITE_PARSE_FAILED',
+    'Unexpected failure code for an unsupported Direct course block'
+  );
+}
+
 function runFacultyNoPrerequisitesTest() {
   const result = parseDirectPrerequisiteText(facultyNoPrerequisitesSample);
 
@@ -242,17 +332,14 @@ function runAdminNoPrerequisitesTest() {
   );
 }
 
-function runUnrecognizedHeadingConfirmationTest() {
+function runUnrecognizedHeadingFailClosedTest() {
   const result = parseDirectPrerequisiteText(brokenFacultyStructure);
 
-  assert(
-    result.ok,
-    result.message || 'Recognized Direct page with unrecognized headings should reach confirmation'
-  );
+  assert(!result.ok, 'Unrecognized Direct headings with student rows must fail closed');
   assertEqual(
-    result.data.requiresNoPrerequisiteConfirmation,
-    true,
-    'Unrecognized Direct headings should require user confirmation'
+    result.code,
+    'DIRECT_PREREQUISITE_PARSE_FAILED',
+    'Unexpected failure code for an unrecognized Direct heading'
   );
 }
 
@@ -273,9 +360,11 @@ try {
   runFacultyTest();
   runAdminTest();
   runAdminNoStudentRowsTest();
+  runAdminCcnTest();
+  runUnsupportedCourseBlockFailClosedTest();
   runFacultyNoPrerequisitesTest();
   runAdminNoPrerequisitesTest();
-  runUnrecognizedHeadingConfirmationTest();
+  runUnrecognizedHeadingFailClosedTest();
   runUnknownFormatFailClosedTest();
 
   output.textContent = 'All direct prerequisite parser tests passed.';
