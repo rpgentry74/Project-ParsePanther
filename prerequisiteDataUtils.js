@@ -36,6 +36,53 @@ function addStudentIds(targetSet, rawStudentIds) {
   }
 }
 
+function addEvidence(
+  evidenceMap,
+  canonicalName,
+  rawStudentIds,
+  source,
+  sourceCourse
+) {
+  if (!Array.isArray(rawStudentIds)) {
+    return;
+  }
+
+  if (!evidenceMap.has(canonicalName)) {
+    evidenceMap.set(canonicalName, new Map());
+  }
+
+  const courseEvidence = evidenceMap.get(canonicalName);
+
+  for (const rawStudentId of rawStudentIds) {
+    const studentId = normalizeStudentId(rawStudentId);
+
+    if (!studentId) {
+      continue;
+    }
+
+    if (!courseEvidence.has(studentId)) {
+      courseEvidence.set(studentId, []);
+    }
+
+    const entries = courseEvidence.get(studentId);
+    const normalizedSourceCourse =
+      normalizePrerequisiteName(sourceCourse) || canonicalName;
+
+    const alreadyPresent = entries.some(
+      (entry) =>
+        entry.source === source &&
+        entry.course === normalizedSourceCourse
+    );
+
+    if (!alreadyPresent) {
+      entries.push({
+        source,
+        course: normalizedSourceCourse,
+      });
+    }
+  }
+}
+
 function addAliasTarget(aliasTargets, alias, canonicalName, directCanonicalNames) {
   if (!alias || alias === canonicalName) {
     return;
@@ -150,6 +197,15 @@ function collectOfficialAliases(
   };
 }
 
+function evidenceMapToObject(evidenceMap) {
+  return Object.fromEntries(
+    Array.from(evidenceMap, ([courseName, studentMap]) => [
+      courseName,
+      Object.fromEntries(studentMap),
+    ])
+  );
+}
+
 export function mergePrerequisiteData(
   directPrerequisiteData,
   indirectPrerequisiteData
@@ -173,9 +229,11 @@ export function mergePrerequisiteData(
   );
 
   const evaluatedPrerequisites = new Map();
+  const prerequisiteEvidenceSources = new Map();
 
   for (const canonicalName of directCanonicalNames) {
     evaluatedPrerequisites.set(canonicalName, new Set());
+    prerequisiteEvidenceSources.set(canonicalName, new Map());
   }
 
   for (const [rawCourseName, rawStudentIds] of Object.entries(directCourses)) {
@@ -188,6 +246,14 @@ export function mergePrerequisiteData(
     addStudentIds(
       evaluatedPrerequisites.get(courseName),
       rawStudentIds
+    );
+
+    addEvidence(
+      prerequisiteEvidenceSources,
+      courseName,
+      rawStudentIds,
+      'direct',
+      courseName
     );
   }
 
@@ -212,6 +278,14 @@ export function mergePrerequisiteData(
       addStudentIds(
         evaluatedPrerequisites.get(officialCourse),
         rawStudentIds
+      );
+
+      addEvidence(
+        prerequisiteEvidenceSources,
+        officialCourse,
+        rawStudentIds,
+        'indirect',
+        courseName
       );
       continue;
     }
@@ -250,6 +324,8 @@ export function mergePrerequisiteData(
         Array.from(aliases),
       ])
     ),
+    prerequisiteEvidenceSources:
+      evidenceMapToObject(prerequisiteEvidenceSources),
     indirectEvidenceCourses: Object.fromEntries(
       Array.from(indirectEvidenceCourses, ([courseName, studentIds]) => [
         courseName,
