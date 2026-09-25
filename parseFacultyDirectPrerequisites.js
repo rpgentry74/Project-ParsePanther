@@ -69,6 +69,51 @@ function parseAliases(aliasText) {
     .filter(Boolean);
 }
 
+
+function isStudentHeader(rawLine) {
+  return /^Last Name\tFirst Name\tStudent ID\tTerm Completed\tCollege$/i.test(
+    rawLine.trim()
+  );
+}
+
+function isStudentRow(rawLine) {
+  if (!rawLine.includes('\t')) {
+    return false;
+  }
+
+  const columns = rawLine.split('\t').map((column) => column.trim());
+  return columns.length >= 3 && /^\d{6,8}$/.test(columns[2]);
+}
+
+function nextNonEmptyRawLine(lines, startIndex) {
+  for (let i = startIndex + 1; i < lines.length; i++) {
+    if (lines[i].trim()) {
+      return lines[i];
+    }
+  }
+
+  return null;
+}
+
+function looksLikeUnsupportedCourseHeading(lines, index) {
+  const rawLine = lines[index];
+  const trimmed = rawLine.trim();
+
+  if (!trimmed || rawLine.includes('\t')) {
+    return false;
+  }
+
+  if (/^[A-Z]{2,8}\s+\S*\d\S*(?:\s+\(.*\))?\s*:?\s*$/.test(trimmed)) {
+    return true;
+  }
+
+  const nextLine = nextNonEmptyRawLine(lines, index);
+  return Boolean(
+    nextLine &&
+    (isStudentHeader(nextLine) || isStudentRow(nextLine))
+  );
+}
+
 function parsePrerequisiteSections(lines) {
   const sectionIndex = lines.findIndex(
     (line) =>
@@ -81,7 +126,7 @@ function parsePrerequisiteSections(lines) {
   }
 
   const courseHeaderPattern =
-    /^([A-Z]{2,5}\s+\d{3}[A-Z]?)(?:\s+\(formerly\s+([^)]+)\))?\s*:?\s*$/i;
+    /^([A-Z]{2,5}\s+[A-Z]?\d{3,4}[A-Z]?)(?:\s+\(formerly\s+([^)]+)\))?\s*:?\s*$/i;
 
   const prerequisiteCourses = {};
   const courseAliases = {};
@@ -108,6 +153,13 @@ function parsePrerequisiteSections(lines) {
       }
 
       continue;
+    }
+
+    if (looksLikeUnsupportedCourseHeading(lines, i)) {
+      currentCourse = null;
+      throw new Error(
+        `A prerequisite course heading was found in an unsupported format: ${trimmed}`
+      );
     }
 
     if (!currentCourse || !rawLine.includes('\t')) {
