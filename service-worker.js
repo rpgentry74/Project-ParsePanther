@@ -1,7 +1,7 @@
 // service-worker.js
 
 const CACHE_PREFIX = 'parsepanther-';
-const CACHE_NAME = 'parsepanther-v3-dev-11';
+const CACHE_NAME = 'parsepanther-v3-dev-12';
 const LEGACY_CACHE_NAMES = new Set(['v1']);
 
 const APP_SHELL = [
@@ -16,6 +16,7 @@ const APP_SHELL = [
   './formHandler.js',
   './generateHTMLTable.js',
   './generateSpreadsheetFile.js',
+  './htmlUtils.js',
   './indirectPrerequisiteDataHandler.js',
   './indirectPrerequisiteParser.js',
   './inputValidation.js',
