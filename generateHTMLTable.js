@@ -27,6 +27,30 @@ export function generateHTMLTable() {
 
   const prerequisiteNames = Object.keys(mergedPrerequisites);
 
+  const headerHTML = `
+    <div class="outputHeader">
+      <header class="header">
+        <h2>${courseName}</h2>
+        <h3>${professorName}</h3>
+        <h4>LEC Number: ${lecNum}</h4>
+        <h4>LAB Number: ${labNum}</h4>
+      </header>
+    </div>
+  `;
+
+  if (prerequisiteNames.length === 0) {
+    const outputHTML = `
+      ${headerHTML}
+      <div class="outputTable">
+        <p>No prerequisite courses were listed for the selected prerequisite checks.</p>
+      </div>
+    `;
+
+    const outputDiv = document.getElementById('output');
+    outputDiv.innerHTML = outputHTML;
+    return outputHTML;
+  }
+
   const prerequisiteHeadersHTML = prerequisiteNames
     .map((prerequisite) => `<th>${escapeHTML(prerequisite)}</th>`)
     .join('');
@@ -74,17 +98,6 @@ export function generateHTMLTable() {
         ${rowsHTML}
       </tbody>
     </table>
-  `;
-
-  const headerHTML = `
-    <div class="outputHeader">
-      <header class="header">
-        <h2>${courseName}</h2>
-        <h3>${professorName}</h3>
-        <h4>LEC Number: ${lecNum}</h4>
-        <h4>LAB Number: ${labNum}</h4>
-      </header>
-    </div>
   `;
 
   const outputHTML = `
