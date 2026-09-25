@@ -1,7 +1,7 @@
 // service-worker.js
 
 const CACHE_PREFIX = 'parsepanther-';
-const CACHE_NAME = 'parsepanther-v3-dev-21';
+const CACHE_NAME = 'parsepanther-v3-dev-22';
 const LEGACY_CACHE_NAMES = new Set(['v1']);
 
 const APP_SHELL = [
@@ -32,6 +32,8 @@ const APP_SHELL = [
   './parseRosterData.js',
   './prerequisiteDataHandler.js',
   './prerequisiteDataUtils.js',
+  './resultsInteractions.js',
+  './diagnostics.js',
   './registerServiceWorker.js',
   './resetHandler.js',
   './rosterDataHandler.js',
@@ -39,6 +41,8 @@ const APP_SHELL = [
   './state.js',
   './statusIndicator.js',
   './manifest.json',
+  './support.html',
+  './support.js',
   './js/FileSaver.js',
   './js/xlsx/xlsx.full.min.js',
 ];
