@@ -1,5 +1,5 @@
 {
-  "short_name": "ParsePanther Dev",
+  "short_name": "LRCCD Prereq Dev",
   "name": "LRCCD Student Prerequisite Analyzer v3.0.0-dev",
   "icons": [
     {
@@ -16,6 +16,6 @@
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#354458",
+  "background_color": "#eef1f4"
 }
