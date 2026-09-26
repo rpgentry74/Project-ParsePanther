@@ -4,6 +4,7 @@ import { formatPrerequisiteDisplayName } from './prerequisiteDataUtils.js';
 import { buildResultsModel } from './resultsModel.js';
 import { buildStudentMessage } from './studentMessage.js';
 import { recordDiagnostic } from './diagnostics.js';
+import { initializeWideTableSupport } from './wideTableSupport.js';
 
 let closeActiveStudentDetails = null;
 
@@ -463,4 +464,5 @@ function initializeStudentDetails() {
 export function initializeResultsInteractions() {
   initializeFilters();
   initializeStudentDetails();
+  initializeWideTableSupport();
 }
