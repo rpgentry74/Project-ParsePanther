@@ -50,6 +50,9 @@ For each supported source path, verify:
 - editable Copy Message
 - XLSX, CSV, and ODS downloads
 - reset behavior
+- Home is the default active section and Home, Support, and About always leave one top-level section active
+- Overview is expanded by default and Step-by-Step Instructions is collapsed by default
+- Support and About collapsible sections use the intended default open/collapsed states
 - keyboard navigation and dialogs
 
 ## 4. Check Support Diagnostics
