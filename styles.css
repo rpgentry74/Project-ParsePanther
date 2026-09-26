@@ -1296,3 +1296,142 @@ footer a:hover {
     text-align: center;
   }
 }
+
+
+/* Wide results tables */
+.outputTable {
+  position: relative;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
+.outputTable:focus-visible {
+  outline: 3px solid var(--lrccd-gold);
+  outline-offset: 2px;
+}
+
+.merged-table {
+  width: max-content;
+  min-width: 100%;
+}
+
+.merged-table .course-column-header,
+.merged-table .course-result-cell {
+  min-width: 8.75rem;
+}
+
+.merged-table .course-column-header {
+  white-space: nowrap;
+}
+
+.merged-table .student-id-column {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  width: 7.5rem;
+  min-width: 7.5rem;
+  max-width: 7.5rem;
+}
+
+.merged-table .student-name-column {
+  position: sticky;
+  left: 7.5rem;
+  z-index: 2;
+  width: 14rem;
+  min-width: 14rem;
+  max-width: 14rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  box-shadow: 2px 0 0 var(--border);
+}
+
+.merged-table thead .student-id-column,
+.merged-table thead .student-name-column {
+  z-index: 4;
+  background: var(--lrccd-navy);
+}
+
+.merged-table tbody .student-id-column,
+.merged-table tbody .student-name-column {
+  background: #ffffff;
+}
+
+.merged-table tbody .student-id-column.student-info,
+.merged-table tbody .student-name-column.student-info {
+  background: #fff2b5;
+}
+
+.merged-table tbody tr.no-courses-taken > .student-id-column,
+.merged-table tbody tr.no-courses-taken > .student-name-column {
+  background: #f2cece;
+}
+
+.merged-table tbody tr.all-courses-taken > .student-id-column,
+.merged-table tbody tr.all-courses-taken > .student-name-column {
+  background: #d8eadb;
+}
+
+.wide-table-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
+  padding: 0.55rem 0.65rem;
+  color: #4d5968;
+  background: #f7f9fb;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.82rem;
+}
+
+.wide-table-notice[hidden] {
+  display: none;
+}
+
+.wide-table-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.4rem;
+}
+
+.wide-table-scroll-button {
+  min-height: 2.1rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.78rem;
+}
+
+.wide-table-scroll-button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+@media (max-width: 760px) {
+  .merged-table .student-id-column {
+    width: 6.5rem;
+    min-width: 6.5rem;
+    max-width: 6.5rem;
+  }
+
+  .merged-table .student-name-column {
+    left: 6.5rem;
+    width: 11rem;
+    min-width: 11rem;
+    max-width: 11rem;
+  }
+
+  .wide-table-notice {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .wide-table-actions {
+    width: 100%;
+  }
+
+  .wide-table-scroll-button {
+    flex: 1 1 0;
+  }
+}
