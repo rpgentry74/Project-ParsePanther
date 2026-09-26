@@ -6,6 +6,21 @@ function prefersReducedMotion() {
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
 
+export function getWideTableState({
+  scrollWidth,
+  clientWidth,
+  scrollLeft,
+}) {
+  const maxScrollLeft = Math.max(0, scrollWidth - clientWidth);
+  const wide = maxScrollLeft > 2;
+
+  return {
+    wide,
+    canScrollLeft: wide && scrollLeft > 2,
+    canScrollRight: wide && scrollLeft < maxScrollLeft - 2,
+  };
+}
+
 export function initializeWideTableSupport() {
   if (cleanupWideTableSupport) {
     cleanupWideTableSupport();
@@ -25,38 +40,31 @@ export function initializeWideTableSupport() {
 
   let resizeObserver = null;
 
-  function isOverflowing() {
-    return container.scrollWidth > container.clientWidth + 2;
+  function currentState() {
+    return getWideTableState({
+      scrollWidth: container.scrollWidth,
+      clientWidth: container.clientWidth,
+      scrollLeft: container.scrollLeft,
+    });
   }
 
   function updateScrollButtons() {
-    if (!isOverflowing()) {
-      for (const button of scrollButtons) {
-        button.disabled = true;
-      }
-      return;
-    }
-
-    const maxScrollLeft =
-      container.scrollWidth - container.clientWidth;
+    const state = currentState();
 
     for (const button of scrollButtons) {
       const direction = Number(button.dataset.tableScroll);
-
-      if (direction < 0) {
-        button.disabled = container.scrollLeft <= 2;
-      } else {
-        button.disabled =
-          container.scrollLeft >= maxScrollLeft - 2;
-      }
+      button.disabled =
+        direction < 0
+          ? !state.canScrollLeft
+          : !state.canScrollRight;
     }
   }
 
   function updateWideState() {
-    const wide = isOverflowing();
+    const state = currentState();
 
-    container.classList.toggle('is-wide-table', wide);
-    notice.hidden = !wide;
+    container.classList.toggle('is-wide-table', state.wide);
+    notice.hidden = !state.wide;
     updateScrollButtons();
   }
 
