@@ -1,7 +1,7 @@
 // appConfig.js
 
-export const APP_VERSION = '3.0.0-dev';
-export const BUILD_NUMBER = '32';
+export const APP_VERSION = '3.0.0';
+export const BUILD_NUMBER = '33';
 export const IS_DEVELOPMENT = APP_VERSION.endsWith('-dev');
 
 const MAJOR_VERSION = APP_VERSION.split('.')[0];
