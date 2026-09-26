@@ -35,22 +35,38 @@
         </div>
       </header>
 
-      <section class="tabBar" aria-label="Application information">
-        <button class="tab-link" data-tab="tab2" aria-controls="tab2" aria-pressed="false">Support</button>
-        <button class="tab-link" data-tab="tab3" aria-controls="tab3" aria-pressed="false">Roadmap</button>
-        <button class="tab-link" data-tab="tab4" aria-controls="tab4" aria-pressed="false">Version</button>
+      <section class="tabBar" aria-label="Application sections">
+        <button class="tab-link active" data-tab="tabHome" aria-controls="tabHome" aria-pressed="true">Home</button>
+        <button class="tab-link" data-tab="tabSupport" aria-controls="tabSupport" aria-pressed="false">Support</button>
+        <button class="tab-link" data-tab="tabAbout" aria-controls="tabAbout" aria-pressed="false">About</button>
       </section>
+
       <main>
-      <div class="tab-content">
-        <details class="instructions-shade">
-          <summary>
-            <span>
-              <strong>Instructions</strong>
-              <small>Show step-by-step directions</small>
-            </span>
-          </summary>
-          <div class="instructions-shade-content">
-            <ol>
+        <div class="tab-content">
+          <section id="tabHome" class="tab-panel home-panel active">
+            <details class="info-shade" open>
+              <summary>
+                <span>
+                  <strong>Overview</strong>
+                  <small>What the analyzer does and how your data is handled</small>
+                </span>
+              </summary>
+              <div class="info-shade-content">
+                <p>The LRCCD Student Prerequisite Analyzer organizes copied Class Roster and prerequisite checker data into a clear view of each student's prerequisite completion. Results can be reviewed in the browser and exported as XLSX, CSV, or ODS files.</p>
+                <p><strong>Prerequisites</strong> are the official requirements for the class. <strong>Indirect Evidence</strong> comes from the LRCCD Indirect Prerequisite Checker. When that evidence matches an official prerequisite or its official former course number, it can satisfy that prerequisite. Other indirect-only courses are shown for context and do not affect prerequisite status.</p>
+                <p class="workflow-note"><strong>Student data stays local.</strong> Roster and prerequisite information is processed in your browser and is not sent to or stored on an external server.</p>
+              </div>
+            </details>
+
+            <details class="info-shade">
+              <summary>
+                <span>
+                  <strong>Step-by-Step Instructions</strong>
+                  <small>Show detailed directions for using the analyzer</small>
+                </span>
+              </summary>
+              <div class="info-shade-content">
+                <ol>
               <li>If you believe there is any data in the textboxes below, click <strong>Reset Roster</strong> or <strong>Reset All Fields</strong> in the Student Prerequisite Analyzer to clear existing data before proceeding.</li>
               <li>Log into the <a href="https://inside.losrios.edu/~intranet" target="_blank" rel="noopener noreferrer">Los Rios Intranet</a> (opens in a new tab).</li>
               <li>Select <strong>Online Grade Reporting and Class Rosters</strong> and click <strong>Go to Service</strong>.</li>
@@ -74,42 +90,261 @@
               <li>Select your preferred file format from the dropdown menu.</li>
               <li>Click <strong>Download</strong> to save your processed data.</li>
             </ol>
+              </div>
+            </details>
+
+            <section class="workspace" aria-labelledby="workspaceHeading">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">Workflow</p>
+              <h2 id="workspaceHeading">Course Data</h2>
+              <p>Paste each LRCCD page into the matching card. All processing happens locally in your browser.</p>
+            </div>
           </div>
-        </details>
-        <section id="tab2" class="tab-panel">
-          <article>
-            <h2>Support and Feedback</h2>
-            <p>For questions, suggestions, or problems, email Richard Gentry at <a href="mailto:gentryr@scc.losrios.edu">gentryr@scc.losrios.edu</a>.</p>
-            <p>If you are reporting a technical problem that I cannot reproduce locally, open <a href="./support.html">Support Diagnostics</a> and include the report with your email.</p>
-            <p>The Support Diagnostics report contains browser and application information only. It does not include pasted roster data, student names, student IDs, course or professor information, prerequisite records, or result table contents.</p>
-          </article>
+
+          <form>
+            <fieldset class="data-fieldset">
+              <legend class="sr-only">Course data inputs</legend>
+
+              <div class="data-grid">
+                <section id="rosterDataSection" class="data-card">
+                  <div class="card-title-row">
+                    <div>
+                      <p class="card-kicker">Step 1</p>
+                      <label for="rosterData"><h3>Roster Data</h3></label>
+                    </div>
+                    <span id="rosterStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
+                  </div>
+                  <p class="card-help">Paste the copied LRCCD Class Roster page.</p>
+                  <textarea id="rosterData" rows="12" placeholder="Paste roster data here" aria-describedby="rosterHelp"></textarea>
+                  <p id="rosterHelp" class="input-note">Roster data is processed when pasted.</p>
+                  <div class="card-actions">
+                    <button id="resetRoster" type="button" class="buttonSecondary">Reset Roster</button>
+                  </div>
+                </section>
+
+                <div id="prerequisiteContainer" class="prerequisite-shell">
+                  <div id="disableUntilRosterAccepted" class="disabled">
+                    <div id="overlayMessage">Complete the Roster Data step first</div>
+                  </div>
+
+                  <section id="prerequisiteOptionsSection" class="options-card" aria-labelledby="checkingOptionsHeading">
+                    <div>
+                      <p class="card-kicker">Step 2</p>
+                      <h3 id="checkingOptionsHeading">Checking Options</h3>
+                    </div>
+                    <div class="option-list">
+                      <label class="option-control" for="includeDirectPrerequisites">
+                        <input type="checkbox" id="includeDirectPrerequisites" checked>
+                        <span>
+                          <strong>Include Prerequisites</strong>
+                          <small>Evaluate official prerequisite completion.</small>
+                        </span>
+                      </label>
+                      <label class="option-control" for="includeIndirectPrerequisites">
+                        <input type="checkbox" id="includeIndirectPrerequisites">
+                        <span>
+                          <strong>Include Indirect Evidence</strong>
+                          <small>Use LRCCD Indirect Prerequisite Checker evidence to better understand prerequisite completion.</small>
+                        </span>
+                      </label>
+                    </div>
+                  </section>
+
+                  <div class="prerequisite-grid">
+                    <section id="prerequisiteDataGroup" class="data-card tb_hidden">
+                      <div class="card-title-row">
+                        <div>
+                          <p class="card-kicker">Official</p>
+                          <label for="prerequisiteData"><h3>Prerequisite Data</h3></label>
+                        </div>
+                        <span id="prerequisiteStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
+                      </div>
+                      <p class="card-help">Paste the LRCCD Prerequisite Checker page.</p>
+                      <textarea id="prerequisiteData" rows="12" placeholder="Paste prerequisite data here"></textarea>
+                      <div class="card-actions">
+                        <button id="resetPrerequisite" type="button" class="buttonSecondary">Reset Prerequisite</button>
+                      </div>
+                    </section>
+
+                    <section id="indirectPrerequisiteDataGroup" class="data-card tb_hidden">
+                      <div class="card-title-row">
+                        <div>
+                          <p class="card-kicker">Informational</p>
+                          <label for="indirectPrerequisiteData"><h3>Indirect Evidence Data</h3></label>
+                        </div>
+                        <span id="indirectPrerequisiteStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
+                      </div>
+                      <p class="card-help">Paste the LRCCD Indirect Prerequisite Checker page. Evidence that matches a prerequisite or its official former course number can satisfy that prerequisite. Other indirect-only courses are shown for context and do not affect status.</p>
+                      <textarea id="indirectPrerequisiteData" rows="12" placeholder="Paste indirect checker data here"></textarea>
+                      <div class="card-actions">
+                        <button id="resetIndirectPrerequisite" type="button" class="buttonSecondary">Reset Indirect Evidence</button>
+                      </div>
+                    </section>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+
+          <div class="action-bar">
+            <div>
+              <p class="card-kicker">Step 3</p>
+              <h3>Process Results</h3>
+              <p>Build the student prerequisite matrix from the accepted data above.</p>
+            </div>
+            <div class="action-buttons">
+              <button id="submit" type="button" class="buttonPrimary">Process Data</button>
+              <button id="resetAll" type="button" class="buttonSecondary">Reset All Fields</button>
+            </div>
+          </div>
         </section>
-        <section id="tab3" class="tab-panel">
-          <article>
-            <h2>Roadmap</h2>
 
-            <h3>Version 3 Release Readiness</h3>
-            <ul>
-              <li><strong>(In Progress)</strong> Complete browser and end-to-end regression testing across roster, prerequisite, Indirect Evidence, results, student detail, Copy Message, Support Diagnostics, and downloads.</li>
-              <li><strong>(In Progress)</strong> Continue validating Version 3 against current Faculty and Admin LRCCD source pages and add sanitized regression cases for any newly observed format variations.</li>
-              <li><strong>(In Progress)</strong> Complete accessibility and usability review of the refreshed interface, including keyboard navigation, dialogs, filters, status messages, responsive layout, student detail, and results-table readability.</li>
-              <li><strong>(To Do)</strong> Complete final release review and move Version 3 from the development branch to production.</li>
-            </ul>
-
-            <h3>Ongoing Maintenance</h3>
-            <ul>
-              <li><strong>(Continuous)</strong> Update parsers and sanitized regression fixtures when LRCCD source-page formats change.</li>
-              <li><strong>(Continuous)</strong> Refine instructions, error handling, and workflow guidance based on real use and faculty feedback.</li>
-            </ul>
-
-            <a href="#top" class="back-to-top">Back to Top</a>
-          </article>
+            <section id="tableContainer" class="results-card" aria-label="Processed prerequisite results">
+          <section id="output">
+            <!-- Parsed data will appear here -->
+          </section>
+          <div id="spreadsheetControls" class="download-bar">
+            <div>
+              <p class="card-kicker">Export</p>
+              <h3>Download Results</h3>
+            </div>
+            <div class="download-controls">
+              <label class="sr-only" for="formatSelect">Select spreadsheet format</label>
+              <select id="formatSelect">
+                <option value="">Pick a format</option>
+                <option value="xlsx">XLSX</option>
+                <option value="csv">CSV</option>
+                <option value="ods">ODS</option>
+              </select>
+              <button id="downloadBtn" type="button" class="buttonPrimary">Download</button>
+            </div>
+          </div>
         </section>
-        <section id="tab4" class="tab-panel">
-          <!-- Content for Tab 4 -->
-          <article>
-            <h2>Version</h2>
-            <h3>3.0.0-dev</h3>
+          </section>
+
+          <section id="tabSupport" class="tab-panel info-page">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">Help</p>
+                <h2>Support</h2>
+                <p>Contact information, troubleshooting tools, and diagnostic privacy details.</p>
+              </div>
+            </div>
+
+            <details class="info-shade" open>
+              <summary>
+                <span>
+                  <strong>Contact and Support</strong>
+                  <small>Questions, suggestions, and problem reports</small>
+                </span>
+              </summary>
+              <div class="info-shade-content">
+                <p>For questions, suggestions, or problems, email Richard Gentry at <a href="mailto:gentryr@scc.losrios.edu">gentryr@scc.losrios.edu</a>.</p>
+                <p>If something in the analyzer does not look right, include what you were trying to do and what you expected to happen.</p>
+              </div>
+            </details>
+
+            <details class="info-shade">
+              <summary>
+                <span>
+                  <strong>Support Diagnostics</strong>
+                  <small>Create a privacy-safe report for technical problems</small>
+                </span>
+              </summary>
+              <div class="info-shade-content">
+                <p>If you are reporting a technical problem that cannot be reproduced locally, open <a href="./support.html">Support Diagnostics</a>, copy or download the report, and include it with your email.</p>
+                <p>The report is designed to help troubleshoot browser, service-worker, cache, and application-state problems without including student records.</p>
+              </div>
+            </details>
+
+            <details class="info-shade">
+              <summary>
+                <span>
+                  <strong>What the Report Contains</strong>
+                  <small>See what Support Diagnostics includes and excludes</small>
+                </span>
+              </summary>
+              <div class="info-shade-content">
+                <h3>Included</h3>
+                <ul>
+                  <li>Application version and expected cache information.</li>
+                  <li>Browser, platform, language, viewport, and display information.</li>
+                  <li>Service-worker registration and cache state.</li>
+                  <li>Privacy-safe workflow state such as whether roster or prerequisite data was accepted and whether the Faculty or Admin source format was detected.</li>
+                  <li>Recent privacy-safe diagnostic events.</li>
+                </ul>
+                <h3>Not Included</h3>
+                <ul>
+                  <li>Pasted roster or prerequisite text.</li>
+                  <li>Student names or student IDs.</li>
+                  <li>Course or professor information.</li>
+                  <li>Prerequisite records or result-table contents.</li>
+                </ul>
+              </div>
+            </details>
+          </section>
+
+          <section id="tabAbout" class="tab-panel info-page">
+            <div class="section-heading">
+              <div>
+                <p class="section-kicker">Project</p>
+                <h2>About</h2>
+                <p>The people, history, design decisions, and maintenance behind the analyzer.</p>
+              </div>
+            </div>
+
+            <details class="info-shade" open>
+              <summary>
+                <span>
+                  <strong>About Richard Gentry</strong>
+                  <small>Professor, department chair, and developer</small>
+                </span>
+              </summary>
+              <div class="info-shade-content">
+                <p>Richard Gentry is a professor and department chair in Mechanical-Electrical Technology at Sacramento City College. His work includes career technical education, curriculum and program development, workforce development, industry partnerships, and faculty leadership.</p>
+                <p>His professional background includes technical and industrial work as well as teaching. Richard created and maintains the LRCCD Student Prerequisite Analyzer as part of his work supporting faculty and students at Sacramento City College and across the Los Rios Community College District.</p>
+                <p class="about-links"><a href="https://scc.losrios.edu/about-us/contact-us/employee-directory/employee?id=0665185&amp;xid=x77327" target="_blank" rel="noopener noreferrer">Richard Gentry's Sacramento City College profile</a> <span aria-hidden="true">•</span> <a href="https://www.linkedin.com/in/richard-gentry-89214230/" target="_blank" rel="noopener noreferrer">Connect with Richard Gentry on LinkedIn</a></p>
+              </div>
+            </details>
+
+            <details class="info-shade" open>
+              <summary>
+                <span>
+                  <strong>Why This Exists</strong>
+                  <small>How a personal spreadsheet became a faculty web application</small>
+                </span>
+              </summary>
+              <div class="info-shade-content">
+                <p>The LRCCD Student Prerequisite Analyzer began as a spreadsheet I created to make prerequisite tabulation easier for my own courses. As I revised that process for my own use, I started thinking about the faculty in my department doing the same work. At that point the question became broader: if my faculty needed a better way to work with this information, other faculty across the Los Rios Community College District probably did too.</p>
+                <p>A spreadsheet was not the right solution for broader use. I also did not have access to a district application server, and any solution handling student-record information needed to protect that data. The analyzer was therefore built as a browser-based application that processes roster and prerequisite information locally rather than transmitting student data to an external server.</p>
+              </div>
+            </details>
+
+            <details class="info-shade" open>
+              <summary>
+                <span>
+                  <strong>About the LRCCD Student Prerequisite Analyzer</strong>
+                  <small>Purpose, design, and privacy</small>
+                </span>
+              </summary>
+              <div class="info-shade-content">
+                <p>The LRCCD Student Prerequisite Analyzer is a client-side faculty and staff utility for organizing Class Roster, Prerequisite Checker, and Indirect Prerequisite Checker data into a single prerequisite-completion view.</p>
+                <p>The application supports separate Faculty and Admin source formats, reconciles current and official former course numbers, keeps indirect-only evidence separate from official prerequisite status, and provides browser results, student detail, editable Copy Message tools, and spreadsheet exports.</p>
+                <p>All roster and prerequisite processing occurs locally in the browser. The application does not require a server-side student database and does not transmit pasted student data to an external server.</p>
+                <p>The project is licensed under the <a href="LICENSE.txt">MIT License</a>.</p>
+              </div>
+            </details>
+
+            <details class="info-shade">
+              <summary>
+                <span>
+                  <strong>Version 3</strong>
+                  <small>Current development changes</small>
+                </span>
+              </summary>
+              <div class="info-shade-content">
+                <h3>3.0.0-dev</h3>
             <ul>
               <li>Rebuilt roster, Prerequisite Checker, and Indirect Prerequisite Checker parsing around separate Faculty and Admin source formats.</li>
               <li>Added fail-closed parser behavior so unrecognized LRCCD structure is not mistaken for valid empty prerequisite data.</li>
@@ -140,7 +375,42 @@
               <li>When Indirect Evidence is selected but left empty, users with valid prerequisite data can explicitly continue without it. Pasted Indirect data that fails parsing still requires review.</li>
               <li>Updated the startup system-status notice to reflect the current Version 3 development build and remaining release testing.</li>
             </ul>
-            <h3>2.1.5</h3>
+              </div>
+            </details>
+
+            <details class="info-shade">
+              <summary>
+                <span>
+                  <strong>Roadmap and Maintenance</strong>
+                  <small>Release readiness and ongoing maintenance</small>
+                </span>
+              </summary>
+              <div class="info-shade-content">
+                <h3>Version 3 Release Readiness</h3>
+            <ul>
+              <li><strong>(In Progress)</strong> Complete browser and end-to-end regression testing across roster, prerequisite, Indirect Evidence, results, student detail, Copy Message, Support Diagnostics, and downloads.</li>
+              <li><strong>(In Progress)</strong> Continue validating Version 3 against current Faculty and Admin LRCCD source pages and add sanitized regression cases for any newly observed format variations.</li>
+              <li><strong>(In Progress)</strong> Complete accessibility and usability review of the refreshed interface, including keyboard navigation, dialogs, filters, status messages, responsive layout, student detail, and results-table readability.</li>
+              <li><strong>(To Do)</strong> Complete final release review and move Version 3 from the development branch to production.</li>
+            </ul>
+
+            <h3>Ongoing Maintenance</h3>
+            <ul>
+              <li><strong>(Continuous)</strong> Update parsers and sanitized regression fixtures when LRCCD source-page formats change.</li>
+              <li><strong>(Continuous)</strong> Refine instructions, error handling, and workflow guidance based on real use and faculty feedback.</li>
+            </ul>
+              </div>
+            </details>
+
+            <details class="info-shade">
+              <summary>
+                <span>
+                  <strong>Version History</strong>
+                  <small>Earlier releases and changes</small>
+                </span>
+              </summary>
+              <div class="info-shade-content version-history">
+                <h3>2.1.5</h3>
             <ul>
               <li>Stabilized Class Roster parsing after recent LRCCD formatting changes affected both faculty and admin roster outputs.</li>
               <li>Corrected roster section scanning to reliably stop before Dropped Students and Permission Numbers, preventing non-student data from being misinterpreted.</li>
@@ -329,138 +599,10 @@
                     <li>Minor error - Table is being generated even when prerequisites are not present. Instead a pop-up should be shown letting user know that the prerequisite data could not be found.</li>
                 </ul>
             </ul>
-            <a href="#top" class="back-to-top">Back to Top</a>
-          </article>
-        </section>
-      </div>
-        <section class="workspace" aria-labelledby="workspaceHeading">
-          <div class="section-heading">
-            <div>
-              <p class="section-kicker">Workflow</p>
-              <h2 id="workspaceHeading">Course Data</h2>
-              <p>Paste each LRCCD page into the matching card. All processing happens locally in your browser.</p>
-            </div>
-          </div>
-
-          <form>
-            <fieldset class="data-fieldset">
-              <legend class="sr-only">Course data inputs</legend>
-
-              <div class="data-grid">
-                <section id="rosterDataSection" class="data-card">
-                  <div class="card-title-row">
-                    <div>
-                      <p class="card-kicker">Step 1</p>
-                      <label for="rosterData"><h3>Roster Data</h3></label>
-                    </div>
-                    <span id="rosterStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
-                  </div>
-                  <p class="card-help">Paste the copied LRCCD Class Roster page.</p>
-                  <textarea id="rosterData" rows="12" placeholder="Paste roster data here" aria-describedby="rosterHelp"></textarea>
-                  <p id="rosterHelp" class="input-note">Roster data is processed when pasted.</p>
-                  <div class="card-actions">
-                    <button id="resetRoster" type="button" class="buttonSecondary">Reset Roster</button>
-                  </div>
-                </section>
-
-                <div id="prerequisiteContainer" class="prerequisite-shell">
-                  <div id="disableUntilRosterAccepted" class="disabled">
-                    <div id="overlayMessage">Complete the Roster Data step first</div>
-                  </div>
-
-                  <section id="prerequisiteOptionsSection" class="options-card" aria-labelledby="checkingOptionsHeading">
-                    <div>
-                      <p class="card-kicker">Step 2</p>
-                      <h3 id="checkingOptionsHeading">Checking Options</h3>
-                    </div>
-                    <div class="option-list">
-                      <label class="option-control" for="includeDirectPrerequisites">
-                        <input type="checkbox" id="includeDirectPrerequisites" checked>
-                        <span>
-                          <strong>Include Prerequisites</strong>
-                          <small>Evaluate official prerequisite completion.</small>
-                        </span>
-                      </label>
-                      <label class="option-control" for="includeIndirectPrerequisites">
-                        <input type="checkbox" id="includeIndirectPrerequisites">
-                        <span>
-                          <strong>Include Indirect Evidence</strong>
-                          <small>Use LRCCD Indirect Prerequisite Checker evidence to better understand prerequisite completion.</small>
-                        </span>
-                      </label>
-                    </div>
-                  </section>
-
-                  <div class="prerequisite-grid">
-                    <section id="prerequisiteDataGroup" class="data-card tb_hidden">
-                      <div class="card-title-row">
-                        <div>
-                          <p class="card-kicker">Official</p>
-                          <label for="prerequisiteData"><h3>Prerequisite Data</h3></label>
-                        </div>
-                        <span id="prerequisiteStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
-                      </div>
-                      <p class="card-help">Paste the LRCCD Prerequisite Checker page.</p>
-                      <textarea id="prerequisiteData" rows="12" placeholder="Paste prerequisite data here"></textarea>
-                      <div class="card-actions">
-                        <button id="resetPrerequisite" type="button" class="buttonSecondary">Reset Prerequisite</button>
-                      </div>
-                    </section>
-
-                    <section id="indirectPrerequisiteDataGroup" class="data-card tb_hidden">
-                      <div class="card-title-row">
-                        <div>
-                          <p class="card-kicker">Informational</p>
-                          <label for="indirectPrerequisiteData"><h3>Indirect Evidence Data</h3></label>
-                        </div>
-                        <span id="indirectPrerequisiteStatus" class="status-indicator status-default" role="status" aria-live="polite">No data processed yet.</span>
-                      </div>
-                      <p class="card-help">Paste the LRCCD Indirect Prerequisite Checker page. Evidence that matches a prerequisite or its official former course number can satisfy that prerequisite. Other indirect-only courses are shown for context and do not affect status.</p>
-                      <textarea id="indirectPrerequisiteData" rows="12" placeholder="Paste indirect checker data here"></textarea>
-                      <div class="card-actions">
-                        <button id="resetIndirectPrerequisite" type="button" class="buttonSecondary">Reset Indirect Evidence</button>
-                      </div>
-                    </section>
-                  </div>
-                </div>
               </div>
-            </fieldset>
-          </form>
-
-          <div class="action-bar">
-            <div>
-              <p class="card-kicker">Step 3</p>
-              <h3>Process Results</h3>
-              <p>Build the student prerequisite matrix from the accepted data above.</p>
-            </div>
-            <div class="action-buttons">
-              <button id="submit" type="button" class="buttonPrimary">Process Data</button>
-              <button id="resetAll" type="button" class="buttonSecondary">Reset All Fields</button>
-            </div>
-          </div>
-        </section>
-
-        <section id="tableContainer" class="results-card" aria-label="Processed prerequisite results">
-          <section id="output">
-            <!-- Parsed data will appear here -->
+            </details>
           </section>
-          <div id="spreadsheetControls" class="download-bar">
-            <div>
-              <p class="card-kicker">Export</p>
-              <h3>Download Results</h3>
-            </div>
-            <div class="download-controls">
-              <label class="sr-only" for="formatSelect">Select spreadsheet format</label>
-              <select id="formatSelect">
-                <option value="">Pick a format</option>
-                <option value="xlsx">XLSX</option>
-                <option value="csv">CSV</option>
-                <option value="ods">ODS</option>
-              </select>
-              <button id="downloadBtn" type="button" class="buttonPrimary">Download</button>
-            </div>
-          </div>
-        </section>
+        </div>
       </main>
 
       <footer>
@@ -479,23 +621,25 @@
         link.addEventListener('click', (event) => {
           event.preventDefault();
 
-          const wasActive = link.classList.contains('active');
+          const tabId = link.getAttribute('data-tab');
+          const activeTabPanel = document.getElementById(tabId);
+
+          if (!activeTabPanel) {
+            return;
+          }
 
           tabLinks.forEach((tabLink) => {
-            tabLink.classList.remove('active');
-            tabLink.setAttribute('aria-pressed', 'false');
+            const isActive = tabLink === link;
+            tabLink.classList.toggle('active', isActive);
+            tabLink.setAttribute(
+              'aria-pressed',
+              isActive ? 'true' : 'false'
+            );
           });
 
-          tabPanels.forEach((panel) => panel.classList.remove('active'));
-
-          if (!wasActive) {
-            const tabId = link.getAttribute('data-tab');
-            const activeTabPanel = document.getElementById(tabId);
-
-            link.classList.add('active');
-            link.setAttribute('aria-pressed', 'true');
-            activeTabPanel.classList.add('active');
-          }
+          tabPanels.forEach((panel) => {
+            panel.classList.toggle('active', panel === activeTabPanel);
+          });
         });
       });
     </script>
