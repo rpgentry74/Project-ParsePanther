@@ -26,6 +26,7 @@ All suites must report PASSED:
 - Copy Message generation
 - submission workflow rules
 - diagnostics privacy allowlist
+- wide-table overflow and horizontal-scroll state
 
 If an LRCCD format changed, add a sanitized regression case before or alongside the parser change.
 
@@ -42,6 +43,9 @@ For each supported source path, verify:
 - empty Indirect Evidence continuation
 - fail-closed behavior for malformed or unexpected pasted data
 - class summary and filters
+- wide-table behavior with enough prerequisite/Indirect Evidence columns to overflow the results card
+- sticky Student ID and Student Name columns while horizontally scrolling
+- left/right wide-table controls and keyboard focus on the table region
 - student detail and evidence explanation
 - editable Copy Message
 - XLSX, CSV, and ODS downloads
