@@ -49,6 +49,7 @@
     <div id="studentMessageResult" class="test-result">Student message tests: running...</div>
     <div id="workflowRulesResult" class="test-result">Workflow rule tests: running...</div>
     <div id="diagnosticsResult" class="test-result">Diagnostics privacy tests: running...</div>
+    <div id="wideTableResult" class="test-result">Wide-table support tests: running...</div>
 
     <h2 id="overallResult">Overall: running...</h2>
 
@@ -60,6 +61,7 @@
     <iframe id="studentMessageFrame" src="./studentMessageTests.html" title="Student message tests"></iframe>
     <iframe id="workflowRulesFrame" src="./workflowRulesTests.html" title="Workflow rule tests"></iframe>
     <iframe id="diagnosticsFrame" src="./diagnosticsTests.html" title="Diagnostics privacy tests"></iframe>
+    <iframe id="wideTableFrame" src="./wideTableSupportTests.html" title="Wide-table support tests"></iframe>
   </main>
 
   <script>
@@ -72,6 +74,7 @@
       { frame: 'studentMessageFrame', output: 'studentMessageResult', label: 'Student message tests' },
       { frame: 'workflowRulesFrame', output: 'workflowRulesResult', label: 'Workflow rule tests' },
       { frame: 'diagnosticsFrame', output: 'diagnosticsResult', label: 'Diagnostics privacy tests' },
+      { frame: 'wideTableFrame', output: 'wideTableResult', label: 'Wide-table support tests' },
     ];
 
     function readSuite(suite) {
