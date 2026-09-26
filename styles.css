@@ -1437,8 +1437,21 @@ footer a:hover {
 }
 
 
-/* Collapsible instructions */
-.instructions-shade {
+/* Collapsible information panels */
+.tab-panel.home-panel,
+.tab-panel.info-page {
+  margin-bottom: 1rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.info-page > .section-heading {
+  margin-top: 0.25rem;
+}
+
+.info-shade {
   margin-bottom: 0.8rem;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1447,7 +1460,7 @@ footer a:hover {
   overflow: hidden;
 }
 
-.instructions-shade > summary {
+.info-shade > summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1461,55 +1474,86 @@ footer a:hover {
   user-select: none;
 }
 
-.instructions-shade > summary::-webkit-details-marker {
+.info-shade > summary::-webkit-details-marker {
   display: none;
 }
 
-.instructions-shade > summary:hover {
+.info-shade > summary:hover {
   background: #f7f9fb;
 }
 
-.instructions-shade > summary:focus-visible {
+.info-shade > summary:focus-visible {
   outline: 3px solid var(--lrccd-gold);
   outline-offset: -3px;
 }
 
-.instructions-shade > summary > span {
+.info-shade > summary > span {
   display: flex;
   flex-direction: column;
   gap: 0.08rem;
 }
 
-.instructions-shade > summary strong {
+.info-shade > summary strong {
   font-size: 0.95rem;
 }
 
-.instructions-shade > summary small {
+.info-shade > summary small {
   color: var(--muted);
   font-size: 0.78rem;
   font-weight: 600;
 }
 
-.instructions-shade > summary::after {
+.info-shade > summary::after {
   content: "▾";
   flex: 0 0 auto;
   font-size: 1rem;
   transition: transform 140ms ease;
 }
 
-.instructions-shade[open] > summary {
+.info-shade[open] > summary {
   background: #fff9dc;
   border-bottom: 1px solid var(--border);
 }
 
-.instructions-shade[open] > summary::after {
+.info-shade[open] > summary::after {
   transform: rotate(180deg);
 }
 
-.instructions-shade-content {
+.info-shade-content {
   padding: 1rem 1.15rem 1.1rem;
 }
 
-.instructions-shade-content > :last-child {
+.info-shade-content > :last-child {
   margin-bottom: 0;
+}
+
+.info-shade-content h3 {
+  margin-top: 1rem;
+}
+
+.info-shade-content h3:first-child {
+  margin-top: 0;
+}
+
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  align-items: center;
+}
+
+.version-history {
+  max-height: 32rem;
+  overflow-y: auto;
+}
+
+@media (max-width: 760px) {
+  .about-links {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .about-links span[aria-hidden="true"] {
+    display: none;
+  }
 }
