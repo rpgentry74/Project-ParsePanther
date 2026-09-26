@@ -2,8 +2,10 @@
 import { resetState, setDirectPrerequisiteData, setIndirectPrerequisiteData } from './state.js';
 import { updateStatusIndicator } from './statusIndicator.js';
 import { recordDiagnostic, setDiagnosticState } from './diagnostics.js';
+import { destroyWideTableSupport } from './wideTableSupport.js';
 
 export function clearGeneratedOutput() {
+  destroyWideTableSupport();
   document.getElementById('output').innerHTML = '';
   document.getElementById('tableContainer').style.display = 'none';
   setDiagnosticState({ outputGenerated: false });
