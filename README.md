@@ -82,6 +82,7 @@ Regression coverage includes:
 - Copy Message generation
 - empty-Indirect and other submission workflow decisions
 - diagnostics privacy allowlisting
+- wide-table overflow and horizontal-scroll state
 
 When LRCCD changes a page format, add a sanitized example as a regression case before or alongside the parser fix.
 
@@ -90,6 +91,8 @@ When LRCCD changes a page format, add a sanitized example as a regression case b
 Version 3 refreshes the visual design while keeping the application a practical faculty/staff utility. The interface uses the existing LRCCD-inspired navy, blue, and gold palette, a wider card-based workflow, compact processing-status badges, collapsible information tabs, and a clearer results table.
 
 The results view now includes a compact class summary and filters for complete students, students missing prerequisites, and students with Indirect Evidence. Each student has a detail view that shows prerequisite status, whether completion is listed in the Prerequisite Checker or supported by Indirect Prerequisite Checker evidence, and any additional indirect-only evidence. Students missing prerequisites also have an editable Copy Message tool that lists only the missing prerequisites.
+
+Wide results tables expand naturally instead of compressing prerequisite columns. The table scrolls horizontally inside the results card, keeps Student ID and Student Name visible, exposes keyboard-focusable table navigation, and shows explicit left/right scroll controls only when horizontal overflow exists.
 
 ## Support Diagnostics
 
