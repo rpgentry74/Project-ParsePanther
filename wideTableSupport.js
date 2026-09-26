@@ -1,6 +1,6 @@
 // wideTableSupport.js
 
-let cleanupWideTableSupport = null;
+let cleanupActiveWideTableSupport = null;
 
 function prefersReducedMotion() {
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -21,11 +21,15 @@ export function getWideTableState({
   };
 }
 
-export function initializeWideTableSupport() {
-  if (cleanupWideTableSupport) {
-    cleanupWideTableSupport();
-    cleanupWideTableSupport = null;
+export function destroyWideTableSupport() {
+  if (cleanupActiveWideTableSupport) {
+    cleanupActiveWideTableSupport();
+    cleanupActiveWideTableSupport = null;
   }
+}
+
+export function initializeWideTableSupport() {
+  destroyWideTableSupport();
 
   const container = document.querySelector('.outputTable');
   const table = container?.querySelector('.merged-table');
@@ -108,7 +112,7 @@ export function initializeWideTableSupport() {
 
   requestAnimationFrame(updateWideState);
 
-  cleanupWideTableSupport = () => {
+  cleanupActiveWideTableSupport = () => {
     for (const button of scrollButtons) {
       button.removeEventListener('click', handleScrollButton);
     }
