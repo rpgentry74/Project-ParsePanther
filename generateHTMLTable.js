@@ -19,11 +19,12 @@ function buildCourseHeader(
     ? `<br><small>${escapeHTML(label)}</small>`
     : '';
 
-  const classAttribute = className
-    ? ` class="${className}"`
-    : '';
+  const classNames = [
+    'course-column-header',
+    className,
+  ].filter(Boolean);
 
-  return `<th scope="col"${classAttribute}>${escapeHTML(courseName)}${aliasHTML}${labelHTML}</th>`;
+  return `<th scope="col" class="${classNames.join(' ')}">${escapeHTML(courseName)}${aliasHTML}${labelHTML}</th>`;
 }
 
 function buildSummaryHTML(
@@ -209,7 +210,7 @@ export function generateHTMLTable() {
             ? '<span class="checkmark" aria-label="Completed">&#x2713;</span>'
             : '<span class="not-complete" aria-label="Not completed">&mdash;</span>';
 
-          return `<td class="evaluated-prerequisite ${hasTakenCourse ? 'taken' : 'not-taken'}">${checkmarkHTML}</td>`;
+          return `<td class="course-result-cell evaluated-prerequisite ${hasTakenCourse ? 'taken' : 'not-taken'}">${checkmarkHTML}</td>`;
         })
         .join('');
 
@@ -221,7 +222,7 @@ export function generateHTMLTable() {
             ? '<span class="checkmark" aria-label="Indirect evidence present">&#x2713;</span>'
             : '<span class="not-complete" aria-label="No indirect evidence">&mdash;</span>';
 
-          return `<td class="indirect-evidence">${checkmarkHTML}</td>`;
+          return `<td class="course-result-cell indirect-evidence">${checkmarkHTML}</td>`;
         })
         .join('');
 
@@ -231,8 +232,8 @@ export function generateHTMLTable() {
           data-result-status="${status.key}"
           data-has-indirect="${hasIndirectEvidence ? 'yes' : 'no'}"
         >
-          <td class="center student-info">${escapeHTML(student.studentID)}</td>
-          <td class="left student-info">${escapeHTML(student.studentName)}</td>
+          <td class="center student-info student-id-column">${escapeHTML(student.studentID)}</td>
+          <td class="left student-info student-name-column">${escapeHTML(student.studentName)}</td>
           ${prerequisiteCompletionHTML}
           ${indirectEvidenceHTML}
           <td class="status-cell ${status.className}">${escapeHTML(status.text)}</td>
@@ -269,8 +270,8 @@ export function generateHTMLTable() {
           <th scope="col" class="details-column-header" rowspan="2">Details</th>
         </tr>
         <tr>
-          <th scope="col" class="center">Student ID</th>
-          <th scope="col" class="left">Student Name</th>
+          <th scope="col" class="center student-id-column">Student ID</th>
+          <th scope="col" class="left student-name-column">Student Name</th>
           ${prerequisiteHeadersHTML}
           ${indirectEvidenceHeadersHTML}
         </tr>
@@ -297,7 +298,19 @@ export function generateHTMLTable() {
       missingCount,
       indirectCount
     )}
-    <div class="outputTable">
+    <div id="wideTableNotice" class="wide-table-notice" hidden>
+      <span>More prerequisite columns are available horizontally. Student ID and name stay visible while you scroll.</span>
+      <div class="wide-table-actions" aria-label="Horizontal table controls">
+        <button type="button" class="buttonSecondary wide-table-scroll-button" data-table-scroll="-1">Scroll left</button>
+        <button type="button" class="buttonSecondary wide-table-scroll-button" data-table-scroll="1">Scroll right</button>
+      </div>
+    </div>
+    <div
+      class="outputTable"
+      role="region"
+      aria-label="Prerequisite results table. Scroll horizontally to view additional columns."
+      tabindex="0"
+    >
       ${tableElementHTML}
     </div>
   `;
