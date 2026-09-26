@@ -1,63 +1,121 @@
 // formHandler.js
-import { parseClassData } from './parseClassData.js';
-import { parseIndirectClassData } from './parseIndirectClassData.js';
 import { generateHTMLTable } from './generateHTMLTable.js';
 import { showDialog } from './dialogHandler.js';
-import { getState, setState } from './state.js';
+import { getState } from './state.js';
+import { recordDiagnostic, setDiagnosticState } from './diagnostics.js';
+import {
+  evaluateSubmissionState,
+  SUBMISSION_ACTIONS,
+} from './workflowRules.js';
+
+function disableIndirectEvidence(includeIndirectPrerequisites) {
+  includeIndirectPrerequisites.checked = false;
+  includeIndirectPrerequisites.dispatchEvent(new Event('change'));
+}
 
 export async function handleFormSubmission() {
-    // Get checkboxes
-    const includeDirectPrerequisites = document.getElementById('includeDirectPrerequisites');
-    const includeIndirectPrerequisites = document.getElementById('includeIndirectPrerequisites');
+  recordDiagnostic('process-data-selected');
 
-    // Check if at least one checkbox is checked
-    if (!includeDirectPrerequisites.checked && !includeIndirectPrerequisites.checked) {
-        showDialog('Please select at least one type of prerequisite to include.');
+  const includeDirectPrerequisites =
+    document.getElementById('includeDirectPrerequisites');
+  const includeIndirectPrerequisites =
+    document.getElementById('includeIndirectPrerequisites');
+  const indirectPrerequisiteTextbox =
+    document.getElementById('indirectPrerequisiteData');
+
+  const {
+    rosterData,
+    directPrerequisiteData,
+    indirectPrerequisiteData,
+  } = getState();
+
+  const submissionAction = evaluateSubmissionState({
+    prerequisiteSelected: includeDirectPrerequisites.checked,
+    indirectSelected: includeIndirectPrerequisites.checked,
+    rosterAccepted: Boolean(rosterData),
+    prerequisiteAccepted: Boolean(directPrerequisiteData),
+    indirectAccepted: Boolean(indirectPrerequisiteData),
+    indirectTextPresent:
+      indirectPrerequisiteTextbox.value.trim().length > 0,
+  });
+
+  switch (submissionAction) {
+    case SUBMISSION_ACTIONS.NO_CHECKS_SELECTED:
+      recordDiagnostic('process-blocked', {
+        code: 'NO_CHECK_TYPE_SELECTED',
+      });
+      await showDialog(
+        'Please select Prerequisites, Indirect Evidence, or both before processing.'
+      );
+      return;
+
+    case SUBMISSION_ACTIONS.ROSTER_REQUIRED:
+      recordDiagnostic('process-blocked', {
+        code: 'ROSTER_REQUIRED',
+      });
+      await showDialog(
+        'Please paste and confirm the Class Roster data before processing prerequisites.'
+      );
+      return;
+
+    case SUBMISSION_ACTIONS.PREREQUISITE_REQUIRED:
+      recordDiagnostic('process-blocked', {
+        code: 'DIRECT_REQUIRED',
+      });
+      await showDialog(
+        'Please paste and successfully process the Prerequisite Checker data before continuing.'
+      );
+      return;
+
+    case SUBMISSION_ACTIONS.INDIRECT_EMPTY_CAN_CONTINUE: {
+      const continueWithoutIndirect = await showDialog(
+        'No Indirect Prerequisite Checker data has been provided.<br><br>You can continue using the prerequisite data already processed, or go back and paste the Indirect Prerequisite Checker page.',
+        true,
+        {
+          closeLabel: 'Go Back',
+          confirmLabel: 'Continue Without Indirect Evidence',
+        }
+      );
+
+      if (!continueWithoutIndirect) {
+        recordDiagnostic('indirect-empty-continue-declined');
         return;
+      }
+
+      recordDiagnostic('indirect-empty-continued-without');
+      disableIndirectEvidence(includeIndirectPrerequisites);
+      break;
     }
 
-    // Clear previous class data
-    setState({
-        classData: null,
-        indirectClassData: null
-    });
+    case SUBMISSION_ACTIONS.INDIRECT_EMPTY_ONLY:
+      recordDiagnostic('process-blocked', {
+        code: 'INDIRECT_ONLY_EMPTY',
+      });
+      await showDialog(
+        'Indirect Evidence is selected, but no Indirect Prerequisite Checker data has been provided.<br><br>Paste the Indirect Prerequisite Checker page, or select Prerequisites instead.'
+      );
+      return;
 
-    // Get the already parsed roster data from state
-    const rosterData = getState().rosterData;
-    console.log('Roster data from state: ', rosterData);
+    case SUBMISSION_ACTIONS.INDIRECT_REQUIRES_REVIEW:
+      recordDiagnostic('process-blocked', {
+        code: 'INDIRECT_PARSE_REQUIRED',
+      });
+      await showDialog(
+        'Indirect Prerequisite Checker data was pasted but did not process successfully.<br><br>Please review the pasted data before continuing.'
+      );
+      return;
 
-    // Parse the prerequisite data
-    let classData = null;
-    let indirectClassData = null;
-    if (includeDirectPrerequisites.checked) {
-        classData = await parseClassData();
-        console.log('Parsed class data: ', classData);
-    }
+    case SUBMISSION_ACTIONS.READY:
+    default:
+      break;
+  }
 
-    if (includeIndirectPrerequisites.checked) {
-        indirectClassData = await parseIndirectClassData();
-        console.log('Parsed indirect class data: ', indirectClassData);
-    }
+  generateHTMLTable();
+  setDiagnosticState({ outputGenerated: true });
+  recordDiagnostic('results-generated');
 
-    // Set the parsed data into state
-    setState({
-        rosterData,
-        classData,
-        indirectClassData
-    });
-
-    console.log('Updated state after parsing: ', getState());
-
-    // Generate the HTML table and display it in the output div
-    if (rosterData && (classData || indirectClassData)) {
-        const htmlTable = await generateHTMLTable(rosterData, classData, indirectClassData);
-        document.getElementById('output').innerHTML = htmlTable;
-
-        // Make the output section and download button visible
-        // document.getElementById('output').style.display = 'block';
-        document.getElementById('tableContainer').style.display = 'block';
-
-        // Scroll the page to the download button
-        document.getElementById('downloadBtn').scrollIntoView({ behavior: 'smooth' });
-    }
+  document.getElementById('tableContainer').style.display = 'block';
+  document
+    .getElementById('tableContainer')
+    .scrollIntoView({ behavior: 'smooth', block: 'start' });
 }

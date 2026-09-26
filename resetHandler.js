@@ -1,70 +1,148 @@
 // resetHandler.js
-import { resetState, setRosterData, setClassData, setIndirectClassData } from './state.js';
+import { resetState, setDirectPrerequisiteData, setIndirectPrerequisiteData } from './state.js';
 import { updateStatusIndicator } from './statusIndicator.js';
+import { recordDiagnostic, setDiagnosticState } from './diagnostics.js';
+import { destroyWideTableSupport } from './wideTableSupport.js';
 
-export function handleFormReset() {
-  resetTextarea('rosterData');
-  resetTextarea('prerequisiteData');
-  resetTextarea('indirectPrerequisiteData');
+export function clearGeneratedOutput() {
+  destroyWideTableSupport();
   document.getElementById('output').innerHTML = '';
-  
-  // Hide the download button and format dropdown
   document.getElementById('tableContainer').style.display = 'none';
-  
-  // Reset state
-  resetState();
+  setDiagnosticState({ outputGenerated: false });
+}
+
+function resetAllStatuses() {
+  updateStatusIndicator('rosterStatus', 'No data processed yet.', 'default');
+  updateStatusIndicator('prerequisiteStatus', 'No data processed yet.', 'default');
+  updateStatusIndicator('indirectPrerequisiteStatus', 'No data processed yet.', 'default');
+}
+
+function restoreRosterOverlay() {
+  const overlay = document.getElementById('disableUntilRosterAccepted');
+  if (overlay) {
+    overlay.style.display = 'block';
+  }
 }
 
 export function resetTextarea(textareaId) {
   document.getElementById(textareaId).value = '';
 }
 
-// Reset roster data button
-resetRoster.addEventListener('click', function() {
-  // Clear all the textboxes
-  document.getElementById('rosterData').value = '';
-  document.getElementById('prerequisiteData').value = '';
-  document.getElementById('indirectPrerequisiteData').value = '';
+export function invalidateForRosterPaste() {
+  recordDiagnostic('roster-paste-received');
+  setDiagnosticState({
+    rosterAccepted: false,
+    rosterVariant: null,
+    directAccepted: false,
+    directVariant: null,
+    indirectAccepted: false,
+    indirectVariant: null,
+    outputGenerated: false,
+  });
 
-  // Reset all the status messages
-  updateStatusIndicator('rosterStatus', 'No data processed yet.', 'default');
+  resetTextarea('prerequisiteData');
+  resetTextarea('indirectPrerequisiteData');
+
+  resetState();
+  resetAllStatuses();
+  updateStatusIndicator('rosterStatus', 'Processing pasted data...', 'default');
+
+  restoreRosterOverlay();
+  clearGeneratedOutput();
+}
+
+export function invalidateForDirectPrerequisitePaste() {
+  recordDiagnostic('direct-paste-received');
+  setDiagnosticState({
+    directAccepted: false,
+    directVariant: null,
+    outputGenerated: false,
+  });
+  setDirectPrerequisiteData(null);
+  updateStatusIndicator('prerequisiteStatus', 'Processing pasted data...', 'default');
+  clearGeneratedOutput();
+}
+
+export function invalidateForIndirectPrerequisitePaste() {
+  recordDiagnostic('indirect-paste-received');
+  setDiagnosticState({
+    indirectAccepted: false,
+    indirectVariant: null,
+    outputGenerated: false,
+  });
+  setIndirectPrerequisiteData(null);
+  updateStatusIndicator('indirectPrerequisiteStatus', 'Processing pasted data...', 'default');
+  clearGeneratedOutput();
+}
+
+export function handleRosterReset() {
+  recordDiagnostic('roster-reset');
+  setDiagnosticState({
+    rosterAccepted: false,
+    rosterVariant: null,
+    directAccepted: false,
+    directVariant: null,
+    indirectAccepted: false,
+    indirectVariant: null,
+    outputGenerated: false,
+  });
+
+  resetTextarea('rosterData');
+  resetTextarea('prerequisiteData');
+  resetTextarea('indirectPrerequisiteData');
+
+  resetAllStatuses();
+  resetState();
+  restoreRosterOverlay();
+  clearGeneratedOutput();
+}
+
+export function handlePrerequisiteReset() {
+  recordDiagnostic('direct-reset');
+  setDiagnosticState({
+    directAccepted: false,
+    directVariant: null,
+    outputGenerated: false,
+  });
+
+  resetTextarea('prerequisiteData');
   updateStatusIndicator('prerequisiteStatus', 'No data processed yet.', 'default');
+  setDirectPrerequisiteData(null);
+  clearGeneratedOutput();
+}
+
+export function handleIndirectPrerequisiteReset() {
+  recordDiagnostic('indirect-reset');
+  setDiagnosticState({
+    indirectAccepted: false,
+    indirectVariant: null,
+    outputGenerated: false,
+  });
+
+  resetTextarea('indirectPrerequisiteData');
   updateStatusIndicator('indirectPrerequisiteStatus', 'No data processed yet.', 'default');
+  setIndirectPrerequisiteData(null);
+  clearGeneratedOutput();
+}
 
-  resetState(); // Reset all the data in the state
+export function handleFormReset() {
+  recordDiagnostic('all-fields-reset');
+  setDiagnosticState({
+    rosterAccepted: false,
+    rosterVariant: null,
+    directAccepted: false,
+    directVariant: null,
+    indirectAccepted: false,
+    indirectVariant: null,
+    outputGenerated: false,
+  });
 
-  // Add the overlay back
-  document.getElementById('disableUntilRosterAccepted').style.display = 'block';
-});
+  resetTextarea('rosterData');
+  resetTextarea('prerequisiteData');
+  resetTextarea('indirectPrerequisiteData');
 
-// Reset prerequisite data button
-resetPrerequisite.addEventListener('click', function() {
-  document.getElementById('prerequisiteData').value = '';
-  updateStatusIndicator('prerequisiteStatus', 'No data processed yet.', 'default');
-  setClassData(null); // Reset the prerequisite data in the state
-});
-
-// Reset indirect prerequisite data button
-resetIndirectPrerequisite.addEventListener('click', function() {
-  document.getElementById('indirectPrerequisiteData').value = '';
-  updateStatusIndicator('indirectPrerequisiteStatus', 'No data processed yet.', 'default');
-  setIndirectClassData(null); // Reset the indirect prerequisite data in the state
-});
-
-// Reset all fields button
-resetAll.addEventListener('click', function() {
-  // Clear all the textboxes
-  document.getElementById('rosterData').value = '';
-  document.getElementById('prerequisiteData').value = '';
-  document.getElementById('indirectPrerequisiteData').value = '';
-
-  // Reset all the status messages
-  updateStatusIndicator('rosterStatus', 'No data processed yet.', 'default');
-  updateStatusIndicator('prerequisiteStatus', 'No data processed yet.', 'default');
-  updateStatusIndicator('indirectPrerequisiteStatus', 'No data processed yet.', 'default');
-
-  resetState(); // Reset all the data in the state
-
-  // Add the overlay back
-  document.getElementById('disableUntilRosterAccepted').style.display = 'block';
-});
+  resetAllStatuses();
+  resetState();
+  restoreRosterOverlay();
+  clearGeneratedOutput();
+}

@@ -1,70 +1,134 @@
-export function showDialog(message, withConfirmation = false) {
-  return new Promise((resolve) => {
-    // If there's already a dialog, remove it
-    const existingDialog = document.querySelector('.dialog');
-    if (existingDialog) existingDialog.remove();
+// dialogHandler.js
 
-    // Create dialog elements
+let closeActiveDialog = null;
+let dialogSequence = 0;
+
+export function showChoiceDialog(
+  message,
+  choices,
+  {
+    ariaLabel = 'Student Prerequisite Analyzer message',
+    escapeValue = null,
+  } = {}
+) {
+  if (closeActiveDialog) {
+    closeActiveDialog();
+  }
+
+  return new Promise((resolve) => {
+    const previouslyFocused =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+
     const dialog = document.createElement('div');
     const messageElement = document.createElement('p');
-    const closeButton = document.createElement('button');
-    let confirmButton;
+    const dialogId = `student-prerequisite-dialog-${++dialogSequence}`;
+    const messageId = `${dialogId}-message`;
 
-    // Set element content
-    messageElement.innerHTML = message; // changed from textContent to innerHTML
-    closeButton.textContent = 'Close';
-
-    if (withConfirmation) {
-      confirmButton = document.createElement('button');
-      confirmButton.textContent = 'Confirm';
-    }
-
-    // Set element classes for styling
     dialog.className = 'dialog';
-    messageElement.className = 'dialog-message';
-    closeButton.className = 'dialog-button';
-
-    if (confirmButton) {
-      confirmButton.className = 'dialog-button confirm';
-    }
-
-    // Set the role attribute for the dialog
+    dialog.id = dialogId;
     dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-modal', 'true');
+    dialog.setAttribute('aria-label', ariaLabel);
+    dialog.setAttribute('aria-describedby', messageId);
 
-    // Add close functionality to button
-    closeButton.addEventListener('click', () => closeDialog(false));
-    if (confirmButton) {
-      confirmButton.addEventListener('click', () => closeDialog(true));
-    }
+    messageElement.className = 'dialog-message';
+    messageElement.id = messageId;
 
-    // Close the dialog box when 'Esc' key is pressed
-    document.addEventListener('keydown', escKeyListener);
-
-    // Append elements
+    // Dialog markup is application controlled. Any LRCCD-derived values must
+    // be escaped by the caller before interpolation.
+    messageElement.innerHTML = message;
     dialog.appendChild(messageElement);
-    dialog.appendChild(closeButton);
-    if (confirmButton) {
-      dialog.appendChild(confirmButton);
-    }
 
-    // Append dialog to body
+    const buttons = choices.map((choice) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = choice.label;
+      button.className = choice.className || 'dialog-button';
+      dialog.appendChild(button);
+      return { button, value: choice.value };
+    });
+
     document.body.appendChild(dialog);
 
-    // Move focus to the dialog or the close button
-    closeButton.focus();
+    function closeDialog(value = escapeValue) {
+      if (!dialog.isConnected) {
+        return;
+      }
 
-    // Function to handle 'Esc' key event
-    function escKeyListener(e) {
-      if (e.key === 'Escape') {
-        closeDialog(false);
+      dialog.remove();
+      document.removeEventListener('keydown', handleKeydown);
+
+      if (closeActiveDialog === closeDialog) {
+        closeActiveDialog = null;
+      }
+
+      if (previouslyFocused && previouslyFocused.isConnected) {
+        previouslyFocused.focus();
+      }
+
+      resolve(value);
+    }
+
+    function handleKeydown(event) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeDialog(escapeValue);
+        return;
+      }
+
+      if (event.key !== 'Tab' || buttons.length === 0) {
+        return;
+      }
+
+      const first = buttons[0].button;
+      const last = buttons[buttons.length - 1].button;
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     }
 
-    // Function to close the dialog
-    function closeDialog(confirmed) {
-      dialog.remove();
-      document.removeEventListener('keydown', escKeyListener);
-      resolve(confirmed);
+    for (const { button, value } of buttons) {
+      button.addEventListener('click', () => closeDialog(value));
     }
+
+    closeActiveDialog = closeDialog;
+    document.addEventListener('keydown', handleKeydown);
+    buttons[0]?.button.focus();
+  });
+}
+
+export function showDialog(
+  message,
+  withConfirmation = false,
+  {
+    closeLabel = 'Close',
+    confirmLabel = 'Confirm',
+  } = {}
+) {
+  const choices = [
+    {
+      label: closeLabel,
+      value: false,
+      className: 'dialog-button',
+    },
+  ];
+
+  if (withConfirmation) {
+    choices.push({
+      label: confirmLabel,
+      value: true,
+      className: 'dialog-button confirm',
+    });
+  }
+
+  return showChoiceDialog(message, choices, {
+    escapeValue: false,
   });
 }

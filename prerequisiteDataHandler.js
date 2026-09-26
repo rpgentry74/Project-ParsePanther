@@ -1,23 +1,31 @@
 // prerequisiteDataHandler.js
-import { parseClassData } from './parseClassData.js'; 
+import { parseClassData } from './parseClassData.js';
+import { invalidateForDirectPrerequisitePaste } from './resetHandler.js';
+import { showDialog } from './dialogHandler.js';
+import { recordDiagnostic } from './diagnostics.js';
 
 export function handlePrerequisiteDataPaste() {
-  // Get the prerequisite data textbox
-  const prerequisiteDataTextbox = document.getElementById('prerequisiteData');
+  const textbox = document.getElementById('prerequisiteData');
 
-  // Attach the on paste event listener
-  prerequisiteDataTextbox.addEventListener('paste', async (event) => { // Add async here
-    // Wait until after the paste event has completed before validating the pasted data
-    setTimeout(async () => { // Add async here
-      // Get the pasted data from the textbox
-      const pastedText = prerequisiteDataTextbox.value;
+  textbox.addEventListener('paste', async (event) => {
+    event.preventDefault();
 
-      // Parse and validate the pasted prerequisite data
-      try {
-        await parseClassData(pastedText); // await the promise
-      } catch (error) {
-        console.error("Error occurred while parsing class data:", error.message);
-      }
-    }, 100);
+    const pastedText = event.clipboardData?.getData('text/plain') || '';
+
+    invalidateForDirectPrerequisitePaste();
+    textbox.value = pastedText;
+
+    try {
+      await parseClassData();
+    } catch (error) {
+      recordDiagnostic('unexpected-application-error', {
+        code: 'PREREQUISITE_PASTE_HANDLER',
+        source: 'prerequisiteDataHandler.js',
+      });
+      console.error('Unexpected error while processing prerequisite data:', error);
+      await showDialog(
+        'An unexpected application error occurred while processing the Prerequisite Checker data. No prerequisite result was accepted. If the problem continues, open Support Diagnostics and include the report when contacting support.'
+      );
+    }
   });
 }

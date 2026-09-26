@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ParsePanther v3 Parser Tests</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 60rem;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .test-result {
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: 1px solid currentColor;
+    }
+
+    [data-status="passed"] {
+      background: #e8f5e9;
+    }
+
+    [data-status="failed"] {
+      background: #ffebee;
+    }
+
+    iframe {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      border: 0;
+      clip: rect(0 0 0 0);
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>ParsePanther v3 Parser Tests</h1>
+    <p>This page runs sanitized parser, merge, result-model, workflow, Copy Message, and diagnostics regression suites.</p>
+
+    <div id="rosterResult" class="test-result">Roster tests: running...</div>
+    <div id="directResult" class="test-result">Direct prerequisite tests: running...</div>
+    <div id="indirectResult" class="test-result">Indirect prerequisite tests: running...</div>
+    <div id="mergeResult" class="test-result">Prerequisite merge tests: running...</div>
+    <div id="resultsModelResult" class="test-result">Results model tests: running...</div>
+    <div id="studentMessageResult" class="test-result">Student message tests: running...</div>
+    <div id="workflowRulesResult" class="test-result">Workflow rule tests: running...</div>
+    <div id="diagnosticsResult" class="test-result">Diagnostics privacy tests: running...</div>
+    <div id="wideTableResult" class="test-result">Wide-table support tests: running...</div>
+
+    <h2 id="overallResult">Overall: running...</h2>
+
+    <iframe id="rosterFrame" src="./rosterParserTests.html" title="Roster parser tests"></iframe>
+    <iframe id="directFrame" src="./directPrerequisiteParserTests.html" title="Direct prerequisite parser tests"></iframe>
+    <iframe id="indirectFrame" src="./indirectPrerequisiteParserTests.html" title="Indirect prerequisite parser tests"></iframe>
+    <iframe id="mergeFrame" src="./prerequisiteDataUtilsTests.html" title="Prerequisite merge tests"></iframe>
+    <iframe id="resultsModelFrame" src="./resultsModelTests.html" title="Results model tests"></iframe>
+    <iframe id="studentMessageFrame" src="./studentMessageTests.html" title="Student message tests"></iframe>
+    <iframe id="workflowRulesFrame" src="./workflowRulesTests.html" title="Workflow rule tests"></iframe>
+    <iframe id="diagnosticsFrame" src="./diagnosticsTests.html" title="Diagnostics privacy tests"></iframe>
+    <iframe id="wideTableFrame" src="./wideTableSupportTests.html" title="Wide-table support tests"></iframe>
+  </main>
+
+  <script>
+    const suites = [
+      { frame: 'rosterFrame', output: 'rosterResult', label: 'Roster tests' },
+      { frame: 'directFrame', output: 'directResult', label: 'Direct prerequisite tests' },
+      { frame: 'indirectFrame', output: 'indirectResult', label: 'Indirect prerequisite tests' },
+      { frame: 'mergeFrame', output: 'mergeResult', label: 'Prerequisite merge tests' },
+      { frame: 'resultsModelFrame', output: 'resultsModelResult', label: 'Results model tests' },
+      { frame: 'studentMessageFrame', output: 'studentMessageResult', label: 'Student message tests' },
+      { frame: 'workflowRulesFrame', output: 'workflowRulesResult', label: 'Workflow rule tests' },
+      { frame: 'diagnosticsFrame', output: 'diagnosticsResult', label: 'Diagnostics privacy tests' },
+      { frame: 'wideTableFrame', output: 'wideTableResult', label: 'Wide-table support tests' },
+    ];
+
+    function readSuite(suite) {
+      const frame = document.getElementById(suite.frame);
+      const result = frame.contentDocument?.getElementById('testResults');
+
+      if (!result?.dataset.status) {
+        return null;
+      }
+
+      const output = document.getElementById(suite.output);
+      output.textContent = `${suite.label}: ${result.textContent}`;
+      output.dataset.status = result.dataset.status;
+
+      return result.dataset.status;
+    }
+
+    function updateOverall() {
+      const statuses = suites.map(readSuite);
+
+      if (statuses.some((status) => status === 'failed')) {
+        document.getElementById('overallResult').textContent = 'Overall: FAILED';
+        return;
+      }
+
+      if (statuses.every((status) => status === 'passed')) {
+        document.getElementById('overallResult').textContent = 'Overall: PASSED';
+        return;
+      }
+
+      setTimeout(updateOverall, 50);
+    }
+
+    window.addEventListener('load', updateOverall);
+  </script>
+</body>
+</html>

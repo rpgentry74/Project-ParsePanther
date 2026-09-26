@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Support Diagnostics | LRCCD Student Prerequisite Analyzer</title>
+    <meta name="description" content="Privacy-safe browser and application diagnostics for the LRCCD Student Prerequisite Analyzer.">
+    <link rel="shortcut icon" href="img/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon/favicon-32x32.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#354458">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell support-shell">
+      <header class="app-header">
+        <div class="brand-block">
+          <div class="brand-mark-wrap" aria-hidden="true">
+            <img class="brand-mark" src="img/icons/icons-512.png" alt="">
+          </div>
+          <div class="brand-copy">
+            <p class="eyebrow">Troubleshooting</p>
+            <h1>Support Diagnostics</h1>
+            <p class="app-subtitle">LRCCD Student Prerequisite Analyzer</p>
+          </div>
+        </div>
+        <div class="header-meta">
+          <span id="buildBadge" class="build-badge">Version 3</span>
+        </div>
+      </header>
+
+      <main class="support-main">
+        <section class="support-card" aria-labelledby="supportHeading">
+          <p class="section-kicker">Support Report</p>
+          <h2 id="supportHeading">Browser and Application Diagnostics</h2>
+          <p>
+            Use this page when the Student Prerequisite Analyzer behaves differently
+            on another computer or browser. Copy the report and include it when
+            emailing support.
+          </p>
+
+          <div class="support-privacy-note">
+            <strong>Student data is not included.</strong>
+            The report does not contain pasted roster text, student names, student
+            IDs, course or professor information, prerequisite records, or result
+            table contents.
+          </div>
+
+          <div class="support-actions">
+            <button id="copySupportReport" type="button" class="buttonPrimary">Copy Support Report</button>
+            <button id="downloadSupportReport" type="button" class="buttonSecondary">Download Report</button>
+            <button id="refreshSupportReport" type="button" class="buttonSecondary">Refresh Report</button>
+            <button id="clearSupportDiagnostics" type="button" class="buttonSecondary">Clear Diagnostics</button>
+          </div>
+
+          <p id="supportActionStatus" class="support-action-status" role="status" aria-live="polite"></p>
+
+          <pre id="supportReport" class="support-report" tabindex="0">Building support report...</pre>
+
+          <div class="support-footer-actions">
+            <a class="buttonSecondary support-link-button" href="./index.html">Return to Student Prerequisite Analyzer</a>
+            <a class="support-email-link" href="mailto:gentryr@scc.losrios.edu">Email Richard Gentry for support</a>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="support.js"></script>
+  </body>
+</html>

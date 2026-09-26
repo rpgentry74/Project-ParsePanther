@@ -1,30 +1,51 @@
-window.addEventListener('DOMContentLoaded', (event) => {
-    const includeDirectPrerequisites = document.getElementById("includeDirectPrerequisites");
-    const includeIndirectPrerequisites = document.getElementById("includeIndirectPrerequisites");
-  
-    const prerequisiteData = document.getElementById("prerequisiteData");
-    const indirectPrerequisiteData = document.getElementById("indirectPrerequisiteData");
-  
-    const prerequisiteDataGroup = document.getElementById("prerequisiteDataGroup");
-    const indirectPrerequisiteDataGroup = document.getElementById("indirectPrerequisiteDataGroup");
-  
-    // Test for removal *** const resetPrerequisite = document.getElementById('resetPrerequisite');
-    // Test for removal *** const resetIndirectPrerequisite = document.getElementById('resetIndirectPrerequisite');
-  
-    // Check the initial state of includeDirectPrerequisites checkbox
-    prerequisiteDataGroup.style.display = includeDirectPrerequisites.checked ? 'block' : 'none';
-    
-    // Check the initial state of includeIndirectPrerequisites checkbox
-    indirectPrerequisiteDataGroup.style.display = includeIndirectPrerequisites.checked ? 'block' : 'none';
-  
-    includeDirectPrerequisites.addEventListener("change", function() {
-      prerequisiteDataGroup.style.display = this.checked ? 'block' : 'none';
-      if (!this.checked) prerequisiteData.value = ""; // Clear the textbox
+// checkboxes.js
+import {
+  handlePrerequisiteReset,
+  handleIndirectPrerequisiteReset,
+  clearGeneratedOutput,
+} from './resetHandler.js';
+import {
+  recordDiagnostic,
+  setDiagnosticState,
+} from './diagnostics.js';
+
+export function initializePrerequisiteOptions() {
+  const includeDirectPrerequisites = document.getElementById('includeDirectPrerequisites');
+  const includeIndirectPrerequisites = document.getElementById('includeIndirectPrerequisites');
+
+  const prerequisiteDataGroup = document.getElementById('prerequisiteDataGroup');
+  const indirectPrerequisiteDataGroup = document.getElementById('indirectPrerequisiteDataGroup');
+
+  prerequisiteDataGroup.style.display = includeDirectPrerequisites.checked ? 'block' : 'none';
+  indirectPrerequisiteDataGroup.style.display = includeIndirectPrerequisites.checked ? 'block' : 'none';
+
+  includeDirectPrerequisites.addEventListener('change', function () {
+    prerequisiteDataGroup.style.display = this.checked ? 'block' : 'none';
+
+    setDiagnosticState({ directSelected: this.checked });
+    recordDiagnostic('direct-selection-changed', {
+      status: this.checked ? 'selected' : 'cleared',
     });
-  
-    includeIndirectPrerequisites.addEventListener("change", function() {
-      indirectPrerequisiteDataGroup.style.display = this.checked ? 'block' : 'none';
-      if (!this.checked) indirectPrerequisiteData.value = ""; // Clear the textbox
-    });
+
+    if (!this.checked) {
+      handlePrerequisiteReset();
+    } else {
+      clearGeneratedOutput();
+    }
   });
-  
+
+  includeIndirectPrerequisites.addEventListener('change', function () {
+    indirectPrerequisiteDataGroup.style.display = this.checked ? 'block' : 'none';
+
+    setDiagnosticState({ indirectSelected: this.checked });
+    recordDiagnostic('indirect-selection-changed', {
+      status: this.checked ? 'selected' : 'cleared',
+    });
+
+    if (!this.checked) {
+      handleIndirectPrerequisiteReset();
+    } else {
+      clearGeneratedOutput();
+    }
+  });
+}
