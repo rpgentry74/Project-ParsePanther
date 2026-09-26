@@ -2,9 +2,9 @@
 
 ParsePanther is a client-side web application for Los Rios Community College District faculty and staff. It organizes copied Class Roster, Direct Prerequisite Checker, and Indirect Prerequisite Checker data into a single prerequisite-completion table and downloadable spreadsheet.
 
-## Development status
+## Release status
 
-The `v3-refactor` branch is the development build for version 3.0.0. Production remains on `main` until the v3 regression and end-to-end checks are complete.
+Version 3.0.0 is the current production release. The `main` branch is the production branch. Parser and feature changes should be developed and regression-tested on a separate branch before being merged into `main`.
 
 ## Privacy
 
@@ -114,13 +114,17 @@ SheetJS and FileSaver.js are included in the repository and run in the browser.
 
 ## Progressive Web App
 
-ParsePanther includes a service worker and web app manifest for offline support. The v3 development build uses a network-first cache strategy and development-specific cache names so stale production assets do not mask refactor changes.
+ParsePanther includes a service worker and web app manifest for offline support. Version 3 uses a network-first cache strategy and versioned cache names so stale assets do not mask application updates.
 
 Runtime version and cache metadata are defined in `appConfig.js`. The service worker receives the configured cache name through its registration URL, avoiding a second hard-coded build value inside `service-worker.js`.
 
+## Roadmap
+
+A future support enhancement under consideration is **Authorized Encrypted Diagnostics**: an optional, explicitly authorized support mode that could generate a locally encrypted diagnostic package for difficult-to-reproduce problems. Normal diagnostics would remain privacy-safe. Any more detailed or source-inclusive package would require explicit authorization and user confirmation and would be encrypted before leaving the user's computer.
+
 ## Release maintenance
 
-Use `RELEASE_CHECKLIST.md` for the Version 3 regression, browser, privacy, PWA, and production checks.
+Use `RELEASE_CHECKLIST.md` for regression, browser, privacy, PWA, and production checks before future releases.
 
 ## Contributing
 
