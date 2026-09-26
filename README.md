@@ -88,7 +88,7 @@ When LRCCD changes a page format, add a sanitized example as a regression case b
 
 ## Interface
 
-Version 3 refreshes the visual design while keeping the application a practical faculty/staff utility. The interface uses the existing LRCCD-inspired navy, blue, and gold palette, a wider card-based workflow, compact processing-status badges, collapsible information tabs, and a clearer results table.
+Version 3 refreshes the visual design while keeping the application a practical faculty/staff utility. The interface uses the existing LRCCD-inspired navy, blue, and gold palette, a wider card-based workflow, compact processing-status badges, a collapsible Instructions window shade, collapsible information tabs, and a clearer results table.
 
 The results view now includes a compact class summary and filters for complete students, students missing prerequisites, and students with Indirect Evidence. Each student has a detail view that shows prerequisite status, whether completion is listed in the Prerequisite Checker or supported by Indirect Prerequisite Checker evidence, and any additional indirect-only evidence. Students missing prerequisites also have an editable Copy Message tool that lists only the missing prerequisites.
 
