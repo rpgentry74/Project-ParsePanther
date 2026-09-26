@@ -36,17 +36,20 @@
       </header>
 
       <section class="tabBar" aria-label="Application information">
-        <button class="tab-link" data-tab="tab1" aria-controls="tab1" aria-pressed="false">Instructions</button>
         <button class="tab-link" data-tab="tab2" aria-controls="tab2" aria-pressed="false">Support</button>
         <button class="tab-link" data-tab="tab3" aria-controls="tab3" aria-pressed="false">Roadmap</button>
         <button class="tab-link" data-tab="tab4" aria-controls="tab4" aria-pressed="false">Version</button>
       </section>
       <main>
       <div class="tab-content">
-        <section id="tab1" class="tab-panel">
-          <!-- Content for Tab 1 -->
-          <article>
-            <h2>Instructions</h2>
+        <details class="instructions-shade">
+          <summary>
+            <span>
+              <strong>Instructions</strong>
+              <small>Show step-by-step directions</small>
+            </span>
+          </summary>
+          <div class="instructions-shade-content">
             <ol>
               <li>If you believe there is any data in the textboxes below, click <strong>Reset Roster</strong> or <strong>Reset All Fields</strong> in the Student Prerequisite Analyzer to clear existing data before proceeding.</li>
               <li>Log into the <a href="https://inside.losrios.edu/~intranet" target="_blank" rel="noopener noreferrer">Los Rios Intranet</a> (opens in a new tab).</li>
@@ -71,8 +74,8 @@
               <li>Select your preferred file format from the dropdown menu.</li>
               <li>Click <strong>Download</strong> to save your processed data.</li>
             </ol>
-          </article>
-        </section>
+          </div>
+        </details>
         <section id="tab2" class="tab-panel">
           <article>
             <h2>Support and Feedback</h2>
@@ -132,6 +135,7 @@
               <li>Consolidated startup notices onto the shared accessible dialog system and hardened unexpected application-error reporting for Support Diagnostics.</li>
               <li>Centralized runtime version, build, and cache metadata to reduce release-maintenance drift.</li>
               <li>Added wide-table support with horizontal scrolling, sticky Student ID and Student Name columns, and overflow-aware scroll controls for classes with many prerequisite columns.</li>
+              <li>Converted Instructions into a collapsible window-shade panel so the workflow stays visible while step-by-step help remains available on demand.</li>
               <li>Added the same official prerequisite status to XLSX, CSV, and ODS exports for consistency with the browser results.</li>
               <li>When Indirect Evidence is selected but left empty, users with valid prerequisite data can explicitly continue without it. Pasted Indirect data that fails parsing still requires review.</li>
               <li>Updated the startup system-status notice to reflect the current Version 3 development build and remaining release testing.</li>
