@@ -1435,3 +1435,81 @@ footer a:hover {
     flex: 1 1 0;
   }
 }
+
+
+/* Collapsible instructions */
+.instructions-shade {
+  margin-bottom: 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(31, 45, 61, 0.04);
+  overflow: hidden;
+}
+
+.instructions-shade > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3rem;
+  padding: 0.7rem 0.95rem;
+  color: var(--lrccd-navy);
+  background: var(--surface);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.instructions-shade > summary::-webkit-details-marker {
+  display: none;
+}
+
+.instructions-shade > summary:hover {
+  background: #f7f9fb;
+}
+
+.instructions-shade > summary:focus-visible {
+  outline: 3px solid var(--lrccd-gold);
+  outline-offset: -3px;
+}
+
+.instructions-shade > summary > span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.08rem;
+}
+
+.instructions-shade > summary strong {
+  font-size: 0.95rem;
+}
+
+.instructions-shade > summary small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.instructions-shade > summary::after {
+  content: "▾";
+  flex: 0 0 auto;
+  font-size: 1rem;
+  transition: transform 140ms ease;
+}
+
+.instructions-shade[open] > summary {
+  background: #fff9dc;
+  border-bottom: 1px solid var(--border);
+}
+
+.instructions-shade[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+.instructions-shade-content {
+  padding: 1rem 1.15rem 1.1rem;
+}
+
+.instructions-shade-content > :last-child {
+  margin-bottom: 0;
+}
