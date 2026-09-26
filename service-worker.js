@@ -40,6 +40,7 @@ const APP_SHELL = [
   './resultsModel.js',
   './studentMessage.js',
   './workflowRules.js',
+  './wideTableSupport.js',
   './resultsInteractions.js',
   './diagnostics.js',
   './registerServiceWorker.js',
